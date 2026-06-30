@@ -1,0 +1,61 @@
+{
+  "name": "scriptdom-wasm-bridge",
+  "version": "0.1.0",
+  "description": "Node.js bridge for Microsoft ScriptDOM compiled to .NET WebAssembly.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "scripts",
+    "test",
+    "vendor/AppBundle",
+    "!vendor/AppBundle/.stamp",
+    "!vendor/AppBundle/_framework/dotnet.native.js.symbols",
+    "c-sharp/Program.cs",
+    "c-sharp/ScriptDomWasmBridge.csproj",
+    "c-sharp/main.mjs",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "DOTNET_THIRD_PARTY_NOTICES.txt",
+    "tsconfig.types.json"
+  ],
+  "scripts": {
+    "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.types.json && node scripts/build-js.mjs",
+    "build:wasm": "dotnet publish c-sharp -c Release && node scripts/copy-appbundle.mjs",
+    "check": "npm run build && node --check dist/index.mjs && node --check dist/index.cjs && node --check test/scriptdom-wasm.test.mjs && node --check test/commonjs-smoke.cjs && node --check scripts/copy-appbundle.mjs && node --check scripts/postprocess-appbundle.mjs && node --check scripts/verify-appbundle.mjs && node --check scripts/build-js.mjs && node --check scripts/clean-dist.mjs",
+    "test": "npm run build && node test/scriptdom-wasm.test.mjs && node test/commonjs-smoke.cjs",
+    "prepack": "npm run build && node scripts/verify-appbundle.mjs"
+  },
+  "keywords": [
+    "scriptdom",
+    "tsql",
+    "sqlserver",
+    "wasm",
+    "parser"
+  ],
+  "author": "Charles Anderson",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "esbuild": "^0.28.1",
+    "typescript": "^6.0.3"
+  }
+}

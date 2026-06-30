@@ -1,0 +1,152 @@
+# scriptdom-wasm-bridge
+
+Node.js bridge for Microsoft SQL Server ScriptDOM compiled to .NET WebAssembly.
+
+This package is intentionally narrow: C# only calls ScriptDOM and returns token spans. JavaScript owns all token interpretation and sanitization policy.
+
+## Design Philosophy
+
+The bridge keeps the C#/.NET side as small and mechanical as possible. Its job is to invoke Microsoft's ScriptDOM tokenizer and return numeric token spans. It does not decide what is sensitive, how SQL should be rewritten, how capture records should be shaped, or how errors should be reported to application code.
+
+That split is deliberate. The WebAssembly wrapper is the least familiar runtime surface in a Node.js application, so the package minimizes how much responsibility lives there. Keeping policy in Node.js reduces the risk that a memory, marshaling, serialization, or runtime issue in the wrapper can leak token text, SQL fragments, parser messages, request data, bindings, or other application context.
+
+In practice:
+
+- C# owns parser invocation only.
+- C# returns numeric token metadata only.
+- Node.js owns token classification.
+- Node.js owns sanitization and redaction.
+- Node.js owns JSON/output records for the consuming application.
+- Node.js validates token ranges before slicing the original SQL.
+
+This means the wrapper can be audited as a small parser adapter rather than as a second implementation of capture policy.
+
+## Install
+
+```sh
+npm install scriptdom-wasm-bridge
+```
+
+The package requires Node.js 22 or newer.
+
+## Use
+
+ES modules and TypeScript:
+
+```js
+import { createScriptDomTokenizer } from 'scriptdom-wasm-bridge';
+
+const tokenizer = await createScriptDomTokenizer();
+
+const tokenized = tokenizer.tokenize("select * from users where name = 'secret'");
+const sanitized = tokenizer.sanitize("select * from users where name = 'secret'");
+const policy = tokenizer.getTokenPolicy();
+
+console.log(tokenized);
+console.log(sanitized);
+console.log(policy.literalTokenTypes);
+```
+
+CommonJS:
+
+```js
+const { createScriptDomTokenizer } = require('scriptdom-wasm-bridge');
+
+async function main() {
+  const tokenizer = await createScriptDomTokenizer();
+  console.log(tokenizer.sanitize("select * from users where name = 'secret'"));
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+```
+
+`sanitize(sql)` uses ScriptDOM token spans and the original SQL string in JavaScript. Literal token spans become `?`, comment token spans become whitespace, and all other spans are preserved.
+
+`sanitize(sql)` is strict: if ScriptDOM reports parse errors, it throws `ScriptDOM tokenization failed` instead of returning SQL. This is deliberate so callers do not accidentally log or persist raw SQL as a fallback. Use `tokenize(sql)` directly when you need location-only parse error metadata.
+
+`getTokenPolicy()` returns a frozen snapshot of numeric token type sets as arrays. Mutating that snapshot cannot change the internal policy used by `sanitize(sql)`.
+
+Multiple `createScriptDomTokenizer()` calls in the same process share one runtime initialization promise, including mixed ESM and CommonJS imports.
+
+## Boundary
+
+The C# WebAssembly wrapper never returns token text, SQL fragments, parser messages, sanitized SQL, or token policy classifications. It returns only numeric metadata and parse-error locations.
+
+```ts
+type ScriptDomTokenizeResult = {
+  failed: boolean;
+  tokens: Array<{
+    type: number;
+    offset: number;
+    length: number;
+    line: number;
+    column: number;
+  }>;
+  errors: Array<{
+    number: number;
+    offset: number;
+    line: number;
+    column: number;
+  }>;
+};
+```
+
+Rules:
+
+- `type` is the numeric `TSqlTokenType` value.
+- `length` is derived from neighboring token offsets, including the EOF token, and is clamped to the input SQL length.
+- EOF tokens are skipped.
+- Parse errors include location and number only.
+- Wrapper exceptions return `failed: true`, no tokens, and one synthetic location-only error.
+
+## Build From Source
+
+Install the .NET WebAssembly workload if needed:
+
+```sh
+dotnet workload install wasm-tools
+```
+
+Build and copy the vendored AppBundle:
+
+```sh
+npm run build:wasm
+```
+
+Build JavaScript and TypeScript declaration outputs:
+
+```sh
+npm run build
+```
+
+The npm package exposes:
+
+```text
+dist/index.mjs   ESM import target
+dist/index.cjs   CommonJS require target
+dist/index.d.ts  TypeScript declarations
+```
+
+Run checks:
+
+```sh
+npm run check
+npm test
+```
+
+The generated AppBundle is copied to:
+
+```text
+vendor/AppBundle
+```
+
+The AppBundle copy step removes optional .NET symbol metadata that is not needed at runtime. This keeps Node.js from trying to load development symbol files when the package starts.
+
+## Provenance
+
+This package builds against `Microsoft.SqlServer.TransactSql.ScriptDom` version `180.37.3`, which declares the MIT license in its NuGet metadata. The npm package also includes .NET WebAssembly runtime assets generated by `dotnet publish`.
+
+See `THIRD_PARTY_NOTICES.md` and `DOTNET_THIRD_PARTY_NOTICES.txt` for vendored runtime and ScriptDOM notices.
