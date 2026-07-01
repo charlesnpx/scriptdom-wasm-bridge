@@ -2,24 +2,24 @@
 
 Node.js bridge for Microsoft SQL Server ScriptDOM compiled to .NET WebAssembly.
 
-This package is intentionally narrow: C# only calls ScriptDOM and returns token spans. JavaScript owns all token interpretation and sanitization policy.
+This package is intentionally narrow: C# invokes Microsoft ScriptDOM and returns token/location metadata or a small structural projection. JavaScript owns validation, sanitization policy, and package ergonomics.
 
 ## Design Philosophy
 
-The bridge keeps the C#/.NET side as small and mechanical as possible. Its job is to invoke Microsoft's ScriptDOM tokenizer and return numeric token spans. It does not decide what is sensitive, how SQL should be rewritten, how capture records should be shaped, or how errors should be reported to application code.
+The bridge keeps the C#/.NET side as small and mechanical as possible. Its job is to invoke Microsoft's ScriptDOM tokenizer or parser and return metadata. It does not decide what is sensitive, how SQL should be rewritten, how capture records should be shaped, or how errors should be reported to application code.
 
-That split is deliberate. The WebAssembly wrapper is the least familiar runtime surface in a Node.js application, so the package minimizes how much responsibility lives there. Keeping policy in Node.js reduces the risk that a memory, marshaling, serialization, or runtime issue in the wrapper can leak token text, SQL fragments, parser messages, request data, bindings, or other application context.
+That split is deliberate. The WebAssembly wrapper is the least familiar runtime surface in a Node.js application, so the package minimizes how much responsibility lives there. Keeping policy in Node.js reduces the risk that a memory, marshaling, serialization, or runtime issue in the wrapper can leak token text, SQL fragments, parser messages, request data, bindings, literal values, comments, or other application context.
 
 In practice:
 
 - C# owns parser invocation only.
-- C# returns numeric token metadata only.
+- C# returns numeric token metadata, parse locations, and limited identifier metadata only.
+- Node.js validates exact result shapes and ranges.
 - Node.js owns token classification.
 - Node.js owns sanitization and redaction.
 - Node.js owns JSON/output records for the consuming application.
-- Node.js validates token ranges before slicing the original SQL.
 
-This means the wrapper can be audited as a small parser adapter rather than as a second implementation of capture policy.
+Identifier `nameParts` returned by the introspector are SQL-derived metadata. Treat them as potentially sensitive, even though raw SQL text, literals, comments, parser messages, and generated SQL are not returned.
 
 ## Install
 
@@ -29,32 +29,132 @@ npm install scriptdom-wasm-bridge
 
 The package requires Node.js 22 or newer.
 
-## Use
-
-ES modules and TypeScript:
+## Entry Points
 
 ```js
-import { createScriptDomTokenizer } from 'scriptdom-wasm-bridge';
-
-const tokenizer = await createScriptDomTokenizer();
-
-const tokenized = tokenizer.tokenize("select * from users where name = 'secret'");
-const sanitized = tokenizer.sanitize("select * from users where name = 'secret'");
-const policy = tokenizer.getTokenPolicy();
-
-console.log(tokenized);
-console.log(sanitized);
-console.log(policy.literalTokenTypes);
+import { createTsqlTokenizer } from 'scriptdom-wasm-bridge/tokenizer';
+import { createTsqlSanitizer } from 'scriptdom-wasm-bridge/sanitizer';
+import { createTsqlIntrospector } from 'scriptdom-wasm-bridge/introspector';
 ```
 
-CommonJS:
+The package root re-exports the same public APIs and types:
 
 ```js
-const { createScriptDomTokenizer } = require('scriptdom-wasm-bridge');
+import {
+  createTsqlIntrospector,
+  createTsqlSanitizer,
+  createTsqlTokenizer,
+} from 'scriptdom-wasm-bridge';
+```
+
+Importing the root or a subpath does not initialize WebAssembly. Runtime initialization is lazy and cached by the real `dotnet.js` path. The tokenizer and sanitizer use the tokenizer AppBundle; the introspector uses a separate introspector AppBundle.
+
+## Tokenizer
+
+```js
+import { createTsqlTokenizer } from 'scriptdom-wasm-bridge/tokenizer';
+
+const tokenizer = await createTsqlTokenizer();
+const tokenized = tokenizer.tokenize("select * from users where name = 'secret'");
+
+console.log(tokenized);
+```
+
+```ts
+type TsqlToken = {
+  type: number;
+  offset: number;
+  length: number;
+  line: number;
+  column: number;
+};
+
+type TsqlLocationError = {
+  number: number;
+  offset: number;
+  line: number;
+  column: number;
+};
+
+type TsqlTokenizeResult = {
+  failed: boolean;
+  tokens: TsqlToken[];
+  errors: TsqlLocationError[];
+};
+```
+
+The tokenizer C# wrapper never returns token text, token enum names, SQL fragments, parser messages, literal values, comments, or sanitized SQL. `type` is the numeric `TSqlTokenType` value. `length` is derived from neighboring token offsets, including the EOF token, and is clamped to the input SQL length.
+
+## Sanitizer
+
+```js
+import { createTsqlSanitizer } from 'scriptdom-wasm-bridge/sanitizer';
+
+const sanitizer = await createTsqlSanitizer();
+const result = sanitizer.sanitize("select * from users where name = 'secret'");
+
+console.log(result.sql);
+```
+
+The sanitizer uses tokenizer spans in JavaScript. Literal token spans become `?`, comment token spans become whitespace, and all other spans are preserved from the input SQL.
+
+If tokenization fails, `sanitize(sql)` fails closed and returns an empty SQL string plus location-only diagnostics. It does not throw a parser message and does not return raw SQL as a fallback.
+
+```ts
+type TsqlSanitizeDiagnostic = {
+  kind: 'tokenization-error';
+  number: number;
+  offset: number;
+  line: number;
+  column: number;
+};
+
+type TsqlSanitizeResult = {
+  sql: string;
+  tokenizationFailed: boolean;
+  diagnostics: TsqlSanitizeDiagnostic[];
+};
+```
+
+## Introspector
+
+```js
+import { createTsqlIntrospector } from 'scriptdom-wasm-bridge/introspector';
+
+const introspector = await createTsqlIntrospector();
+const result = introspector.inspect('select * from dbo.Users; exec dbo.RunJob');
+
+console.log(result.objectReferences);
+console.log(result.procedureCalls);
+```
+
+```ts
+type TsqlInspectResult = {
+  failed: boolean;
+  statements: Array<{ kind: string; offset: number; length: number }>;
+  objectReferences: Array<{
+    context: string;
+    nameParts: string[];
+    offset?: number;
+    length?: number;
+  }>;
+  functionCalls: Array<{ nameParts: string[]; offset?: number; length?: number }>;
+  procedureCalls: Array<{ nameParts: string[]; offset?: number; length?: number }>;
+  constructs: Array<{ kind: string; offset?: number; length?: number }>;
+  errors: TsqlLocationError[];
+};
+```
+
+On parse errors, the introspector returns `failed: true`, empty structural arrays, and location-only errors. Wrapper exceptions return the same shape with one synthetic location-only error.
+
+## CommonJS
+
+```js
+const { createTsqlSanitizer } = require('scriptdom-wasm-bridge/sanitizer');
 
 async function main() {
-  const tokenizer = await createScriptDomTokenizer();
-  console.log(tokenizer.sanitize("select * from users where name = 'secret'"));
+  const sanitizer = await createTsqlSanitizer();
+  console.log(sanitizer.sanitize("select * from users where name = 'secret'").sql);
 }
 
 main().catch((error) => {
@@ -62,45 +162,6 @@ main().catch((error) => {
   process.exitCode = 1;
 });
 ```
-
-`sanitize(sql)` uses ScriptDOM token spans and the original SQL string in JavaScript. Literal token spans become `?`, comment token spans become whitespace, and all other spans are preserved.
-
-`sanitize(sql)` is strict: if ScriptDOM reports parse errors, it throws `ScriptDOM tokenization failed` instead of returning SQL. This is deliberate so callers do not accidentally log or persist raw SQL as a fallback. Use `tokenize(sql)` directly when you need location-only parse error metadata.
-
-`getTokenPolicy()` returns a frozen snapshot of numeric token type sets as arrays. Mutating that snapshot cannot change the internal policy used by `sanitize(sql)`.
-
-Multiple `createScriptDomTokenizer()` calls in the same process share one runtime initialization promise, including mixed ESM and CommonJS imports.
-
-## Boundary
-
-The C# WebAssembly wrapper never returns token text, SQL fragments, parser messages, sanitized SQL, or token policy classifications. It returns only numeric metadata and parse-error locations.
-
-```ts
-type ScriptDomTokenizeResult = {
-  failed: boolean;
-  tokens: Array<{
-    type: number;
-    offset: number;
-    length: number;
-    line: number;
-    column: number;
-  }>;
-  errors: Array<{
-    number: number;
-    offset: number;
-    line: number;
-    column: number;
-  }>;
-};
-```
-
-Rules:
-
-- `type` is the numeric `TSqlTokenType` value.
-- `length` is derived from neighboring token offsets, including the EOF token, and is clamped to the input SQL length.
-- EOF tokens are skipped.
-- Parse errors include location and number only.
-- Wrapper exceptions return `failed: true`, no tokens, and one synthetic location-only error.
 
 ## Build From Source
 
@@ -110,7 +171,7 @@ Install the .NET WebAssembly workload if needed:
 dotnet workload install wasm-tools
 ```
 
-Build and copy the vendored AppBundle:
+Build and copy the vendored AppBundles:
 
 ```sh
 npm run build:wasm
@@ -122,12 +183,13 @@ Build JavaScript and TypeScript declaration outputs:
 npm run build
 ```
 
-The npm package exposes:
+The npm package exposes ESM, CommonJS, and TypeScript declarations for:
 
 ```text
-dist/index.mjs   ESM import target
-dist/index.cjs   CommonJS require target
-dist/index.d.ts  TypeScript declarations
+scriptdom-wasm-bridge
+scriptdom-wasm-bridge/tokenizer
+scriptdom-wasm-bridge/sanitizer
+scriptdom-wasm-bridge/introspector
 ```
 
 Run checks:
@@ -137,10 +199,11 @@ npm run check
 npm test
 ```
 
-The generated AppBundle is copied to:
+The generated AppBundles are copied to:
 
 ```text
-vendor/AppBundle
+vendor/scriptdom-tokenizer-wasm/AppBundle
+vendor/scriptdom-introspector-wasm/AppBundle
 ```
 
 The AppBundle copy step removes optional .NET symbol metadata that is not needed at runtime. This keeps Node.js from trying to load development symbol files when the package starts.

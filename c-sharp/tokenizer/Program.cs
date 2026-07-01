@@ -15,7 +15,7 @@ public static class Program
     }
 }
 
-public static partial class ScriptDomTokenizer
+public static partial class TsqlTokenizer
 {
     [JSExport]
     public static string TokenizeJson(string sql)
@@ -64,8 +64,8 @@ public static partial class ScriptDomTokenizer
                 writer.WriteNumber("type", (int)token.TokenType);
                 writer.WriteNumber("offset", offset);
                 writer.WriteNumber("length", GetTokenLength(tokens, index, offset, sqlLength));
-                writer.WriteNumber("line", token.Line);
-                writer.WriteNumber("column", token.Column);
+                writer.WriteNumber("line", Math.Max(0, token.Line));
+                writer.WriteNumber("column", Math.Max(0, token.Column));
                 writer.WriteEndObject();
             }
 
@@ -138,9 +138,9 @@ public static partial class ScriptDomTokenizer
     {
         writer.WriteStartObject();
         writer.WriteNumber("number", number);
-        writer.WriteNumber("offset", offset);
-        writer.WriteNumber("line", line);
-        writer.WriteNumber("column", column);
+        writer.WriteNumber("offset", Math.Max(0, offset));
+        writer.WriteNumber("line", Math.Max(0, line));
+        writer.WriteNumber("column", Math.Max(0, column));
         writer.WriteEndObject();
     }
 }

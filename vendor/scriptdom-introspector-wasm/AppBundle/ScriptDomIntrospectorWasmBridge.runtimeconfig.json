@@ -41,7 +41,7 @@
     "wasmHostProperties": {
       "runtimeArgs": [],
       "perHostConfig": [],
-      "mainAssembly": "ScriptDomWasmBridge.dll"
+      "mainAssembly": "ScriptDomIntrospectorWasmBridge.dll"
     }
   }
 }
