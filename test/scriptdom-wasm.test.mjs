@@ -480,6 +480,23 @@ function runNormalizeTsqlPlaceholdersTests(normalize, commonJsNormalize) {
     ['secret getter', 'select ?'],
     'accessor option',
   );
+
+  const throwingProxyOptions = new Proxy(
+    {},
+    {
+      ownKeys() {
+        throw new Error('proxy secret');
+      },
+    },
+  );
+
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', throwingProxyOptions),
+    TypeError,
+    'could not be validated',
+    ['proxy secret', 'select ?'],
+    'throwing proxy options',
+  );
   assertThrowsWithoutLeak(
     () => normalize('select ?? from secret_table'),
     TypeError,

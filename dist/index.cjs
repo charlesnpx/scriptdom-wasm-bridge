@@ -656,7 +656,7 @@ function normalizeOptions(options) {
   if (options === null || typeof options !== "object" || Array.isArray(options)) {
     throw new TypeError("normalizeTsqlPlaceholders options must be an object");
   }
-  for (const key of Reflect.ownKeys(options)) {
+  for (const key of readOwnKeys(options)) {
     if (typeof key !== "string" || !allowedOptionKeys.has(key)) {
       throw new TypeError("normalizeTsqlPlaceholders options contain an unsupported key");
     }
@@ -682,8 +682,20 @@ function normalizeOptions(options) {
     startAt: normalizedStartAt
   };
 }
+function readOwnKeys(options) {
+  try {
+    return Reflect.ownKeys(options);
+  } catch {
+    throw new TypeError("normalizeTsqlPlaceholders options could not be validated");
+  }
+}
 function readOwnDataProperty(options, key) {
-  const descriptor = Object.getOwnPropertyDescriptor(options, key);
+  let descriptor;
+  try {
+    descriptor = Object.getOwnPropertyDescriptor(options, key);
+  } catch {
+    throw new TypeError("normalizeTsqlPlaceholders options could not be validated");
+  }
   if (!descriptor) {
     return void 0;
   }
