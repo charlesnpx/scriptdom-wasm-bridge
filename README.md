@@ -97,7 +97,7 @@ function normalizeTsqlPlaceholders(
 ): NormalizeTsqlPlaceholdersResult;
 ```
 
-Defaults are `style: 'question-mark'`, `prefix: '@p'`, `startAt: 0`, and `avoidExisting: false`. Each single `?` outside protected T-SQL lexical regions becomes `${prefix}${index}`.
+Defaults are `style: 'question-mark'`, `prefix: '@p'`, `startAt: 0`, and `avoidExisting: false`. Each single `?` outside protected T-SQL lexical regions becomes `${prefix}${generatedIndex}`, where `generatedIndex` starts at `startAt` and skips reserved indexes when collision avoidance is enabled.
 
 The scanner copies these protected regions unchanged:
 
