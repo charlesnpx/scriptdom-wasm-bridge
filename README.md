@@ -2,6 +2,8 @@
 
 Node.js bridge for Microsoft SQL Server ScriptDOM compiled to .NET WebAssembly.
 
+This is an unofficial package. It is not affiliated with, endorsed by, or supported by Microsoft.
+
 This package is intentionally narrow: C# invokes Microsoft ScriptDOM and returns token/location metadata or a small structural projection. JavaScript owns validation, sanitization policy, and package ergonomics.
 
 ## Design Philosophy
