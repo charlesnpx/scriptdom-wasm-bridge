@@ -1,6 +1,6 @@
 {
   "name": "scriptdom-wasm-bridge",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Node.js bridge for Microsoft ScriptDOM compiled to .NET WebAssembly.",
   "type": "module",
   "main": "./dist/index.cjs",
