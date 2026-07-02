@@ -1,9 +1,31 @@
+import {
+  collectReservedMarkerIndexes,
+  createMarker,
+  nextAvailableMarkerIndex,
+  type MarkerTemplate,
+} from './marker-collisions.js';
 import { validateTsqlTokenizeResult, type TsqlTokenizeResult } from './token-result.js';
 
 export type TsqlTokenPolicy = {
   literalTokenTypes: Set<number>;
   commentTokenTypes: Set<number>;
 };
+
+export type TsqlSanitizerPolicyOptions = {
+  literalMarker: TsqlLiteralMarkerOptions;
+};
+
+export type TsqlLiteralMarkerOptions =
+  | {
+      kind: 'fixed';
+      value: string;
+    }
+  | {
+      kind: 'indexed';
+      marker: MarkerTemplate;
+      startAt: number;
+      avoidExisting: boolean;
+    };
 
 const literalProbeSql = [
   "'x'",
@@ -31,11 +53,13 @@ export function applyTsqlSanitizerPolicy(
   sql: string,
   tokenizeResult: TsqlTokenizeResult,
   tokenPolicy: TsqlTokenPolicy,
+  options: TsqlSanitizerPolicyOptions,
 ) {
   validateTsqlTokenizeResult(sql, tokenizeResult);
 
   let sanitized = '';
   let cursor = 0;
+  const literalMarkerState = createLiteralMarkerState(sql, options.literalMarker);
 
   for (const token of tokenizeResult.tokens) {
     if (token.offset < cursor) {
@@ -45,7 +69,7 @@ export function applyTsqlSanitizerPolicy(
     sanitized += sql.slice(cursor, token.offset);
 
     if (tokenPolicy.literalTokenTypes.has(token.type)) {
-      sanitized += '?';
+      sanitized += nextLiteralMarker(literalMarkerState);
     } else if (tokenPolicy.commentTokenTypes.has(token.type)) {
       sanitized += ' '.repeat(token.length);
     } else {
@@ -57,6 +81,38 @@ export function applyTsqlSanitizerPolicy(
 
   sanitized += sql.slice(cursor);
   return sanitized;
+}
+
+function createLiteralMarkerState(sql: string, options: TsqlLiteralMarkerOptions) {
+  if (options.kind === 'fixed') {
+    return options;
+  }
+
+  return {
+    ...options,
+    nextIndex: options.startAt,
+    reservedIndexes: options.avoidExisting
+      ? collectReservedMarkerIndexes(sql, options.marker.markerPrefix, options.marker.markerSuffix)
+      : new Set<number>(),
+  };
+}
+
+function nextLiteralMarker(
+  state: ReturnType<typeof createLiteralMarkerState>,
+) {
+  if (state.kind === 'fixed') {
+    return state.value;
+  }
+
+  state.nextIndex = nextAvailableMarkerIndex(
+    state.nextIndex,
+    state.reservedIndexes,
+    'createTsqlSanitizer',
+  );
+  const marker = createMarker(state.marker, state.nextIndex, 'createTsqlSanitizer');
+  state.reservedIndexes.add(state.nextIndex);
+  state.nextIndex += 1;
+  return marker;
 }
 
 function firstTokenType(tokenize: (sql: string) => TsqlTokenizeResult, sql: string) {

@@ -1,7 +1,15 @@
+import {
+  assertCollisionPrefix,
+  collectReservedMarkerIndexes,
+  createMarker,
+  nextAvailableMarkerIndex,
+} from './marker-collisions.js';
+
 export type NormalizeTsqlPlaceholdersOptions = {
   style?: 'question-mark';
   prefix?: string;
   startAt?: number;
+  avoidExisting?: boolean;
 };
 
 export type NormalizeTsqlPlaceholdersResult = {
@@ -12,6 +20,7 @@ export type NormalizeTsqlPlaceholdersResult = {
 type NormalizedOptions = {
   prefix: string;
   startAt: number;
+  avoidExisting: boolean;
 };
 
 const singleQuote = 39;
@@ -28,8 +37,7 @@ const lineFeed = 10;
 const defaultStyle = 'question-mark';
 const defaultPrefix = '@p';
 const defaultStartAt = 0;
-const maxTsqlVariableNameLength = 128;
-const allowedOptionKeys = new Set(['style', 'prefix', 'startAt']);
+const allowedOptionKeys = new Set(['style', 'prefix', 'startAt', 'avoidExisting']);
 
 export function normalizeTsqlPlaceholders(
   sql: string,
@@ -39,9 +47,11 @@ export function normalizeTsqlPlaceholders(
     throw new TypeError('SQL input must be a string');
   }
 
-  const { prefix, startAt } = normalizeOptions(options);
+  const { prefix, startAt, avoidExisting } = normalizeOptions(options);
+  const reservedIndexes = avoidExisting ? collectReservedMarkerIndexes(sql, prefix) : new Set<number>();
   const outputParts: string[] = [];
   let placeholderCount = 0;
+  let nextIndex = startAt;
   let position = 0;
   let copiedUntil = 0;
 
@@ -82,7 +92,14 @@ export function normalizeTsqlPlaceholders(
       }
 
       outputParts.push(sql.slice(copiedUntil, position));
-      outputParts.push(createPlaceholder(prefix, startAt, placeholderCount));
+      nextIndex = nextAvailableMarkerIndex(
+        nextIndex,
+        reservedIndexes,
+        'normalizeTsqlPlaceholders',
+      );
+      outputParts.push(createPlaceholder(prefix, nextIndex));
+      reservedIndexes.add(nextIndex);
+      nextIndex += 1;
       placeholderCount += 1;
       position += 1;
       copiedUntil = position;
@@ -109,6 +126,7 @@ function normalizeOptions(options: NormalizeTsqlPlaceholdersOptions | undefined)
     return {
       prefix: defaultPrefix,
       startAt: defaultStartAt,
+      avoidExisting: false,
     };
   }
 
@@ -125,6 +143,7 @@ function normalizeOptions(options: NormalizeTsqlPlaceholdersOptions | undefined)
   const style = readOwnDataProperty(options, 'style');
   const prefix = readOwnDataProperty(options, 'prefix');
   const startAt = readOwnDataProperty(options, 'startAt');
+  const avoidExisting = readOwnDataProperty(options, 'avoidExisting');
 
   if (style !== undefined && style !== defaultStyle) {
     throw new TypeError('normalizeTsqlPlaceholders style must be "question-mark"');
@@ -138,15 +157,26 @@ function normalizeOptions(options: NormalizeTsqlPlaceholdersOptions | undefined)
     throw new TypeError('normalizeTsqlPlaceholders startAt must be a number');
   }
 
+  if (avoidExisting !== undefined && typeof avoidExisting !== 'boolean') {
+    throw new TypeError('normalizeTsqlPlaceholders avoidExisting must be a boolean');
+  }
+
   const normalizedStartAt = startAt ?? defaultStartAt;
+  const normalizedPrefix = prefix ?? defaultPrefix;
+  const normalizedAvoidExisting = avoidExisting ?? false;
 
   if (!Number.isSafeInteger(normalizedStartAt) || normalizedStartAt < 0) {
     throw new RangeError('normalizeTsqlPlaceholders startAt must be a non-negative safe integer');
   }
 
+  if (normalizedAvoidExisting) {
+    assertCollisionPrefix(normalizedPrefix, 'normalizeTsqlPlaceholders');
+  }
+
   return {
-    prefix: prefix ?? defaultPrefix,
+    prefix: normalizedPrefix,
     startAt: normalizedStartAt,
+    avoidExisting: normalizedAvoidExisting,
   };
 }
 
@@ -178,20 +208,15 @@ function readOwnDataProperty(options: object, key: keyof NormalizeTsqlPlaceholde
   return descriptor.value;
 }
 
-function createPlaceholder(prefix: string, startAt: number, placeholderCount: number): string {
-  const index = startAt + placeholderCount;
-
-  if (!Number.isSafeInteger(index)) {
-    throw new RangeError('normalizeTsqlPlaceholders generated placeholder index is out of range');
-  }
-
-  const placeholder = `${prefix}${index}`;
-
-  if (placeholder.length > maxTsqlVariableNameLength) {
-    throw new RangeError('normalizeTsqlPlaceholders generated variable name is too long');
-  }
-
-  return placeholder;
+function createPlaceholder(prefix: string, index: number): string {
+  return createMarker(
+    {
+      markerPrefix: prefix,
+      markerSuffix: '',
+    },
+    index,
+    'normalizeTsqlPlaceholders',
+  );
 }
 
 function scanSingleQuotedRegion(sql: string, start: number): number {

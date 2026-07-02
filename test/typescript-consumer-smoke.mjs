@@ -49,7 +49,11 @@ import { createTsqlIntrospector as createIntrospectorFromSubpath } from 'scriptd
 
 async function smoke() {
   const tokenizer = await createTsqlTokenizer();
-  const sanitizer = await createTsqlSanitizer();
+  const sanitizer = await createTsqlSanitizer({
+    literalPlaceholder: '@lit{index}',
+    literalPlaceholderStartAt: 1,
+    avoidExistingLiteralPlaceholders: true,
+  });
   const introspector = await createTsqlIntrospector();
   const tokenizerFromSubpath = await createTokenizerFromSubpath();
   const sanitizerFromSubpath = await createSanitizerFromSubpath();
@@ -62,6 +66,7 @@ async function smoke() {
     prefix: '@smoke',
     startAt: 2,
     style: 'question-mark',
+    avoidExisting: true,
   };
   const normalized: NormalizeTsqlPlaceholdersResult = normalizeTsqlPlaceholders(
     'select ?',

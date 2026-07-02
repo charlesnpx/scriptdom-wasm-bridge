@@ -88,6 +88,10 @@ assertDoesNotContain(
 
 const sanitizer = await sanitizerModule.createTsqlSanitizer();
 const sanitizerFromRoot = await rootModule.createTsqlSanitizer();
+const indexedLiteralSanitizer = await sanitizerModule.createTsqlSanitizer({
+  literalPlaceholder: '@lit{index}',
+  avoidExistingLiteralPlaceholders: true,
+});
 
 assertRuntimeCacheSize(1, 'sanitizer loaded a second WASM bundle');
 
@@ -144,6 +148,60 @@ for (const sample of sanitizeSamples) {
 
 const rootSanitizeResult = sanitizerFromRoot.sanitize("select 'rootSanitizerSecret'");
 assertDoesNotContain(rootSanitizeResult.sql, ['rootSanitizerSecret'], 'root sanitizer');
+
+const indexedLiteralSanitizeResult = indexedLiteralSanitizer.sanitize(
+  "select 'firstSecret' as a, 42 as b, @lit0 as existing, 'secondSecret' as c",
+);
+
+if (indexedLiteralSanitizeResult.tokenizationFailed) {
+  throw new Error('indexed literal sanitizer failed tokenization');
+}
+
+if (
+  indexedLiteralSanitizeResult.sql !==
+  'select @lit1 as a, @lit2 as b, @lit0 as existing, @lit3 as c'
+) {
+  throw new Error(`Unexpected indexed literal sanitizer SQL: ${indexedLiteralSanitizeResult.sql}`);
+}
+
+assertDoesNotContain(
+  indexedLiteralSanitizeResult.sql,
+  ['firstSecret', 'secondSecret', '42'],
+  'indexed literal sanitizer',
+);
+
+const fixedLiteralSanitizer = await sanitizerModule.createTsqlSanitizer({
+  literalPlaceholder: '<literal>',
+});
+const fixedLiteralSanitizeResult = fixedLiteralSanitizer.sanitize("select 'fixedSecret', 7");
+
+if (fixedLiteralSanitizeResult.sql !== 'select <literal>, <literal>') {
+  throw new Error(`Unexpected fixed literal sanitizer SQL: ${fixedLiteralSanitizeResult.sql}`);
+}
+
+await assertRejectsWithoutLeak(
+  () =>
+    sanitizerModule.createTsqlSanitizer({
+      literalPlaceholder: '@lit{index}_suffix',
+      avoidExistingLiteralPlaceholders: true,
+    }),
+  TypeError,
+  'prefix-only',
+  ['@lit{index}_suffix'],
+  'literal suffix collision option',
+);
+
+await assertRejectsWithoutLeak(
+  () =>
+    sanitizerModule.createTsqlSanitizer({
+      literalPlaceholder: '@lit0{index}',
+      avoidExistingLiteralPlaceholders: true,
+    }),
+  TypeError,
+  'must not end with a digit',
+  ['@lit0{index}'],
+  'literal digit-ending prefix option',
+);
 
 for (const sql of [
   "select 'sanitize_error_secret",
@@ -451,6 +509,26 @@ function runNormalizeTsqlPlaceholdersTests(normalize, commonJsNormalize) {
     1,
     'collision policy',
   );
+  assertNormalized(
+    normalize('select @p0 as existing, ? as generated', { avoidExisting: true }),
+    'select @p0 as existing, @p1 as generated',
+    1,
+    'collision avoidance',
+  );
+  assertNormalized(
+    normalize("select '@p0' as literal, [@p1] as bracketed, -- @p2\n ? as generated", {
+      avoidExisting: true,
+    }),
+    "select '@p0' as literal, [@p1] as bracketed, -- @p2\n @p0 as generated",
+    1,
+    'protected collision markers ignored',
+  );
+  assertNormalized(
+    normalize('select @p0suffix, foo@p1, @p2x, ? as generated', { avoidExisting: true }),
+    'select @p0suffix, foo@p1, @p2x, @p0 as generated',
+    1,
+    'embedded collision markers ignored',
+  );
 
   const inheritedOptions = Object.create({
     prefix: '@inherited',
@@ -569,6 +647,27 @@ function runNormalizeTsqlPlaceholdersTests(normalize, commonJsNormalize) {
     ['select ?'],
     'non-numeric startAt',
   );
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', { avoidExisting: 'true' }),
+    TypeError,
+    'avoidExisting',
+    ['select ?'],
+    'non-boolean avoidExisting',
+  );
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', { prefix: '', avoidExisting: true }),
+    TypeError,
+    'non-empty',
+    ['select ?'],
+    'empty collision prefix',
+  );
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', { prefix: '@p0', avoidExisting: true }),
+    TypeError,
+    'must not end with a digit',
+    ['select ?'],
+    'digit-ending collision prefix',
+  );
 
   for (const invalidStartAt of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1, Number.NaN]) {
     assertThrowsWithoutLeak(
@@ -583,7 +682,7 @@ function runNormalizeTsqlPlaceholdersTests(normalize, commonJsNormalize) {
   assertThrowsWithoutLeak(
     () => normalize('select ?, ?', { startAt: Number.MAX_SAFE_INTEGER }),
     RangeError,
-    'placeholder index',
+    'marker index',
     ['select ?, ?'],
     'generated index overflow',
   );
@@ -625,6 +724,29 @@ function assertThrowsWithoutLeak(
 
     if (!String(error.message).includes(expectedMessage)) {
       throw new Error(`${context} threw unexpected message: ${error.message}`);
+    }
+
+    assertDoesNotContain(String(error.message), forbiddenValues, `${context} error message`);
+  }
+}
+
+async function assertRejectsWithoutLeak(
+  callback,
+  expectedErrorConstructor,
+  expectedMessage,
+  forbiddenValues,
+  context,
+) {
+  try {
+    await callback();
+    throw new Error(`${context} did not reject`);
+  } catch (error) {
+    if (!(error instanceof expectedErrorConstructor)) {
+      throw error;
+    }
+
+    if (!String(error.message).includes(expectedMessage)) {
+      throw new Error(`${context} rejected with unexpected message: ${error.message}`);
     }
 
     assertDoesNotContain(String(error.message), forbiddenValues, `${context} error message`);

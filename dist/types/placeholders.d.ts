@@ -2,6 +2,7 @@ export type NormalizeTsqlPlaceholdersOptions = {
     style?: 'question-mark';
     prefix?: string;
     startAt?: number;
+    avoidExisting?: boolean;
 };
 export type NormalizeTsqlPlaceholdersResult = {
     sql: string;

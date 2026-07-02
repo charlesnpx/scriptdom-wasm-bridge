@@ -83,6 +83,7 @@ type NormalizeTsqlPlaceholdersOptions = {
   style?: 'question-mark';
   prefix?: string;
   startAt?: number;
+  avoidExisting?: boolean;
 };
 
 type NormalizeTsqlPlaceholdersResult = {
@@ -96,7 +97,7 @@ function normalizeTsqlPlaceholders(
 ): NormalizeTsqlPlaceholdersResult;
 ```
 
-Defaults are `style: 'question-mark'`, `prefix: '@p'`, and `startAt: 0`. Each single `?` outside protected T-SQL lexical regions becomes `${prefix}${startAt + index}`.
+Defaults are `style: 'question-mark'`, `prefix: '@p'`, `startAt: 0`, and `avoidExisting: false`. Each single `?` outside protected T-SQL lexical regions becomes `${prefix}${index}`.
 
 The scanner copies these protected regions unchanged:
 
@@ -108,9 +109,21 @@ The scanner copies these protected regions unchanged:
 
 Malformed or unclosed protected regions are preserved through the end of the SQL string without throwing. Adjacent question-mark runs such as `??` and `???` are unsupported outside protected regions and throw `TypeError`.
 
-Options are validated strictly using own data properties only. Inherited properties are ignored. Unknown own string or symbol keys are rejected. `style` must be `'question-mark'`, `prefix` must be a string, and `startAt` must be a non-negative safe integer. Generated placeholder indexes must remain safe integers, and generated T-SQL variable names must be 128 characters or shorter.
+Options are validated strictly using own data properties only. Inherited properties are ignored. Unknown own string or symbol keys are rejected. `style` must be `'question-mark'`, `prefix` must be a string, `startAt` must be a non-negative safe integer, and `avoidExisting` must be a boolean. Generated placeholder indexes must remain safe integers, and generated T-SQL variable names must be 128 characters or shorter.
 
-The helper does not detect collisions with variables that already exist in the SQL text. Choose a prefix and range that are safe for the SQL you pass in.
+By default, the helper does not detect collisions with variables that already exist in the SQL text. Choose a prefix and range that are safe for the SQL you pass in.
+
+Set `avoidExisting: true` to reserve existing unprotected placeholders that use the same prefix and numeric suffix:
+
+```js
+normalizeTsqlPlaceholders('select @p0 as existing, ? as generated', {
+  prefix: '@p',
+  avoidExisting: true,
+}).sql;
+// select @p0 as existing, @p1 as generated
+```
+
+Collision detection uses whole-marker matching outside protected lexical regions. It reserves `@p0`, but not embedded text such as `foo@p0`, `@p0suffix`, or `@p01x`. Collision-aware prefixes must be non-empty and must not end with an ASCII digit.
 
 ## Tokenizer
 
@@ -159,7 +172,21 @@ const result = sanitizer.sanitize("select * from users where name = 'secret'");
 console.log(result.sql);
 ```
 
-The sanitizer uses tokenizer spans in JavaScript. Literal token spans become `?`, comment token spans become whitespace, and all other spans are preserved from the input SQL.
+The sanitizer uses tokenizer spans in JavaScript. Literal token spans become `?` by default, comment token spans become whitespace, and all other spans are preserved from the input SQL.
+
+You can configure the literal marker:
+
+```js
+const sanitizer = await createTsqlSanitizer({
+  literalPlaceholder: '@lit{index}',
+  avoidExistingLiteralPlaceholders: true,
+});
+
+sanitizer.sanitize("select @lit0 as existing, 'secret' as value").sql;
+// select @lit0 as existing, @lit1 as value
+```
+
+`literalPlaceholder` defaults to `'?'`. A value with one `{index}` token generates indexed markers. A value without `{index}` is reused as a fixed marker. `literalPlaceholderStartAt` defaults to `0`. `avoidExistingLiteralPlaceholders` defaults to `false`; when enabled, `literalPlaceholder` must be a prefix-only template such as `@lit{index}` so existing whole markers can reserve indexes.
 
 If tokenization fails, `sanitize(sql)` fails closed and returns an empty SQL string plus location-only diagnostics. It does not throw a parser message and does not return raw SQL as a fallback.
 
@@ -176,6 +203,13 @@ type TsqlSanitizeResult = {
   sql: string;
   tokenizationFailed: boolean;
   diagnostics: TsqlSanitizeDiagnostic[];
+};
+
+type CreateTsqlSanitizerOptions = {
+  appBundlePath?: string;
+  literalPlaceholder?: string;
+  literalPlaceholderStartAt?: number;
+  avoidExistingLiteralPlaceholders?: boolean;
 };
 ```
 
