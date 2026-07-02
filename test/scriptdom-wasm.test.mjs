@@ -179,6 +179,18 @@ if (fixedLiteralSanitizeResult.sql !== 'select <literal>, <literal>') {
   throw new Error(`Unexpected fixed literal sanitizer SQL: ${fixedLiteralSanitizeResult.sql}`);
 }
 
+const maxLengthIndexedLiteralPrefix = `@${'l'.repeat(126)}`;
+const maxLengthIndexedLiteralSanitizer = await sanitizerModule.createTsqlSanitizer({
+  literalPlaceholder: `${maxLengthIndexedLiteralPrefix}{index}`,
+});
+const maxLengthIndexedLiteralResult = maxLengthIndexedLiteralSanitizer.sanitize("select 'secret'");
+
+if (maxLengthIndexedLiteralResult.sql !== `select ${maxLengthIndexedLiteralPrefix}0`) {
+  throw new Error(
+    `Unexpected max-length indexed literal sanitizer SQL: ${maxLengthIndexedLiteralResult.sql}`,
+  );
+}
+
 await assertRejectsWithoutLeak(
   () =>
     sanitizerModule.createTsqlSanitizer({

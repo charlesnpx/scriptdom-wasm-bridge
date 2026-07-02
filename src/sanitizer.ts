@@ -146,13 +146,13 @@ function createLiteralMarkerOptions(
     throw new TypeError('createTsqlSanitizer literalPlaceholder must be non-empty');
   }
 
-  if (literalPlaceholder.length > maxLiteralPlaceholderLength) {
-    throw new RangeError('createTsqlSanitizer literalPlaceholder is too long');
-  }
-
   const firstIndexToken = literalPlaceholder.indexOf(indexToken);
 
   if (firstIndexToken === -1) {
+    if (literalPlaceholder.length > maxLiteralPlaceholderLength) {
+      throw new RangeError('createTsqlSanitizer literalPlaceholder is too long');
+    }
+
     if (avoidExisting) {
       throw new TypeError(
         'createTsqlSanitizer avoidExistingLiteralPlaceholders requires an indexed literalPlaceholder',
