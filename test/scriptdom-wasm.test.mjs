@@ -14,11 +14,16 @@ assertExports(rootModule, [
   'createTsqlTokenizer',
   'createTsqlSanitizer',
   'createTsqlIntrospector',
+  'normalizeTsqlPlaceholders',
 ]);
 assertExports(tokenizerModule, ['createTsqlTokenizer']);
 assertExports(sanitizerModule, ['createTsqlSanitizer']);
 assertExports(introspectorModule, ['createTsqlIntrospector']);
 assertNoLegacyExports(rootModule);
+assertNoRootOnlyExports(tokenizerModule, 'tokenizer');
+assertNoRootOnlyExports(sanitizerModule, 'sanitizer');
+assertNoRootOnlyExports(introspectorModule, 'introspector');
+await assertPackageSubpathNotExported('scriptdom-wasm-bridge/placeholders');
 
 assertRuntimeCacheSize(0, 'root and subpath imports initialized WASM');
 
@@ -28,11 +33,25 @@ const cjsTokenizer = require('scriptdom-wasm-bridge/tokenizer');
 const cjsSanitizer = require('scriptdom-wasm-bridge/sanitizer');
 const cjsIntrospector = require('scriptdom-wasm-bridge/introspector');
 
-assertExports(cjsRoot, ['createTsqlTokenizer', 'createTsqlSanitizer', 'createTsqlIntrospector']);
+assertExports(cjsRoot, [
+  'createTsqlTokenizer',
+  'createTsqlSanitizer',
+  'createTsqlIntrospector',
+  'normalizeTsqlPlaceholders',
+]);
 assertExports(cjsTokenizer, ['createTsqlTokenizer']);
 assertExports(cjsSanitizer, ['createTsqlSanitizer']);
 assertExports(cjsIntrospector, ['createTsqlIntrospector']);
 assertNoLegacyExports(cjsRoot);
+assertNoRootOnlyExports(cjsTokenizer, 'CommonJS tokenizer');
+assertNoRootOnlyExports(cjsSanitizer, 'CommonJS sanitizer');
+assertNoRootOnlyExports(cjsIntrospector, 'CommonJS introspector');
+assertRequireSubpathNotExported(require, 'scriptdom-wasm-bridge/placeholders');
+
+runNormalizeTsqlPlaceholdersTests(
+  rootModule.normalizeTsqlPlaceholders,
+  cjsRoot.normalizeTsqlPlaceholders,
+);
 assertRuntimeCacheSize(0, 'CommonJS imports initialized WASM');
 
 const [tokenizer, concurrentTokenizer, mixedCommonJsTokenizer] = await Promise.all([
@@ -148,6 +167,25 @@ for (const sql of [
   );
 }
 
+const normalizedPlaceholderSql = rootModule.normalizeTsqlPlaceholders('select ?').sql;
+
+if (normalizedPlaceholderSql !== 'select @p0') {
+  throw new Error(`Unexpected normalized placeholder SQL: ${normalizedPlaceholderSql}`);
+}
+
+const normalizedSanitizeResult = sanitizer.sanitize(normalizedPlaceholderSql);
+
+if (normalizedSanitizeResult.tokenizationFailed) {
+  throw new Error('sanitizer rejected normalized placeholder SQL');
+}
+
+if (
+  !normalizedSanitizeResult.sql.includes('@p0') ||
+  normalizedSanitizeResult.sql.includes('?')
+) {
+  throw new Error(`sanitizer did not preserve normalized placeholder SQL`);
+}
+
 const parseErrorSql = "select 'parse_error_secret";
 const parseErrorResult = tokenizer.tokenize(parseErrorSql);
 const parseErrorJson = JSON.stringify(parseErrorResult);
@@ -167,6 +205,18 @@ assertDoesNotContain(
 const introspector = await introspectorModule.createTsqlIntrospector();
 
 assertRuntimeCacheSize(2, 'introspector did not load exactly one additional WASM bundle');
+
+const rawPlaceholderInspectResult = introspector.inspect('select ?');
+
+if (!rawPlaceholderInspectResult.failed) {
+  throw new Error('introspector accepted raw question-mark placeholder SQL');
+}
+
+const normalizedPlaceholderInspectResult = introspector.inspect(normalizedPlaceholderSql);
+
+if (normalizedPlaceholderInspectResult.failed) {
+  throw new Error('introspector rejected normalized placeholder SQL');
+}
 
 const inspectSql = [
   'select dbo.MaskEmail(u.Email) from dbo.Users as u where exists (select 1 from audit.Logs)',
@@ -310,6 +360,257 @@ function assertNoLegacyExports(moduleValue) {
     if (Object.hasOwn(moduleValue, legacyExport)) {
       throw new Error(`Unexpected legacy export ${legacyExport}`);
     }
+  }
+}
+
+function assertNoRootOnlyExports(moduleValue, context) {
+  if (Object.hasOwn(moduleValue, 'normalizeTsqlPlaceholders')) {
+    throw new Error(`${context} exposed root-only normalizeTsqlPlaceholders`);
+  }
+}
+
+async function assertPackageSubpathNotExported(specifier) {
+  try {
+    await import(specifier);
+    throw new Error(`${specifier} unexpectedly resolved`);
+  } catch (error) {
+    if (error?.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
+      throw error;
+    }
+  }
+}
+
+function assertRequireSubpathNotExported(requireFn, specifier) {
+  try {
+    requireFn(specifier);
+    throw new Error(`${specifier} unexpectedly resolved`);
+  } catch (error) {
+    if (error?.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
+      throw error;
+    }
+  }
+}
+
+function runNormalizeTsqlPlaceholdersTests(normalize, commonJsNormalize) {
+  assertNormalized(
+    normalize('select ? as first, ? as second'),
+    'select @p0 as first, @p1 as second',
+    2,
+    'default placeholders',
+  );
+  assertNormalized(
+    normalize('select ? as first, ? as second', { prefix: '@arg', startAt: 5 }),
+    'select @arg5 as first, @arg6 as second',
+    2,
+    'custom prefix and startAt',
+  );
+  assertNormalized(
+    normalize('select ?', { style: 'question-mark' }),
+    'select @p0',
+    1,
+    'explicit question-mark style',
+  );
+  assertNormalized(
+    commonJsNormalize('select ?', { prefix: '@c', startAt: 2 }),
+    'select @c2',
+    1,
+    'CommonJS root normalizer',
+  );
+  assertNormalized(
+    normalize("select '?' as literal, [?] as bracketed, \"?\" as quoted, ? as value"),
+    "select '?' as literal, [?] as bracketed, \"?\" as quoted, @p0 as value",
+    1,
+    'protected lexical regions',
+  );
+  assertNormalized(
+    normalize("select 'can''t ??' as literal, [a ]] ??] as bracketed, \"a \"\"??\"\"\" as quoted, ?"),
+    "select 'can''t ??' as literal, [a ]] ??] as bracketed, \"a \"\"??\"\"\" as quoted, @p0",
+    1,
+    'escaped protected delimiters',
+  );
+  assertNormalized(
+    normalize('select ? /* ? /* ?? */ ? */ -- ??\n, ?'),
+    'select @p0 /* ? /* ?? */ ? */ -- ??\n, @p1',
+    2,
+    'comments and nested block comments',
+  );
+
+  for (const malformedSql of [
+    "select '?",
+    'select "?',
+    'select [? ',
+    'select /* ?',
+    'select -- ?',
+  ]) {
+    assertNormalized(normalize(malformedSql), malformedSql, 0, `malformed protected ${malformedSql}`);
+  }
+
+  assertNormalized(
+    normalize('select @p0 as existing, ? as generated'),
+    'select @p0 as existing, @p0 as generated',
+    1,
+    'collision policy',
+  );
+
+  const inheritedOptions = Object.create({
+    prefix: '@inherited',
+    startAt: 9,
+    style: 'unsupported',
+    extra: true,
+  });
+
+  assertNormalized(
+    normalize('select ?', inheritedOptions),
+    'select @p0',
+    1,
+    'inherited options ignored',
+  );
+
+  const accessorOptions = {};
+  Object.defineProperty(accessorOptions, 'prefix', {
+    get() {
+      throw new Error('secret getter');
+    },
+  });
+
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', accessorOptions),
+    TypeError,
+    'data properties',
+    ['secret getter', 'select ?'],
+    'accessor option',
+  );
+  assertThrowsWithoutLeak(
+    () => normalize('select ?? from secret_table'),
+    TypeError,
+    'adjacent question-mark',
+    ['secret_table', 'select ??'],
+    'adjacent placeholders',
+  );
+  assertThrowsWithoutLeak(
+    () => normalize('select ??? from longer_secret'),
+    TypeError,
+    'adjacent question-mark',
+    ['longer_secret', '???'],
+    'longer placeholder run',
+  );
+  assertNormalized(
+    normalize("select '??' as literal, [??] as bracketed, -- ??\n ?"),
+    "select '??' as literal, [??] as bracketed, -- ??\n @p0",
+    1,
+    'adjacent placeholders inside protected regions',
+  );
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', null),
+    TypeError,
+    'options must be an object',
+    ['select ?'],
+    'null options',
+  );
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', { extra: true }),
+    TypeError,
+    'unsupported key',
+    ['select ?'],
+    'unknown option key',
+  );
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', { [Symbol('secretSymbol')]: true }),
+    TypeError,
+    'unsupported key',
+    ['secretSymbol', 'select ?'],
+    'unknown symbol option key',
+  );
+
+  const nonEnumerableUnknown = {};
+  Object.defineProperty(nonEnumerableUnknown, 'extra', { value: true });
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', nonEnumerableUnknown),
+    TypeError,
+    'unsupported key',
+    ['select ?'],
+    'non-enumerable unknown key',
+  );
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', { style: 'named-secret' }),
+    TypeError,
+    'style',
+    ['named-secret', 'select ?'],
+    'invalid style',
+  );
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', { prefix: 1 }),
+    TypeError,
+    'prefix',
+    ['select ?'],
+    'invalid prefix',
+  );
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', { startAt: '0' }),
+    TypeError,
+    'startAt',
+    ['select ?'],
+    'non-numeric startAt',
+  );
+
+  for (const invalidStartAt of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1, Number.NaN]) {
+    assertThrowsWithoutLeak(
+      () => normalize('select ?', { startAt: invalidStartAt }),
+      RangeError,
+      'startAt',
+      ['select ?'],
+      `invalid startAt ${invalidStartAt}`,
+    );
+  }
+
+  assertThrowsWithoutLeak(
+    () => normalize('select ?, ?', { startAt: Number.MAX_SAFE_INTEGER }),
+    RangeError,
+    'placeholder index',
+    ['select ?, ?'],
+    'generated index overflow',
+  );
+  assertThrowsWithoutLeak(
+    () => normalize('select ?', { prefix: '@'.repeat(128) }),
+    RangeError,
+    'variable name',
+    ['select ?'],
+    'generated variable name length',
+  );
+}
+
+function assertNormalized(result, expectedSql, expectedPlaceholderCount, context) {
+  if (result.sql !== expectedSql) {
+    throw new Error(`${context}: expected ${expectedSql}, received ${result.sql}`);
+  }
+
+  if (result.placeholderCount !== expectedPlaceholderCount) {
+    throw new Error(
+      `${context}: expected ${expectedPlaceholderCount} placeholders, received ${result.placeholderCount}`,
+    );
+  }
+}
+
+function assertThrowsWithoutLeak(
+  callback,
+  expectedErrorConstructor,
+  expectedMessage,
+  forbiddenValues,
+  context,
+) {
+  try {
+    callback();
+    throw new Error(`${context} did not throw`);
+  } catch (error) {
+    if (!(error instanceof expectedErrorConstructor)) {
+      throw error;
+    }
+
+    if (!String(error.message).includes(expectedMessage)) {
+      throw new Error(`${context} threw unexpected message: ${error.message}`);
+    }
+
+    assertDoesNotContain(String(error.message), forbiddenValues, `${context} error message`);
   }
 }
 

@@ -36,6 +36,9 @@ import {
   createTsqlIntrospector,
   createTsqlSanitizer,
   createTsqlTokenizer,
+  normalizeTsqlPlaceholders,
+  type NormalizeTsqlPlaceholdersOptions,
+  type NormalizeTsqlPlaceholdersResult,
   type TsqlInspectResult,
   type TsqlSanitizeResult,
   type TsqlTokenizeResult,
@@ -55,12 +58,26 @@ async function smoke() {
   const tokenized: TsqlTokenizeResult = tokenizer.tokenize('select 1');
   const sanitized: TsqlSanitizeResult = sanitizer.sanitize('select 1');
   const inspected: TsqlInspectResult = introspector.inspect('select 1');
+  const normalizeOptions: NormalizeTsqlPlaceholdersOptions = {
+    prefix: '@smoke',
+    startAt: 2,
+    style: 'question-mark',
+  };
+  const normalized: NormalizeTsqlPlaceholdersResult = normalizeTsqlPlaceholders(
+    'select ?',
+    normalizeOptions,
+  );
 
   tokenizerFromSubpath.tokenize('select 1');
   sanitizerFromSubpath.sanitize('select 1');
   introspectorFromSubpath.inspect('select 1');
 
-  return [tokenized.failed, sanitized.tokenizationFailed, inspected.failed] as const;
+  return [
+    tokenized.failed,
+    sanitized.tokenizationFailed,
+    inspected.failed,
+    normalized.placeholderCount,
+  ] as const;
 }
 
 void smoke();

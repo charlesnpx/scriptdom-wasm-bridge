@@ -39,17 +39,78 @@ import { createTsqlSanitizer } from 'scriptdom-wasm-bridge/sanitizer';
 import { createTsqlIntrospector } from 'scriptdom-wasm-bridge/introspector';
 ```
 
-The package root re-exports the same public APIs and types:
+The package root re-exports those APIs and also exposes the root-only
+`normalizeTsqlPlaceholders` helper:
 
 ```js
 import {
   createTsqlIntrospector,
   createTsqlSanitizer,
   createTsqlTokenizer,
+  normalizeTsqlPlaceholders,
 } from 'scriptdom-wasm-bridge';
 ```
 
-Importing the root or a subpath does not initialize WebAssembly. Runtime initialization is lazy and cached by the real `dotnet.js` path. The tokenizer and sanitizer use the tokenizer AppBundle; the introspector uses a separate introspector AppBundle.
+Importing the root or a subpath does not initialize WebAssembly. Runtime initialization is lazy and cached by the real `dotnet.js` path. The tokenizer and sanitizer use the tokenizer AppBundle; the introspector uses a separate introspector AppBundle. `normalizeTsqlPlaceholders` is a JavaScript-only helper and is not available from the tokenizer, sanitizer, or introspector subpaths.
+
+## Placeholder Normalization
+
+ScriptDOM parses T-SQL, so the tokenizer, sanitizer, and introspector reject raw question-mark placeholders such as `select ?`. If your SQL source uses single `?` markers, normalize them explicitly before passing SQL to the ScriptDOM-backed APIs:
+
+```js
+import {
+  createTsqlIntrospector,
+  createTsqlSanitizer,
+  normalizeTsqlPlaceholders,
+} from 'scriptdom-wasm-bridge';
+
+const normalized = normalizeTsqlPlaceholders(
+  'select * from dbo.Users where id = ? and status = ?',
+);
+
+console.log(normalized.sql);
+// select * from dbo.Users where id = @p0 and status = @p1
+
+const sanitizer = await createTsqlSanitizer();
+const sanitized = sanitizer.sanitize(normalized.sql);
+
+const introspector = await createTsqlIntrospector();
+const inspected = introspector.inspect(normalized.sql);
+```
+
+```ts
+type NormalizeTsqlPlaceholdersOptions = {
+  style?: 'question-mark';
+  prefix?: string;
+  startAt?: number;
+};
+
+type NormalizeTsqlPlaceholdersResult = {
+  sql: string;
+  placeholderCount: number;
+};
+
+function normalizeTsqlPlaceholders(
+  sql: string,
+  options?: NormalizeTsqlPlaceholdersOptions,
+): NormalizeTsqlPlaceholdersResult;
+```
+
+Defaults are `style: 'question-mark'`, `prefix: '@p'`, and `startAt: 0`. Each single `?` outside protected T-SQL lexical regions becomes `${prefix}${startAt + index}`.
+
+The scanner copies these protected regions unchanged:
+
+- single-quoted strings, including escaped `''`
+- double-quoted regions, including escaped `""`
+- bracketed identifiers, including escaped `]]`
+- line comments
+- nested block comments
+
+Malformed or unclosed protected regions are preserved through the end of the SQL string without throwing. Adjacent question-mark runs such as `??` and `???` are unsupported outside protected regions and throw `TypeError`.
+
+Options are validated strictly using own data properties only. Inherited properties are ignored. Unknown own string or symbol keys are rejected. `style` must be `'question-mark'`, `prefix` must be a string, and `startAt` must be a non-negative safe integer. Generated placeholder indexes must remain safe integers, and generated T-SQL variable names must be 128 characters or shorter.
+
+The helper does not detect collisions with variables that already exist in the SQL text. Choose a prefix and range that are safe for the SQL you pass in.
 
 ## Tokenizer
 
