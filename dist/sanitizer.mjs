@@ -2,6 +2,202 @@ import __scriptdomBridgePath from "node:path";
 import { fileURLToPath as __scriptdomBridgeFileURLToPath } from "node:url";
 const __scriptdomBridgeModuleDirectory = __scriptdomBridgePath.dirname(__scriptdomBridgeFileURLToPath(import.meta.url));
 
+// src/marker-collisions.ts
+var singleQuote = 39;
+var doubleQuote = 34;
+var openBracket = 91;
+var closeBracket = 93;
+var hyphen = 45;
+var slash = 47;
+var asterisk = 42;
+var carriageReturn = 13;
+var lineFeed = 10;
+var zero = 48;
+var nine = 57;
+var upperA = 65;
+var upperZ = 90;
+var lowerA = 97;
+var lowerZ = 122;
+var underscore = 95;
+var atSign = 64;
+var numberSign = 35;
+var dollarSign = 36;
+var maxTsqlVariableNameLength = 128;
+function collectReservedMarkerIndexes(sql, markerPrefix, markerSuffix = "") {
+  const reservedIndexes = /* @__PURE__ */ new Set();
+  let position = 0;
+  while (position < sql.length) {
+    const current = sql.charCodeAt(position);
+    const next = sql.charCodeAt(position + 1);
+    if (current === singleQuote) {
+      position = scanSingleQuotedRegion(sql, position);
+      continue;
+    }
+    if (current === doubleQuote) {
+      position = scanDoubleQuotedRegion(sql, position);
+      continue;
+    }
+    if (current === openBracket) {
+      position = scanBracketedIdentifier(sql, position);
+      continue;
+    }
+    if (current === hyphen && next === hyphen) {
+      position = scanLineComment(sql, position);
+      continue;
+    }
+    if (current === slash && next === asterisk) {
+      position = scanBlockComment(sql, position);
+      continue;
+    }
+    const markerMatch = matchMarker(sql, position, markerPrefix, markerSuffix);
+    if (markerMatch) {
+      reservedIndexes.add(markerMatch.index);
+      position = markerMatch.end;
+      continue;
+    }
+    position += 1;
+  }
+  return reservedIndexes;
+}
+function nextAvailableMarkerIndex(startIndex, reservedIndexes, context) {
+  let index = startIndex;
+  while (reservedIndexes.has(index)) {
+    index += 1;
+    if (!Number.isSafeInteger(index)) {
+      throw new RangeError(`${context} generated marker index is out of range`);
+    }
+  }
+  return index;
+}
+function createMarker(marker, index, context) {
+  if (!Number.isSafeInteger(index)) {
+    throw new RangeError(`${context} generated marker index is out of range`);
+  }
+  const value = `${marker.markerPrefix}${index}${marker.markerSuffix}`;
+  if (value.length > maxTsqlVariableNameLength) {
+    throw new RangeError(`${context} generated variable name is too long`);
+  }
+  return value;
+}
+function assertCollisionPrefix(markerPrefix, context) {
+  if (markerPrefix.length === 0) {
+    throw new TypeError(`${context} collision-aware marker prefix must be non-empty`);
+  }
+  if (isAsciiDigit(markerPrefix.charCodeAt(markerPrefix.length - 1))) {
+    throw new TypeError(`${context} collision-aware marker prefix must not end with a digit`);
+  }
+}
+function matchMarker(sql, position, markerPrefix, markerSuffix) {
+  if (!sql.startsWith(markerPrefix, position)) {
+    return void 0;
+  }
+  if (position > 0 && isMarkerIdentifierContinuation(sql.charCodeAt(position - 1))) {
+    return void 0;
+  }
+  let numberStart = position + markerPrefix.length;
+  let numberEnd = numberStart;
+  while (numberEnd < sql.length && isAsciiDigit(sql.charCodeAt(numberEnd))) {
+    numberEnd += 1;
+  }
+  if (numberEnd === numberStart) {
+    return void 0;
+  }
+  if (markerSuffix && !sql.startsWith(markerSuffix, numberEnd)) {
+    return void 0;
+  }
+  const end = numberEnd + markerSuffix.length;
+  if (end < sql.length && isMarkerIdentifierContinuation(sql.charCodeAt(end))) {
+    return void 0;
+  }
+  const index = Number(sql.slice(numberStart, numberEnd));
+  if (!Number.isSafeInteger(index)) {
+    return void 0;
+  }
+  return { index, end };
+}
+function scanSingleQuotedRegion(sql, start) {
+  let position = start + 1;
+  while (position < sql.length) {
+    if (sql.charCodeAt(position) === singleQuote) {
+      if (sql.charCodeAt(position + 1) === singleQuote) {
+        position += 2;
+        continue;
+      }
+      return position + 1;
+    }
+    position += 1;
+  }
+  return sql.length;
+}
+function scanDoubleQuotedRegion(sql, start) {
+  let position = start + 1;
+  while (position < sql.length) {
+    if (sql.charCodeAt(position) === doubleQuote) {
+      if (sql.charCodeAt(position + 1) === doubleQuote) {
+        position += 2;
+        continue;
+      }
+      return position + 1;
+    }
+    position += 1;
+  }
+  return sql.length;
+}
+function scanBracketedIdentifier(sql, start) {
+  let position = start + 1;
+  while (position < sql.length) {
+    if (sql.charCodeAt(position) === closeBracket) {
+      if (sql.charCodeAt(position + 1) === closeBracket) {
+        position += 2;
+        continue;
+      }
+      return position + 1;
+    }
+    position += 1;
+  }
+  return sql.length;
+}
+function scanLineComment(sql, start) {
+  let position = start + 2;
+  while (position < sql.length) {
+    const current = sql.charCodeAt(position);
+    if (current === carriageReturn || current === lineFeed) {
+      return position;
+    }
+    position += 1;
+  }
+  return sql.length;
+}
+function scanBlockComment(sql, start) {
+  let depth = 1;
+  let position = start + 2;
+  while (position < sql.length) {
+    const current = sql.charCodeAt(position);
+    const next = sql.charCodeAt(position + 1);
+    if (current === slash && next === asterisk) {
+      depth += 1;
+      position += 2;
+      continue;
+    }
+    if (current === asterisk && next === slash) {
+      depth -= 1;
+      position += 2;
+      if (depth === 0) {
+        return position;
+      }
+      continue;
+    }
+    position += 1;
+  }
+  return sql.length;
+}
+function isMarkerIdentifierContinuation(charCode) {
+  return isAsciiDigit(charCode) || charCode >= upperA && charCode <= upperZ || charCode >= lowerA && charCode <= lowerZ || charCode === underscore || charCode === atSign || charCode === numberSign || charCode === dollarSign;
+}
+function isAsciiDigit(charCode) {
+  return charCode >= zero && charCode <= nine;
+}
+
 // src/result-validation.ts
 var forbiddenResultKeys = /* @__PURE__ */ new Set(["text", "message", "sql", "value"]);
 function assertObject(value, fieldName) {
@@ -118,17 +314,18 @@ function initializeTokenPolicy(tokenize) {
     commentTokenTypes: new Set(commentProbeSql.map((sql) => firstTokenType(tokenize, sql)))
   };
 }
-function applyTsqlSanitizerPolicy(sql, tokenizeResult, tokenPolicy) {
+function applyTsqlSanitizerPolicy(sql, tokenizeResult, tokenPolicy, options) {
   validateTsqlTokenizeResult(sql, tokenizeResult);
   let sanitized = "";
   let cursor = 0;
+  const literalMarkerState = createLiteralMarkerState(sql, options.literalMarker);
   for (const token of tokenizeResult.tokens) {
     if (token.offset < cursor) {
       throw new Error("Invalid ScriptDOM result: token ordering");
     }
     sanitized += sql.slice(cursor, token.offset);
     if (tokenPolicy.literalTokenTypes.has(token.type)) {
-      sanitized += "?";
+      sanitized += nextLiteralMarker(literalMarkerState);
     } else if (tokenPolicy.commentTokenTypes.has(token.type)) {
       sanitized += " ".repeat(token.length);
     } else {
@@ -138,6 +335,30 @@ function applyTsqlSanitizerPolicy(sql, tokenizeResult, tokenPolicy) {
   }
   sanitized += sql.slice(cursor);
   return sanitized;
+}
+function createLiteralMarkerState(sql, options) {
+  if (options.kind === "fixed") {
+    return options;
+  }
+  return {
+    ...options,
+    nextIndex: options.startAt,
+    reservedIndexes: options.avoidExisting ? collectReservedMarkerIndexes(sql, options.marker.markerPrefix, options.marker.markerSuffix) : /* @__PURE__ */ new Set()
+  };
+}
+function nextLiteralMarker(state) {
+  if (state.kind === "fixed") {
+    return state.value;
+  }
+  state.nextIndex = nextAvailableMarkerIndex(
+    state.nextIndex,
+    state.reservedIndexes,
+    "createTsqlSanitizer"
+  );
+  const marker = createMarker(state.marker, state.nextIndex, "createTsqlSanitizer");
+  state.reservedIndexes.add(state.nextIndex);
+  state.nextIndex += 1;
+  return marker;
 }
 function firstTokenType(tokenize, sql) {
   const tokenizeResult = validateTsqlTokenizeResult(sql, tokenize(sql));
@@ -269,8 +490,15 @@ async function loadTsqlTokenizerRuntime(options = {}) {
 
 // src/sanitizer.ts
 var tokenPolicyCache = /* @__PURE__ */ new WeakMap();
+var defaultLiteralPlaceholder = "?";
+var defaultLiteralPlaceholderStartAt = 0;
+var indexToken = "{index}";
+var maxLiteralPlaceholderLength = 128;
 async function createTsqlSanitizer(options = {}) {
-  const runtime = await loadTsqlTokenizerRuntime(options);
+  const normalizedOptions = normalizeOptions(options);
+  const runtime = await loadTsqlTokenizerRuntime({
+    appBundlePath: normalizedOptions.appBundlePath
+  });
   const tokenPolicy = getTokenPolicy(runtime);
   return {
     sanitize(sql) {
@@ -286,12 +514,111 @@ async function createTsqlSanitizer(options = {}) {
         };
       }
       return {
-        sql: applyTsqlSanitizerPolicy(sql, tokenizeResult, tokenPolicy),
+        sql: applyTsqlSanitizerPolicy(sql, tokenizeResult, tokenPolicy, {
+          literalMarker: normalizedOptions.literalMarker
+        }),
         tokenizationFailed: false,
         diagnostics: []
       };
     }
   };
+}
+function normalizeOptions(options) {
+  if (options === null || typeof options !== "object" || Array.isArray(options)) {
+    throw new TypeError("createTsqlSanitizer options must be an object");
+  }
+  const appBundlePath = readOwnDataProperty(options, "appBundlePath");
+  const literalPlaceholder = readOwnDataProperty(options, "literalPlaceholder");
+  const literalPlaceholderStartAt = readOwnDataProperty(options, "literalPlaceholderStartAt");
+  const avoidExistingLiteralPlaceholders = readOwnDataProperty(
+    options,
+    "avoidExistingLiteralPlaceholders"
+  );
+  if (appBundlePath !== void 0 && typeof appBundlePath !== "string") {
+    throw new TypeError("createTsqlSanitizer appBundlePath must be a string");
+  }
+  if (literalPlaceholder !== void 0 && typeof literalPlaceholder !== "string") {
+    throw new TypeError("createTsqlSanitizer literalPlaceholder must be a string");
+  }
+  if (literalPlaceholderStartAt !== void 0 && typeof literalPlaceholderStartAt !== "number") {
+    throw new TypeError("createTsqlSanitizer literalPlaceholderStartAt must be a number");
+  }
+  if (avoidExistingLiteralPlaceholders !== void 0 && typeof avoidExistingLiteralPlaceholders !== "boolean") {
+    throw new TypeError("createTsqlSanitizer avoidExistingLiteralPlaceholders must be a boolean");
+  }
+  const normalizedLiteralPlaceholder = literalPlaceholder ?? defaultLiteralPlaceholder;
+  const normalizedStartAt = literalPlaceholderStartAt ?? defaultLiteralPlaceholderStartAt;
+  const normalizedAvoidExisting = avoidExistingLiteralPlaceholders ?? false;
+  if (!Number.isSafeInteger(normalizedStartAt) || normalizedStartAt < 0) {
+    throw new RangeError(
+      "createTsqlSanitizer literalPlaceholderStartAt must be a non-negative safe integer"
+    );
+  }
+  return {
+    appBundlePath,
+    literalMarker: createLiteralMarkerOptions(
+      normalizedLiteralPlaceholder,
+      normalizedStartAt,
+      normalizedAvoidExisting
+    )
+  };
+}
+function createLiteralMarkerOptions(literalPlaceholder, startAt, avoidExisting) {
+  if (literalPlaceholder.length === 0) {
+    throw new TypeError("createTsqlSanitizer literalPlaceholder must be non-empty");
+  }
+  const firstIndexToken = literalPlaceholder.indexOf(indexToken);
+  if (firstIndexToken === -1) {
+    if (literalPlaceholder.length > maxLiteralPlaceholderLength) {
+      throw new RangeError("createTsqlSanitizer literalPlaceholder is too long");
+    }
+    if (avoidExisting) {
+      throw new TypeError(
+        "createTsqlSanitizer avoidExistingLiteralPlaceholders requires an indexed literalPlaceholder"
+      );
+    }
+    return {
+      kind: "fixed",
+      value: literalPlaceholder
+    };
+  }
+  if (literalPlaceholder.indexOf(indexToken, firstIndexToken + indexToken.length) !== -1) {
+    throw new TypeError("createTsqlSanitizer literalPlaceholder must contain at most one index token");
+  }
+  const markerPrefix = literalPlaceholder.slice(0, firstIndexToken);
+  const markerSuffix = literalPlaceholder.slice(firstIndexToken + indexToken.length);
+  if (avoidExisting) {
+    if (markerSuffix.length > 0) {
+      throw new TypeError(
+        "createTsqlSanitizer avoidExistingLiteralPlaceholders requires a prefix-only literalPlaceholder"
+      );
+    }
+    assertCollisionPrefix(markerPrefix, "createTsqlSanitizer");
+  }
+  return {
+    kind: "indexed",
+    marker: {
+      markerPrefix,
+      markerSuffix
+    },
+    startAt,
+    avoidExisting
+  };
+}
+function readOwnDataProperty(options, key) {
+  let descriptor;
+  try {
+    descriptor = Object.getOwnPropertyDescriptor(options, key);
+  } catch {
+    throw new TypeError("createTsqlSanitizer options could not be validated");
+  }
+  if (!descriptor) {
+    return void 0;
+  }
+  if (!Object.hasOwn(descriptor, "value")) {
+    throw new TypeError("createTsqlSanitizer options must use data properties");
+  }
+  return descriptor.value;
 }
 function getTokenPolicy(runtime) {
   const cachedPolicy = tokenPolicyCache.get(runtime);

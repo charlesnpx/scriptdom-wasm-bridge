@@ -1,5 +1,9 @@
 import { type CreateTsqlTokenizerOptions } from './tokenizer-runtime.js';
-export type CreateTsqlSanitizerOptions = CreateTsqlTokenizerOptions;
+export type CreateTsqlSanitizerOptions = CreateTsqlTokenizerOptions & {
+    literalPlaceholder?: string;
+    literalPlaceholderStartAt?: number;
+    avoidExistingLiteralPlaceholders?: boolean;
+};
 export type TsqlSanitizeDiagnostic = {
     kind: 'tokenization-error';
     number: number;
