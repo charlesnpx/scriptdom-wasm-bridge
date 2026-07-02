@@ -24,3 +24,8 @@ export {
   type TsqlTokenizeResult,
   type TsqlTokenizer,
 } from './tokenizer.js';
+export {
+  normalizeTsqlPlaceholders,
+  type NormalizeTsqlPlaceholdersOptions,
+  type NormalizeTsqlPlaceholdersResult,
+} from './placeholders.js';
