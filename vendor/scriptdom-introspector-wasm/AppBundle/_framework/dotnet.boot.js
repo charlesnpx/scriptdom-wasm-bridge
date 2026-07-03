@@ -1,7 +1,7 @@
 export const config = /*json-start*/{
   "mainAssemblyName": "ScriptDomIntrospectorWasmBridge.dll",
   "resources": {
-    "hash": "sha256-arr3m3timb4G1RyKKqL2qwAUsFk2k8mIR9nyB+JbDik=",
+    "hash": "sha256-11sggcRA7UfwOsukBW9MIKU1wHoMUYVFKZ4045002u4=",
     "jsModuleNative": [
       {
         "name": "dotnet.native.js"
@@ -39,7 +39,7 @@ export const config = /*json-start*/{
       {
         "virtualPath": "ScriptDomIntrospectorWasmBridge.wasm",
         "name": "ScriptDomIntrospectorWasmBridge.wasm",
-        "hash": "sha256-86iVZGynnKmjP9eJ1lRAqaI7jD+kAFU12JQ/74Dc1gE="
+        "hash": "sha256-JIGnsh+sShJ4nTaCnOmUp09+AgiiQsY4R56XCfwHSZo="
       },
       {
         "virtualPath": "System.Collections.Concurrent.wasm",

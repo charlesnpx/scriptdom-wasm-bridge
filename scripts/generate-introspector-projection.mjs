@@ -105,13 +105,16 @@ var fragmentType = typeof(TSqlFragment);
 var tokenType = typeof(TSqlTokenType);
 var assembly = fragmentType.Assembly;
 
-var nodes = assembly.GetTypes()
+var concreteNodeTypes = assembly.GetTypes()
     .Where(type => type.IsPublic && !type.IsAbstract && fragmentType.IsAssignableFrom(type))
     .OrderBy(type => type.Name, StringComparer.Ordinal)
+    .ToArray();
+
+var nodes = concreteNodeTypes
     .Select(type => new NodeInfo(
         type.Name,
         type.FullName ?? type.Name,
-        GetEdges(type).ToArray(),
+        GetEdges(type, concreteNodeTypes).ToArray(),
         GetProperties(type).ToArray()))
     .ToArray();
 
@@ -124,22 +127,38 @@ var tokenTypes = Enum.GetValues(tokenType)
 
 Console.Write(JsonSerializer.Serialize(new DiscoveryResult(nodes, tokenTypes)));
 
-static IEnumerable<EdgeInfo> GetEdges(Type type)
+static IEnumerable<EdgeInfo> GetEdges(Type type, Type[] concreteNodeTypes)
 {
     foreach (var property in GetCandidateProperties(type))
     {
         if (typeof(TSqlFragment).IsAssignableFrom(property.PropertyType))
         {
-            yield return new EdgeInfo(property.Name, "single", property.PropertyType.Name);
+            yield return new EdgeInfo(
+                property.Name,
+                "single",
+                property.PropertyType.Name,
+                GetAssignableConcreteNodeKinds(property.PropertyType, concreteNodeTypes).ToArray());
             continue;
         }
 
         var itemType = GetEnumerableItemType(property.PropertyType);
         if (itemType is not null && typeof(TSqlFragment).IsAssignableFrom(itemType))
         {
-            yield return new EdgeInfo(property.Name, "array", itemType.Name);
+            yield return new EdgeInfo(
+                property.Name,
+                "array",
+                itemType.Name,
+                GetAssignableConcreteNodeKinds(itemType, concreteNodeTypes).ToArray());
         }
     }
+}
+
+static IEnumerable<string> GetAssignableConcreteNodeKinds(Type childType, Type[] concreteNodeTypes)
+{
+    return concreteNodeTypes
+        .Where(childType.IsAssignableFrom)
+        .Select(type => type.Name)
+        .OrderBy(name => name, StringComparer.Ordinal);
 }
 
 static IEnumerable<PropertyInfoData> GetProperties(Type type)
@@ -223,7 +242,7 @@ static string GetTypeLabel(Type type)
 
 public sealed record DiscoveryResult(NodeInfo[] Nodes, int[] TokenTypes);
 public sealed record NodeInfo(string Name, string FullName, EdgeInfo[] Edges, PropertyInfoData[] Properties);
-public sealed record EdgeInfo(string Name, string Kind, string ChildType);
+public sealed record EdgeInfo(string Name, string Kind, string ChildType, string[] ChildKinds);
 public sealed record PropertyInfoData(
     string Name,
     string Type,
@@ -245,6 +264,7 @@ function generateArtifacts(sourceManifest, discovery) {
   const edgePolicies = sortEdgePolicies(
     nodes.flatMap((node) =>
       node.Edges.map((edge) => ({
+        childKinds: normalizeEdgeChildKinds(node.Name, edge),
         edgeKind: edge.Kind,
         edgeName: edge.Name,
         parentKind: node.Name,
@@ -339,6 +359,15 @@ function buildScalarValueSchema(policy) {
   }
 
   throw new Error(`Unsupported scalar attribute policy kind ${policy.attributeKind}`);
+}
+
+function normalizeEdgeChildKinds(parentKind, edge) {
+  const childKinds = uniqueSorted(edge.ChildKinds ?? []);
+  if (childKinds.length === 0) {
+    throw new Error(`Edge policy has no concrete child kinds: ${parentKind}.${edge.Name}`);
+  }
+
+  return childKinds;
 }
 
 function buildSchema(sourceManifest, { edgePolicies, nodeKinds, attributePolicies, tokenTypes }) {

@@ -552,6 +552,66 @@ try {
     malformedPathIndexBundlePath,
     'malformed introspector path index policy',
   );
+
+  const malformedChildKindBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'child-kind-policy',
+  );
+  const malformedChildKindIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedChildKindBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedChildKindIntrospector.inspect('select 1'),
+    Error,
+    'node path',
+    ['ChildKindPayload', 'select 1'],
+    'malformed introspector child kind policy',
+  );
+  await assertRuntimeCacheMissing(
+    malformedChildKindBundlePath,
+    'malformed introspector child kind policy',
+  );
+
+  const malformedEmptySuccessBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'empty-success-policy',
+  );
+  const malformedEmptySuccessIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedEmptySuccessBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedEmptySuccessIntrospector.inspect('select 1'),
+    Error,
+    'node root',
+    ['select 1'],
+    'malformed introspector empty success policy',
+  );
+  await assertRuntimeCacheMissing(
+    malformedEmptySuccessBundlePath,
+    'malformed introspector empty success policy',
+  );
+
+  const malformedFailedPayloadBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'failed-payload-policy',
+  );
+  const malformedFailedPayloadIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedFailedPayloadBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedFailedPayloadIntrospector.inspect('select 1', { includeTokens: true }),
+    Error,
+    'failed result payload',
+    ['FailedPayload', 'select 1'],
+    'malformed introspector failed payload policy',
+  );
+  await assertRuntimeCacheMissing(
+    malformedFailedPayloadBundlePath,
+    'malformed introspector failed payload policy',
+  );
 } finally {
   await fs.rm(malformedBundleRoot, { recursive: true, force: true });
 }
@@ -1256,6 +1316,62 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                               pathFromParent: ['Batches'],
                               attributes: [],
                             },
+                          ],
+                          errors: [],
+                        });
+`;
+  } else if (variant === 'child-kind-policy') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 1,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'TSqlScript',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [],
+                            },
+                            {
+                              id: 1,
+                              kind: 'Identifier',
+                              parentId: 0,
+                              pathFromParent: ['Batches', '0'],
+                              attributes: [],
+                            },
+                          ],
+                          errors: [],
+                        });
+`;
+  } else if (variant === 'empty-success-policy') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 1,
+                          nodes: [],
+                          errors: [],
+                        });
+`;
+  } else if (variant === 'failed-payload-policy') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: true,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 1,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'TSqlScript',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [],
+                            },
+                          ],
+                          tokens: [
+                            { type: 0, offset: 0, length: 1, line: 1, column: 1 },
                           ],
                           errors: [],
                         });

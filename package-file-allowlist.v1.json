@@ -7,7 +7,7 @@
     },
     {
       "path": "c-sharp/introspector/IntrospectorProjectionManifest.g.cs",
-      "sha256": "196b73e72cbc8a785ccadc60628365d670f70177146f0b23d070cda718ecaf14"
+      "sha256": "76998222bbd374784dac03d034a1001b2010419672da74bcd559b0e07d6946dc"
     },
     {
       "path": "c-sharp/introspector/main.mjs",
@@ -35,11 +35,11 @@
     },
     {
       "path": "dist/index.cjs",
-      "sha256": "149c6ca3dff943c1af3bf06dcfd87efd5319206e9531deec456c06220cc90e34"
+      "sha256": "fc2a90187c5b9511c86b6a61e85674c5861f7a2a3fcf3087adefb1d5df1d4bd0"
     },
     {
       "path": "dist/index.cjs.map",
-      "sha256": "12d45cd122ce43ede3730a432b0052367312588b381e106a373fa49fa37c1178"
+      "sha256": "d77cf933e6a256f446c9654e7faa732476786a31e50330e4ad963c068cb17f38"
     },
     {
       "path": "dist/index.d.ts",
@@ -47,23 +47,23 @@
     },
     {
       "path": "dist/index.mjs",
-      "sha256": "e941d4e8aac31b975a7ce68dcb0f020bd876889148c1c678dfdbf9d75cc25a8c"
+      "sha256": "d3ae0e2b4d07e1ced56bb2a9e2649403cfa9d23bd478b05a3598a19b86a99758"
     },
     {
       "path": "dist/index.mjs.map",
-      "sha256": "4b63712ec3b462bdc4cc1178006c1f1a89437dfa28fe6508298c834d11524690"
+      "sha256": "b3631b8aedeb682d1fee6423467a5026e55394663717d404ed06409fe15f90b2"
     },
     {
       "path": "dist/introspector-projection.v1.generated.d.ts",
-      "sha256": "77d67a2b572db31ae3e65ae79489647c0451b48cde46a512148bc9cfd6b1ac4a"
+      "sha256": "ad231ba2e4ec809ca7a89847c7d2f7a457e5b01a41735d355f009ea6927999d7"
     },
     {
       "path": "dist/introspector.cjs",
-      "sha256": "81434b8a5baad36ddbd8b6e5ced3e30b1b1738a36d30fbd1f0d01260650382cb"
+      "sha256": "b403968f1e1a6c182e5196998179b5b708182ec1f9934e27c81cda7318364658"
     },
     {
       "path": "dist/introspector.cjs.map",
-      "sha256": "070c40ddb84d9394bd0f71b2b909548dbf2523b12228215b9b9d70023f503558"
+      "sha256": "5a7859622d86b7364b1a2946874aa778254a03a45da37f42a6be147012167342"
     },
     {
       "path": "dist/introspector.d.ts",
@@ -71,11 +71,11 @@
     },
     {
       "path": "dist/introspector.mjs",
-      "sha256": "6b49aacc29c3a9e14d7632f11a5c4f75093184cc2dbc73a0d4eeb6b23ad69248"
+      "sha256": "e61174ee0f3f23c690ce4ca1c15008f4342f9eff69ebc8c099fb75c108f6ea73"
     },
     {
       "path": "dist/introspector.mjs.map",
-      "sha256": "490128e2b8356e23db712b612502fce9bd4609f307f00a597d2e72a6504a0912"
+      "sha256": "926eda4708478d8b521cf3680f644aa4b1427a4210ae8e0035c2ededbf24ced1"
     },
     {
       "path": "dist/marker-collisions.d.ts",
@@ -147,7 +147,7 @@
     },
     {
       "path": "dist/types/introspector-projection.v1.generated.d.ts",
-      "sha256": "77d67a2b572db31ae3e65ae79489647c0451b48cde46a512148bc9cfd6b1ac4a"
+      "sha256": "ad231ba2e4ec809ca7a89847c7d2f7a457e5b01a41735d355f009ea6927999d7"
     },
     {
       "path": "dist/types/introspector.d.ts",
@@ -223,7 +223,7 @@
     },
     {
       "path": "scripts/generate-introspector-projection.mjs",
-      "sha256": "9c2c283671cccf92125a347f06fba71d19f044e1ccbbc7bd39f950f80f536c88"
+      "sha256": "40aa175254d54a6913a5bc59aef471f0233e8a9e6e3cb4f3d451d9271b2ebf0c"
     },
     {
       "path": "scripts/postprocess-appbundle.mjs",
@@ -243,7 +243,7 @@
     },
     {
       "path": "src/introspector-projection.v1.generated.ts",
-      "sha256": "ccf1cba4005235b6503f4c3e47c42c7dd80475e7c3f19567cca5e290628c0f36"
+      "sha256": "4f13ba9c7b01980b548c1a6695989dbac143ed94ec8dfac69b8591009eaef2c4"
     },
     {
       "path": "src/introspector-projection.v1.json",
@@ -255,7 +255,7 @@
     },
     {
       "path": "src/introspector.ts",
-      "sha256": "f9c6028064a43e0bb3f9700550a0baf524e09e82024a273ac0f8eb91023b95ce"
+      "sha256": "c0105b4e4a7a2e46cbb9e6d32baccda3e6d0e15fdff593d3a87281d60f38ac17"
     },
     {
       "path": "src/marker-collisions.ts",
@@ -311,7 +311,7 @@
     },
     {
       "path": "vendor/scriptdom-introspector-wasm/AppBundle/_framework/dotnet.boot.js",
-      "sha256": "54f1b31954681a1110640534db744cea2cb54235bb8e747b161c90b38062678a"
+      "sha256": "5f5817aca96161a73f537f5629cd8c819e9d822ff8618bf1022b0315635dd2b9"
     },
     {
       "path": "vendor/scriptdom-introspector-wasm/AppBundle/_framework/dotnet.js",
@@ -375,7 +375,7 @@
     },
     {
       "path": "vendor/scriptdom-introspector-wasm/AppBundle/_framework/ScriptDomIntrospectorWasmBridge.wasm",
-      "sha256": "f3a895646ca79ca9a33fd789d65440a9a23b8c3fa4005535d8943fef80dcd601"
+      "sha256": "2481a7b21fac4a12789d36829ce994a74f7e0208a242c638479e9709fc07499a"
     },
     {
       "path": "vendor/scriptdom-introspector-wasm/AppBundle/_framework/System.Collections.Concurrent.wasm",
@@ -451,7 +451,7 @@
     },
     {
       "path": "vendor/scriptdom-tokenizer-wasm/AppBundle/_framework/dotnet.boot.js",
-      "sha256": "5705913f457c3064806c4cd5e883d1e4093d10a2506f98e6a378d359ac24bc22"
+      "sha256": "c79368f548d5d39ba9cf09fe7bff0edcc21416ee3ae23097b37f8c95cbe8f732"
     },
     {
       "path": "vendor/scriptdom-tokenizer-wasm/AppBundle/_framework/dotnet.js",
@@ -515,7 +515,7 @@
     },
     {
       "path": "vendor/scriptdom-tokenizer-wasm/AppBundle/_framework/ScriptDomTokenizerWasmBridge.wasm",
-      "sha256": "bdab2aca585d98a236c910a6b2862e2a3cfa5da6d98fe5562b70cee44a577ef6"
+      "sha256": "483bc7023d143e26f927d1a4c442f4b028df3b7f8927d139c9b0a40169dd477f"
     },
     {
       "path": "vendor/scriptdom-tokenizer-wasm/AppBundle/_framework/System.Memory.wasm",

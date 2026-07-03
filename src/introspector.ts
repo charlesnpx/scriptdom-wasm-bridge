@@ -133,6 +133,11 @@ type NormalizedInspectOptions = {
   privateOptionsJson: '{}' | '{"includeSpans":true}' | '{"includeTokens":true}' | '{"includeSpans":true,"includeTokens":true}';
 };
 
+type StructuralEdgePolicy = {
+  edgeKind: 'single' | 'array';
+  childKinds: ReadonlySet<string>;
+};
+
 const defaultIntrospectorAppBundlePath = path.resolve(
   __scriptdomBridgeModuleDirectory,
   '../vendor/scriptdom-introspector-wasm/AppBundle',
@@ -173,10 +178,13 @@ const identifierRedactedAttributeKeys = new Set(['name', 'kind', 'state', 'profi
 const scalarAttributeKeys = new Set(['name', 'kind', 'value']);
 const nodeKindSet = new Set<string>(TSQL_STRUCTURAL_NODE_KINDS);
 const edgeNameSet = new Set<string>(TSQL_STRUCTURAL_EDGE_NAMES);
-const edgePolicyKinds = new Map(
+const edgePoliciesByPath: Map<string, StructuralEdgePolicy> = new Map(
   TSQL_STRUCTURAL_EDGE_POLICIES.map((policy) => [
     edgePolicyKey(policy.parentKind, policy.edgeName),
-    policy.edgeKind,
+    {
+      edgeKind: policy.edgeKind,
+      childKinds: new Set<string>(policy.childKinds),
+    },
   ]),
 );
 const attributeNameSet = new Set<string>(TSQL_STRUCTURAL_ATTRIBUTE_NAMES);
@@ -458,13 +466,25 @@ function validateInspectResult(
     errors,
   };
 
+  const tokens = options.includeTokens
+    ? validateArray(
+        value.tokens,
+        'tokens',
+        INTROSPECTOR_PROJECTION_ABI.limits.tokens,
+        (item, index) => validateToken(sql, item, `tokens[${index}]`),
+      )
+    : undefined;
+
+  if (value.failed) {
+    if (nodes.length !== 0 || (tokens?.length ?? 0) !== 0) {
+      throw new Error('Invalid ScriptDOM result: failed result payload');
+    }
+  } else if (nodes.length === 0) {
+    throw new Error('Invalid ScriptDOM result: node root');
+  }
+
   if (options.includeTokens) {
-    result.tokens = validateArray(
-      value.tokens,
-      'tokens',
-      INTROSPECTOR_PROJECTION_ABI.limits.tokens,
-      (item, index) => validateToken(sql, item, `tokens[${index}]`),
-    );
+    result.tokens = tokens;
   }
 
   return result;
@@ -521,6 +541,7 @@ function validateNode(
     value.pathFromParent,
     index,
     parentKind,
+    nodeKind,
   );
 
   const attributes = validateArray(
@@ -553,6 +574,7 @@ function validatePathFromParent(
   value: unknown,
   nodeIndex: number,
   parentKind: TsqlStructuralNodeKind | undefined,
+  nodeKind: TsqlStructuralNodeKind,
 ): TsqlStructuralPathFromParent {
   if (!Array.isArray(value)) {
     throw new Error('Invalid ScriptDOM result: node path');
@@ -574,21 +596,21 @@ function validatePathFromParent(
   if (!edgeNameSet.has(value[0])) {
     throw new Error('Invalid ScriptDOM result: node path');
   }
-  const edgeKind = edgePolicyKinds.get(edgePolicyKey(parentKind, value[0]));
+  const edgePolicy = edgePoliciesByPath.get(edgePolicyKey(parentKind, value[0]));
 
-  if (edgeKind === undefined) {
+  if (edgePolicy === undefined || !edgePolicy.childKinds.has(nodeKind)) {
     throw new Error('Invalid ScriptDOM result: node path');
   }
 
   if (value.length === 1) {
-    if (edgeKind !== 'single') {
+    if (edgePolicy.edgeKind !== 'single') {
       throw new Error('Invalid ScriptDOM result: node path');
     }
 
     return [value[0] as TsqlStructuralEdgeName];
   }
 
-  if (edgeKind !== 'array') {
+  if (edgePolicy.edgeKind !== 'array') {
     throw new Error('Invalid ScriptDOM result: node path');
   }
 
