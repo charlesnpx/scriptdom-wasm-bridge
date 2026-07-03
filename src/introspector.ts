@@ -219,11 +219,16 @@ async function loadTsqlIntrospectorRuntime(
             poison,
           );
 
-          return validateInspectResult(
-            sql,
-            parseJsonExport(rawJson),
-            normalizedInspectOptions,
-          );
+          try {
+            return validateInspectResult(
+              sql,
+              parseJsonExport(rawJson),
+              normalizedInspectOptions,
+            );
+          } catch (error) {
+            poison();
+            throw error;
+          }
         },
       };
     },
@@ -245,6 +250,7 @@ function callStringExport(
   }
 
   if (typeof value !== 'string') {
+    poison();
     throw new Error('Invalid ScriptDOM WASM export: introspector JSON result');
   }
 
@@ -253,6 +259,7 @@ function callStringExport(
       INTROSPECTOR_PROJECTION_ABI.limits.serializedEnvelopeUtf8Bytes ||
     value.length > INTROSPECTOR_PROJECTION_ABI.limits.projectedOutputUtf16CodeUnits
   ) {
+    poison();
     throw new Error('Invalid ScriptDOM result: introspector JSON envelope');
   }
 

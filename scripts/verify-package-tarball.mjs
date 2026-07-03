@@ -127,7 +127,19 @@ async function writeAllowlist(allowlistPath, hashes) {
 }
 
 async function readPackJson(packJsonPath) {
-  const packJson = JSON.parse(await fs.readFile(packJsonPath, 'utf8'));
+  const packJsonSource =
+    packJsonPath === '-'
+      ? await new Promise((resolve, reject) => {
+          let source = '';
+          process.stdin.setEncoding('utf8');
+          process.stdin.on('data', (chunk) => {
+            source += chunk;
+          });
+          process.stdin.on('end', () => resolve(source));
+          process.stdin.on('error', reject);
+        })
+      : await fs.readFile(packJsonPath, 'utf8');
+  const packJson = JSON.parse(packJsonSource);
   const [entry] = packJson;
 
   if (!entry || !Array.isArray(entry.files)) {

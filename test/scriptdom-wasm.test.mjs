@@ -427,6 +427,11 @@ try {
       throw error;
     }
   }
+
+  await assertRuntimeCacheMissing(
+    malformedIntrospectorBundlePath,
+    'malformed introspector invalid result',
+  );
 } finally {
   await fs.rm(malformedBundleRoot, { recursive: true, force: true });
 }
@@ -790,6 +795,15 @@ function assertRuntimeCacheSize(expectedSize, context) {
 
   if (runtimeCache && runtimeCache.size !== expectedSize) {
     throw new Error(`${context}: expected ${expectedSize}, received ${runtimeCache.size}`);
+  }
+}
+
+async function assertRuntimeCacheMissing(appBundlePath, context) {
+  const runtimeCache = globalThis[runtimeCacheSymbol];
+  const dotnetJsPath = await fs.realpath(path.join(appBundlePath, '_framework', 'dotnet.js'));
+
+  if (runtimeCache?.has(dotnetJsPath)) {
+    throw new Error(`${context}: runtime cache entry was not invalidated`);
   }
 }
 

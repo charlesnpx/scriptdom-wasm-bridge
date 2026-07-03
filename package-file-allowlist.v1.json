@@ -35,11 +35,11 @@
     },
     {
       "path": "dist/index.cjs",
-      "sha256": "802632a2b6b4152210ddc7e0e2eb2a2bfdffe8506f82249521ab6c3305e50b69"
+      "sha256": "31957e3a114b14ee260365299025904e71aeafff5bde4047b9d63135f234c033"
     },
     {
       "path": "dist/index.cjs.map",
-      "sha256": "c8ec2f874703d8d3a448618ac2ab9b62c8a2dece29437edd2b8846f1365d3c56"
+      "sha256": "dc944039549cda37ed84c1f872fca035da221cf3dac2ce6d18bc0be58eb7365c"
     },
     {
       "path": "dist/index.d.ts",
@@ -47,11 +47,11 @@
     },
     {
       "path": "dist/index.mjs",
-      "sha256": "ca3e4ebed3a8dedad7b314e01560b2a84c79337087d20d5fd50cabb5c891e16c"
+      "sha256": "02cba0915eaa5da0760b42e99eac9c0c8b27f3ad107bcc302ae4fed4cff7850f"
     },
     {
       "path": "dist/index.mjs.map",
-      "sha256": "b67510341a037b314066d0510c485a854684270293f479ba45de8f09794e75ae"
+      "sha256": "53fbd998d2bd1b7d5571611fa96e6d184c7f75f1424a3abad863379f2ba9995a"
     },
     {
       "path": "dist/introspector-projection.v1.generated.d.ts",
@@ -59,11 +59,11 @@
     },
     {
       "path": "dist/introspector.cjs",
-      "sha256": "19ae77b346d7fdd4b0e52d405dcc82e2260ccfc4607ac5c486300363c895fa83"
+      "sha256": "aa640ea13db44f0a266743dabf3eeda74f2d009fef3dd24c2333afee4c66b7ed"
     },
     {
       "path": "dist/introspector.cjs.map",
-      "sha256": "75a3295f5d24216eee5d619e54fb6c67eb161975ade040f73ff8bb5a7365eec8"
+      "sha256": "aeaa6c082954ceeb6bb4736a4a9f2d3422ca8e198886afb993cafb55f4334568"
     },
     {
       "path": "dist/introspector.d.ts",
@@ -71,11 +71,11 @@
     },
     {
       "path": "dist/introspector.mjs",
-      "sha256": "313798c5aa2f64bb924f4f14d12c4e513bcd94dfa9bc3a1c663d66854ff07ad8"
+      "sha256": "da14ff5ca046bde762a73b3ec6bc4789d751c4661511cb68141cc7782a2407fd"
     },
     {
       "path": "dist/introspector.mjs.map",
-      "sha256": "b0a7f7fde21181f1ab22a7c8aed5b3bdb88be844d347a4b9fa1224975cc8808f"
+      "sha256": "67d0eee4787ce4f27edf6ce8376fbc1d2c45b941096748fb0b2ea2ee99ee1fd5"
     },
     {
       "path": "dist/marker-collisions.d.ts",
@@ -203,7 +203,7 @@
     },
     {
       "path": "package.json",
-      "sha256": "429fc03bbb01f011c002fb8220b7f520999f48f2aa71fa7b5773f5f2d19ac4b1"
+      "sha256": "37896b3e977c0aeff609864d7fbbf396df0f22083f926c55e33ae4bf1c453210"
     },
     {
       "path": "README.md",
@@ -235,7 +235,7 @@
     },
     {
       "path": "scripts/verify-package-tarball.mjs",
-      "sha256": "70b45ffa2c058795a284cbc6e4ec8bca332d44e59d0ff641c7b3d46a13510c0f"
+      "sha256": "04bc3b5b29c5d861c88f1f774f3144ea39f795f48550b7d3afcdb5693fa9f4a2"
     },
     {
       "path": "src/index.ts",
@@ -255,7 +255,7 @@
     },
     {
       "path": "src/introspector.ts",
-      "sha256": "e10920c9a79316ec11a55d5b4ad2247cd213215d722fbe112fa3b396a826d186"
+      "sha256": "ffc88f1e5f5c8dd8f9ecca7735e290cfb1b733866f84c99f721f580cd405fc15"
     },
     {
       "path": "src/marker-collisions.ts",

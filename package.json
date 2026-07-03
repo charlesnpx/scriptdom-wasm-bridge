@@ -55,7 +55,8 @@
     "build:wasm": "dotnet publish c-sharp/tokenizer -c Release && dotnet publish c-sharp/introspector -c Release && node scripts/copy-appbundle.mjs",
     "check": "npm run check:introspector-projection && npm run build && node --check dist/index.mjs && node --check dist/index.cjs && node --check dist/tokenizer.mjs && node --check dist/tokenizer.cjs && node --check dist/sanitizer.mjs && node --check dist/sanitizer.cjs && node --check dist/introspector.mjs && node --check dist/introspector.cjs && node --check test/scriptdom-wasm.test.mjs && node --check test/commonjs-smoke.cjs && node --check test/typescript-consumer-smoke.mjs && node --check scripts/copy-appbundle.mjs && node --check scripts/postprocess-appbundle.mjs && node --check scripts/verify-appbundle.mjs && node --check scripts/build-js.mjs && node --check scripts/clean-dist.mjs && node --check scripts/generate-introspector-projection.mjs && node --check scripts/verify-package-tarball.mjs",
     "test": "npm run build && node test/scriptdom-wasm.test.mjs && node test/commonjs-smoke.cjs && node test/typescript-consumer-smoke.mjs",
-    "prepack": "npm run build && node scripts/verify-appbundle.mjs"
+    "verify:package": "npm pack --dry-run --ignore-scripts --json | node scripts/verify-package-tarball.mjs --pack-json -",
+    "prepack": "npm run build && node scripts/verify-appbundle.mjs && npm run verify:package"
   },
   "keywords": [
     "scriptdom",
