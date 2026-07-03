@@ -352,6 +352,9 @@ assertDoesNotContain(
 
 const invalidInspectResult = introspector.inspect("select 'inspect_error_secret");
 const invalidInspectJson = JSON.stringify(invalidInspectResult);
+const invalidInspectWithTokens = introspector.inspect("select 'inspect_error_secret", {
+  includeTokens: true,
+});
 
 if (!invalidInspectResult.failed) {
   throw new Error('Introspector accepted a failed parse');
@@ -359,6 +362,10 @@ if (!invalidInspectResult.failed) {
 
 if (invalidInspectResult.nodes.length !== 0) {
   throw new Error('Introspector returned structural results for a failed parse');
+}
+
+if (!Array.isArray(invalidInspectWithTokens.tokens) || invalidInspectWithTokens.tokens.length !== 0) {
+  throw new Error('Introspector returned tokens for a failed parse');
 }
 
 assertDoesNotContain(

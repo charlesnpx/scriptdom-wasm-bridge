@@ -56,9 +56,6 @@ public static partial class TsqlIntrospector
                 throw new ProjectionLimitExceededException();
             }
 
-            IReadOnlyList<ProjectedToken> tokens = options.IncludeTokens
-                ? ProjectTokens(sql)
-                : Array.Empty<ProjectedToken>();
             var parser = new TSql160Parser(initialQuotedIdentifiers: false, SqlEngineType.All);
             var fragment = parser.Parse(new StringReader(sql), out IList<ParseError> errors);
 
@@ -67,12 +64,15 @@ public static partial class TsqlIntrospector
                 return WriteInspectResultJson(
                     failed: true,
                     nodes: Array.Empty<ProjectedNode>(),
-                    tokens,
+                    tokens: Array.Empty<ProjectedToken>(),
                     errors,
                     options,
                     sql.Length);
             }
 
+            IReadOnlyList<ProjectedToken> tokens = options.IncludeTokens
+                ? ProjectTokens(sql)
+                : Array.Empty<ProjectedToken>();
             var nodes = ProjectNodes(fragment, options);
 
             return WriteInspectResultJson(
@@ -233,7 +233,8 @@ public static partial class TsqlIntrospector
         InspectOptions options,
         int sqlLength)
     {
-        using var output = new MemoryStream();
+        using var output = new CappedMemoryStream(
+            IntrospectorProjectionManifest.MaxSerializedEnvelopeUtf8Bytes);
         using (var writer = new Utf8JsonWriter(output))
         {
             writer.WriteStartObject();
@@ -249,11 +250,6 @@ public static partial class TsqlIntrospector
 
             WriteErrors(writer, errors, sqlLength);
             writer.WriteEndObject();
-        }
-
-        if (output.Length > IntrospectorProjectionManifest.MaxSerializedEnvelopeUtf8Bytes)
-        {
-            throw new ProjectionLimitExceededException();
         }
 
         var result = Encoding.UTF8.GetString(output.GetBuffer(), 0, checked((int)output.Length));
@@ -560,3 +556,39 @@ internal readonly record struct ProjectedToken(
     int Column);
 
 internal sealed class ProjectionLimitExceededException : Exception;
+
+internal sealed class CappedMemoryStream : MemoryStream
+{
+    private readonly long _maxBytes;
+
+    public CappedMemoryStream(long maxBytes)
+    {
+        _maxBytes = maxBytes;
+    }
+
+    public override void Write(byte[] buffer, int offset, int count)
+    {
+        ThrowIfWriteExceedsLimit(count);
+        base.Write(buffer, offset, count);
+    }
+
+    public override void Write(ReadOnlySpan<byte> buffer)
+    {
+        ThrowIfWriteExceedsLimit(buffer.Length);
+        base.Write(buffer);
+    }
+
+    public override void WriteByte(byte value)
+    {
+        ThrowIfWriteExceedsLimit(1);
+        base.WriteByte(value);
+    }
+
+    private void ThrowIfWriteExceedsLimit(int byteCount)
+    {
+        if (Length + byteCount > _maxBytes)
+        {
+            throw new ProjectionLimitExceededException();
+        }
+    }
+}
