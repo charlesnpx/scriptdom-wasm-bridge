@@ -6,7 +6,12 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 const root = path.resolve(import.meta.dirname, '..');
-const defaultAllowlistPath = path.join(root, 'package-file-allowlist.v1.json');
+const defaultAllowlistPath = path.join(root, 'package-file-allowlist.v2.json');
+const devOnlySchemaPackageName = ['a', 'j', 'v'].join('');
+const devOnlySchemaPackageReferencePattern = new RegExp(
+  `(^|[^A-Za-z0-9_.-])${devOnlySchemaPackageName}($|[/@'"])`,
+  'i',
+);
 const args = parseArgs(process.argv.slice(2));
 
 if (!args.packJson || (args.writeAllowlist && !args.tarball)) {
@@ -15,8 +20,12 @@ if (!args.packJson || (args.writeAllowlist && !args.tarball)) {
   );
 }
 
+const rootPackageJson = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+verifyRuntimePackageMetadata(rootPackageJson);
+
 const dryRunFiles = await readPackJson(args.packJson);
 verifyFileList(dryRunFiles, 'dry-run packlist');
+await verifyLocalPackedFileContents(dryRunFiles);
 const allowlistPath = args.allowlist ?? defaultAllowlistPath;
 const allowlist = args.writeAllowlist ? undefined : await readAllowlist(allowlistPath);
 if (allowlist) {
@@ -43,6 +52,7 @@ if (args.tarball) {
   if (hashes.size !== tarballFiles.length) {
     throw new Error('Tarball hash verification did not cover every packed file');
   }
+  await verifyTarballFileContents(args.tarball, tarballFiles);
 
   if (args.writeAllowlist) {
     await writeAllowlist(allowlistPath, hashes);
@@ -118,7 +128,7 @@ async function writeAllowlist(allowlistPath, hashes) {
     allowlistPath,
     `${JSON.stringify(
       {
-        version: 1,
+        version: 2,
         files,
       },
       null,
@@ -196,6 +206,31 @@ async function hashLocalFiles(files) {
   return hashes;
 }
 
+async function verifyLocalPackedFileContents(files) {
+  for (const file of files) {
+    if (!shouldScanForDevOnlySchemaPackage(file)) {
+      continue;
+    }
+
+    const source = await fs.readFile(path.join(root, file), 'utf8');
+    verifyNoDevOnlySchemaPackageReference(source, `packed local file ${file}`);
+  }
+}
+
+async function verifyTarballFileContents(tarballPath, files) {
+  for (const file of files) {
+    if (!shouldScanForDevOnlySchemaPackage(file)) {
+      continue;
+    }
+
+    const { stdout } = await execFileAsync('tar', ['-xOf', tarballPath, `package/${file}`], {
+      cwd: root,
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    verifyNoDevOnlySchemaPackageReference(stdout, `packed tarball file ${file}`);
+  }
+}
+
 function normalizePackagePath(filePath) {
   return filePath.replace(/^package\//, '').replaceAll('\\', '/');
 }
@@ -241,6 +276,55 @@ function verifyHashes(actualHashes, expectedHashes) {
   }
 }
 
+function verifyRuntimePackageMetadata(packageJson) {
+  const runtimeDependencyFields = [
+    'dependencies',
+    'optionalDependencies',
+    'peerDependencies',
+    'bundleDependencies',
+    'bundledDependencies',
+  ];
+
+  for (const field of runtimeDependencyFields) {
+    const dependencies = packageJson[field];
+
+    if (dependencies === undefined) {
+      continue;
+    }
+
+    if (Array.isArray(dependencies)) {
+      if (dependencies.includes(devOnlySchemaPackageName)) {
+        throw new Error('Package metadata bundles a dev-only schema validator');
+      }
+
+      continue;
+    }
+
+    if (
+      dependencies &&
+      typeof dependencies === 'object' &&
+      Object.hasOwn(dependencies, devOnlySchemaPackageName)
+    ) {
+      throw new Error('Package metadata declares a dev-only schema validator as runtime dependency');
+    }
+  }
+}
+
+function shouldScanForDevOnlySchemaPackage(file) {
+  return (
+    file.startsWith('src/') ||
+    file.startsWith('scripts/') ||
+    file.startsWith('dist/') ||
+    file.endsWith('.map')
+  );
+}
+
+function verifyNoDevOnlySchemaPackageReference(source, context) {
+  if (devOnlySchemaPackageReferencePattern.test(source)) {
+    throw new Error(`${context} references a dev-only schema validator`);
+  }
+}
+
 function isDeniedPackagePath(file) {
   return [
     /^test\//,
@@ -253,6 +337,9 @@ function isDeniedPackagePath(file) {
     /malformed/i,
     /forced-failure/i,
     /discovery/i,
+    /(^|\/)introspector-projection\.v1\./,
+    /(^|\/)introspector-result\.v1\./,
+    /^package-file-allowlist\.v1\.json$/,
     /\.stamp$/,
     /\.symbols$/,
   ].some((pattern) => pattern.test(file));

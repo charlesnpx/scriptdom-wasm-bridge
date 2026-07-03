@@ -1,7 +1,7 @@
 export const config = /*json-start*/{
   "mainAssemblyName": "ScriptDomIntrospectorWasmBridge.dll",
   "resources": {
-    "hash": "sha256-wUqmuXLwzz9j1mz8jHlrXkzmKG26ueMSsxClId9wsEg=",
+    "hash": "sha256-7BFoef+7OZigUan95aPsIohdlJ2fAUMOw/j7j0V0xIc=",
     "jsModuleNative": [
       {
         "name": "dotnet.native.js"
@@ -34,12 +34,12 @@ export const config = /*json-start*/{
       {
         "virtualPath": "Microsoft.SqlServer.TransactSql.ScriptDom.wasm",
         "name": "Microsoft.SqlServer.TransactSql.ScriptDom.wasm",
-        "hash": "sha256-E2Gc4Sd+w0oYmCBY8lDAas9qpXw6RX7QJgvEwRyoTHM="
+        "hash": "sha256-NEMi99znG1DKKUPvVyM+cApXLhNwwl/kBGoHLV3rPn0="
       },
       {
         "virtualPath": "ScriptDomIntrospectorWasmBridge.wasm",
         "name": "ScriptDomIntrospectorWasmBridge.wasm",
-        "hash": "sha256-7sNxhe0WSrRbOnRTfb7j0iN6NyYUVkQbPXP0dTQtf44="
+        "hash": "sha256-thHxtFNO2dEFP2uRnpy5FtKEjA1ORAkVrGLDtlLoX5c="
       },
       {
         "virtualPath": "System.Collections.Concurrent.wasm",

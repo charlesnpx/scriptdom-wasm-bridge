@@ -1,0 +1,101 @@
+{
+  "projectionVersion": 2,
+  "parser": "TSql160Parser",
+  "scriptDomPackageVersion": "180.37.3",
+  "limits": {
+    "sqlUtf16CodeUnits": 2097152,
+    "privateOptionsJsonUtf16CodeUnits": 80,
+    "nodes": 100000,
+    "traversedFragments": 250000,
+    "traversalDepth": 1000,
+    "pathSegments": 250000,
+    "parseErrors": 1000,
+    "tokens": 250000,
+    "projectedOutputUtf16CodeUnits": 4194304,
+    "serializedEnvelopeUtf8Bytes": 16777216
+  },
+  "coordinateStates": ["available", "unavailable"],
+  "identifierStates": ["present", "redacted"],
+  "identifierRedactionProfile": {
+    "name": "v1-conservative",
+    "containsAnyCaseInsensitive": [
+      "secret",
+      "password",
+      "passwd",
+      "pwd",
+      "token",
+      "apikey",
+      "api_key",
+      "credential",
+      "privatekey",
+      "private_key"
+    ]
+  },
+  "attributePolicies": [
+    {
+      "nodeKind": "Identifier",
+      "propertyName": "Value",
+      "attributeKind": "identifier"
+    },
+    {
+      "nodeKind": "Identifier",
+      "propertyName": "QuoteType",
+      "attributeKind": "enum"
+    },
+    {
+      "nodeKind": "BooleanComparisonExpression",
+      "propertyName": "ComparisonType",
+      "attributeKind": "enum"
+    },
+    {
+      "nodeKind": "BooleanBinaryExpression",
+      "propertyName": "BinaryExpressionType",
+      "attributeKind": "enum"
+    },
+    {
+      "nodeKind": "BooleanTernaryExpression",
+      "propertyName": "TernaryExpressionType",
+      "attributeKind": "enum"
+    },
+    {
+      "nodeKind": "SubqueryComparisonPredicate",
+      "propertyName": "ComparisonType",
+      "attributeKind": "enum"
+    },
+    {
+      "nodeKind": "SubqueryComparisonPredicate",
+      "propertyName": "SubqueryComparisonPredicateType",
+      "attributeKind": "enum"
+    },
+    {
+      "nodeKind": "InPredicate",
+      "propertyName": "NotDefined",
+      "attributeKind": "boolean"
+    },
+    {
+      "nodeKind": "LikePredicate",
+      "propertyName": "NotDefined",
+      "attributeKind": "boolean"
+    },
+    {
+      "nodeKind": "LikePredicate",
+      "propertyName": "OdbcEscape",
+      "attributeKind": "boolean"
+    },
+    {
+      "nodeKind": "BooleanIsNullExpression",
+      "propertyName": "IsNot",
+      "attributeKind": "boolean"
+    },
+    {
+      "nodeKind": "DistinctPredicate",
+      "propertyName": "IsNot",
+      "attributeKind": "boolean"
+    },
+    {
+      "nodeKind": "FullTextPredicate",
+      "propertyName": "FullTextFunctionType",
+      "attributeKind": "enum"
+    }
+  ]
+}

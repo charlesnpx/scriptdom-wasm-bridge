@@ -8,9 +8,9 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 
 const root = path.resolve(import.meta.dirname, '..');
-const manifestPath = path.join(root, 'src', 'introspector-projection.v1.json');
-const generatedTsPath = path.join(root, 'src', 'introspector-projection.v1.generated.ts');
-const schemaPath = path.join(root, 'src', 'introspector-result.v1.schema.json');
+const manifestPath = path.join(root, 'src', 'introspector-projection.v2.json');
+const generatedTsPath = path.join(root, 'src', 'introspector-projection.v2.generated.ts');
+const schemaPath = path.join(root, 'src', 'introspector-result.v2.schema.json');
 const generatedCSharpManifestPath = path.join(
   root,
   'c-sharp',
@@ -350,12 +350,26 @@ function normalizeAttributePolicy(policy, nodes) {
     };
   }
 
+  if (policy.attributeKind === 'boolean') {
+    if (!property.IsBoolean) {
+      throw new Error(
+        `Boolean attribute policy must target a boolean property: ${policy.nodeKind}.${policy.propertyName}`,
+      );
+    }
+
+    return { ...policy };
+  }
+
   throw new Error(`Unsupported attribute policy kind ${policy.attributeKind}`);
 }
 
 function buildScalarValueSchema(policy) {
   if (policy.attributeKind === 'enum') {
     return { enum: policy.allowedValues };
+  }
+
+  if (policy.attributeKind === 'boolean') {
+    return { type: 'boolean' };
   }
 
   throw new Error(`Unsupported scalar attribute policy kind ${policy.attributeKind}`);
@@ -381,7 +395,7 @@ function buildSchema(sourceManifest, { edgePolicies, nodeKinds, attributePolicie
       .filter((policy) => policy.edgeKind === 'array')
       .map((policy) => policy.edgeName),
   );
-  const attributeSchemas = attributePolicies.flatMap((policy) => {
+  const attributeSchemas = uniqueSchemaBranches(attributePolicies.flatMap((policy) => {
     if (policy.attributeKind === 'identifier') {
       return [
         {
@@ -422,12 +436,12 @@ function buildSchema(sourceManifest, { edgePolicies, nodeKinds, attributePolicie
         },
       },
     ];
-  });
+  }));
 
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'https://scriptdom-wasm-bridge.local/introspector-result.v1.schema.json',
-    title: 'scriptdom-wasm-bridge T-SQL introspector result v1',
+    $id: 'https://scriptdom-wasm-bridge.local/introspector-result.v2.schema.json',
+    title: 'scriptdom-wasm-bridge T-SQL introspector result v2',
     type: 'object',
     additionalProperties: false,
     required: ['failed', 'parser', 'projectionVersion', 'nodes', 'errors'],
@@ -722,6 +736,13 @@ function generateAttributeCases(policies) {
           continue;
         }
 
+        if (policy.attributeKind === 'boolean') {
+          lines.push(
+            `    StructuralJsonWriter.WriteBooleanAttribute(writer, ${csString(policy.propertyName)}, typed.${policy.propertyName});`,
+          );
+          continue;
+        }
+
         throw new Error(`Unsupported attribute policy kind ${policy.attributeKind}`);
       }
 
@@ -787,6 +808,21 @@ function sortEdgePolicies(policies) {
       .join('\u0000')
       .localeCompare([right.parentKind, right.edgeName, right.edgeKind].join('\u0000'), 'en-US'),
   );
+}
+
+function uniqueSchemaBranches(schemas) {
+  const seen = new Set();
+
+  return schemas.filter((schema) => {
+    const key = canonicalJson(schema);
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
 }
 
 function csString(value) {

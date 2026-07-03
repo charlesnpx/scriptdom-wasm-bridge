@@ -512,6 +512,15 @@ internal static class StructuralJsonWriter
         writer.WriteEndObject();
     }
 
+    public static void WriteBooleanAttribute(Utf8JsonWriter writer, string name, bool value)
+    {
+        writer.WriteStartObject();
+        writer.WriteString("name", name);
+        writer.WriteString("kind", "boolean");
+        writer.WriteBoolean("value", value);
+        writer.WriteEndObject();
+    }
+
     private static bool IsSensitiveIdentifier(string value)
     {
         foreach (var fragment in IntrospectorProjectionManifest.SensitiveIdentifierFragments)

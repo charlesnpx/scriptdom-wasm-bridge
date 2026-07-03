@@ -249,7 +249,8 @@ type TsqlStructuralAttribute =
       profile: 'v1-conservative';
       reason: 'literal-origin' | 'secret-pattern';
     }
-  | { name: string; kind: 'enum'; value: string };
+  | { name: string; kind: 'enum'; value: string }
+  | { name: string; kind: 'boolean'; value: boolean };
 
 type TsqlStructuralNode = {
   id: number;
@@ -279,7 +280,7 @@ type TsqlInspectLocationError = {
 type TsqlInspectResult = {
   failed: boolean;
   parser: 'TSql160Parser';
-  projectionVersion: 1;
+  projectionVersion: 2;
   nodes: TsqlStructuralNode[];
   tokens?: TsqlInspectToken[];
   errors: TsqlInspectLocationError[];
@@ -290,7 +291,7 @@ The introspector returns a low-policy structural ScriptDOM projection. It does n
 
 `includeSpans` defaults to `false`. When enabled, nodes with valid ScriptDOM spans include UTF-16 code-unit `offset` and `length` plus one-based ScriptDOM `line` and `column`. `includeTokens` defaults to `false`; when enabled, tokens include numeric `TSqlTokenType` values and coordinates but never token text.
 
-Identifier attributes may be returned as `state: 'present'`. Secret-pattern identifiers and literal-origin identifiers are returned as `state: 'redacted'` under the deterministic `v1-conservative` profile. Raw SQL, literal values, comments, token text, parser messages, exception details, stack traces, internal paths, and serializer details are not returned.
+Identifier attributes may be returned as `state: 'present'`. Secret-pattern identifiers and literal-origin identifiers are returned as `state: 'redacted'` under the deterministic `v1-conservative` profile. Predicate operator facts are exposed only as generic `enum` and `boolean` attributes. Raw SQL, literal values, comments, token text, parser messages, exception details, stack traces, internal paths, and serializer details are not returned.
 
 On parse errors, the introspector returns `failed: true`, an empty `nodes` array, optional empty `tokens`, and location-only errors. Invalid parser coordinates normalize to `{ offset: 0, line: 1, column: 1, coordinateState: 'unavailable' }`.
 
