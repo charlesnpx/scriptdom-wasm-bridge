@@ -6,6 +6,7 @@ import {
   TSQL_INSPECT_COORDINATE_STATES,
   TSQL_INSPECT_TOKEN_TYPES,
   TSQL_STRUCTURAL_EDGE_NAMES,
+  TSQL_STRUCTURAL_EDGE_POLICIES,
   TSQL_STRUCTURAL_ATTRIBUTE_KINDS,
   TSQL_STRUCTURAL_ATTRIBUTE_NAMES,
   TSQL_STRUCTURAL_ATTRIBUTE_POLICIES,
@@ -172,6 +173,12 @@ const identifierRedactedAttributeKeys = new Set(['name', 'kind', 'state', 'profi
 const scalarAttributeKeys = new Set(['name', 'kind', 'value']);
 const nodeKindSet = new Set<string>(TSQL_STRUCTURAL_NODE_KINDS);
 const edgeNameSet = new Set<string>(TSQL_STRUCTURAL_EDGE_NAMES);
+const edgePolicyKinds = new Map(
+  TSQL_STRUCTURAL_EDGE_POLICIES.map((policy) => [
+    edgePolicyKey(policy.parentKind, policy.edgeName),
+    policy.edgeKind,
+  ]),
+);
 const attributeNameSet = new Set<string>(TSQL_STRUCTURAL_ATTRIBUTE_NAMES);
 const attributeKindSet = new Set<string>(TSQL_STRUCTURAL_ATTRIBUTE_KINDS);
 const attributePolicySet = new Set(
@@ -426,8 +433,16 @@ function validateInspectResult(
     throw new Error('Invalid ScriptDOM result: inspect result ABI');
   }
 
-  const nodes = validateArray(value.nodes, 'nodes', INTROSPECTOR_PROJECTION_ABI.limits.nodes, (item, index) =>
-    validateNode(sql, item, index, options),
+  const validatedNodes: TsqlStructuralNode[] = [];
+  const nodes = validateArray(
+    value.nodes,
+    'nodes',
+    INTROSPECTOR_PROJECTION_ABI.limits.nodes,
+    (item, index) => {
+      const node = validateNode(sql, item, index, options, validatedNodes);
+      validatedNodes.push(node);
+      return node;
+    },
   );
   const errors = validateArray(
     value.errors,
@@ -460,6 +475,7 @@ function validateNode(
   value: unknown,
   index: number,
   options: NormalizedInspectOptions,
+  validatedNodes: readonly TsqlStructuralNode[],
 ): TsqlStructuralNode {
   assertObject(value, `nodes[${index}]`);
   assertRequiredAllowedKeysLocal(
@@ -480,9 +496,23 @@ function validateNode(
   }
   const nodeKind = value.kind as TsqlStructuralNodeKind;
 
-  if (value.parentId !== null) {
+  let parentKind: TsqlStructuralNodeKind | undefined;
+  if (index === 0) {
+    if (value.parentId !== null) {
+      throw new Error('Invalid ScriptDOM result: node parent');
+    }
+  } else {
+    if (value.parentId === null) {
+      throw new Error('Invalid ScriptDOM result: node parent');
+    }
+
     assertNonNegativeInteger(value.parentId, `nodes[${index}].parentId`);
-    if (value.parentId >= value.id) {
+    if (value.parentId >= index) {
+      throw new Error('Invalid ScriptDOM result: node parent');
+    }
+
+    parentKind = validatedNodes[value.parentId]?.kind;
+    if (parentKind === undefined) {
       throw new Error('Invalid ScriptDOM result: node parent');
     }
   }
@@ -490,7 +520,7 @@ function validateNode(
   const pathFromParent = validatePathFromParent(
     value.pathFromParent,
     index,
-    value.parentId !== null,
+    parentKind,
   );
 
   const attributes = validateArray(
@@ -522,13 +552,13 @@ function validateNode(
 function validatePathFromParent(
   value: unknown,
   nodeIndex: number,
-  hasParent: boolean,
+  parentKind: TsqlStructuralNodeKind | undefined,
 ): TsqlStructuralPathFromParent {
   if (!Array.isArray(value)) {
     throw new Error('Invalid ScriptDOM result: node path');
   }
 
-  if (!hasParent) {
+  if (parentKind === undefined) {
     if (value.length !== 0) {
       throw new Error('Invalid ScriptDOM result: node path');
     }
@@ -544,9 +574,22 @@ function validatePathFromParent(
   if (!edgeNameSet.has(value[0])) {
     throw new Error('Invalid ScriptDOM result: node path');
   }
+  const edgeKind = edgePolicyKinds.get(edgePolicyKey(parentKind, value[0]));
+
+  if (edgeKind === undefined) {
+    throw new Error('Invalid ScriptDOM result: node path');
+  }
 
   if (value.length === 1) {
+    if (edgeKind !== 'single') {
+      throw new Error('Invalid ScriptDOM result: node path');
+    }
+
     return [value[0] as TsqlStructuralEdgeName];
+  }
+
+  if (edgeKind !== 'array') {
+    throw new Error('Invalid ScriptDOM result: node path');
   }
 
   assertString(value[1], `nodes[${nodeIndex}].pathFromParent[1]`);
@@ -636,6 +679,10 @@ function validateAttribute(
 
 function attributePolicyKey(nodeKind: string, attributeName: string, attributeKind: string) {
   return `${nodeKind}\u0000${attributeName}\u0000${attributeKind}`;
+}
+
+function edgePolicyKey(parentKind: string, edgeName: string) {
+  return `${parentKind}\u0000${edgeName}`;
 }
 
 function validateSpan(sql: string, value: unknown, fieldName: string): TsqlInspectSpan {

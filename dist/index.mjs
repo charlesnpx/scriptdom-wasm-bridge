@@ -7,7 +7,7 @@ import path2 from "node:path";
 
 // src/introspector-projection.v1.generated.ts
 var INTROSPECTOR_PROJECTION_ABI = {
-  "allowlistSha256": "55c6d664b5afac33359c66438c132f5fc6f0bb4566d93df569f71cc401dd07bf",
+  "allowlistSha256": "7a643f7cfaffc8cf599587e73a79cbf82ae15d496d574f1ded9b263007aec977",
   "identifierRedactionProfile": "v1-conservative",
   "limits": {
     "nodes": 1e5,
@@ -24,7 +24,7 @@ var INTROSPECTOR_PROJECTION_ABI = {
   "manifestSha256": "c772369fd341ee586e13e1d080b2f4d2842bbd946c9c2f0b3b4e805b8f0a576b",
   "parser": "TSql160Parser",
   "projectionVersion": 1,
-  "resultSchemaSha256": "bb734e86840e30187b95ed274c006c6f5da393d2fc6f461919a444d0c4398a46"
+  "resultSchemaSha256": "0ffa1b8f8804b3322a95d31072537e06720b815ce9741ee6f9a6fbe4393ae10a"
 };
 var TSQL_STRUCTURAL_NODE_KINDS = [
   "AIAnalyzeSentimentFunctionCall",
@@ -1573,6 +1573,8793 @@ var TSQL_STRUCTURAL_EDGE_NAMES = [
   "XmlSchemaCollectionName",
   "XQueryDataType"
 ];
+var TSQL_STRUCTURAL_EDGE_POLICIES = [
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "AddAlterFullTextIndexAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileName",
+    "parentKind": "AddFileSpec"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "File",
+    "parentKind": "AddFileSpec"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Member",
+    "parentKind": "AddMemberAlterRoleAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Description",
+    "parentKind": "AddSearchPropertyListAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Guid",
+    "parentKind": "AddSearchPropertyListAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Id",
+    "parentKind": "AddSearchPropertyListAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PropertyName",
+    "parentKind": "AddSearchPropertyListAction"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "AddSensitivityClassificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AddSensitivityClassificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Cryptos",
+    "parentKind": "AddSignatureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Element",
+    "parentKind": "AddSignatureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "InitString",
+    "parentKind": "AdHocDataSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ProviderName",
+    "parentKind": "AdHocDataSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "AdHocTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataSource",
+    "parentKind": "AdHocTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Object",
+    "parentKind": "AdHocTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "AIAnalyzeSentimentFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Input",
+    "parentKind": "AIAnalyzeSentimentFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "AIClassifyFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Input",
+    "parentKind": "AIClassifyFunctionCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Labels",
+    "parentKind": "AIClassifyFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "AIExtractFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Input",
+    "parentKind": "AIExtractFunctionCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Labels",
+    "parentKind": "AIExtractFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "AIFixGrammarFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Input",
+    "parentKind": "AIFixGrammarFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "AIGenerateChunksTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ChunkType",
+    "parentKind": "AIGenerateChunksTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Source",
+    "parentKind": "AIGenerateChunksTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "AIGenerateEmbeddingsFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Input",
+    "parentKind": "AIGenerateEmbeddingsFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ModelName",
+    "parentKind": "AIGenerateEmbeddingsFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionalParameters",
+    "parentKind": "AIGenerateEmbeddingsFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "AIGenerateFixedChunksTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ChunkSize",
+    "parentKind": "AIGenerateFixedChunksTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ChunkType",
+    "parentKind": "AIGenerateFixedChunksTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EnableChunkSetId",
+    "parentKind": "AIGenerateFixedChunksTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Overlap",
+    "parentKind": "AIGenerateFixedChunksTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Source",
+    "parentKind": "AIGenerateFixedChunksTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "AIGenerateResponseFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PromptPart1",
+    "parentKind": "AIGenerateResponseFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PromptPart2",
+    "parentKind": "AIGenerateResponseFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "AISummarizeFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Input",
+    "parentKind": "AISummarizeFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "AITranslateFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Input",
+    "parentKind": "AITranslateFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Language",
+    "parentKind": "AITranslateFunctionCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ApplicationRoleOptions",
+    "parentKind": "AlterApplicationRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterApplicationRoleStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "AddFiles",
+    "parentKind": "AlterAssemblyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "DropFiles",
+    "parentKind": "AlterAssemblyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterAssemblyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterAssemblyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "AlterAssemblyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AttestedBy",
+    "parentKind": "AlterAsymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DecryptionPassword",
+    "parentKind": "AlterAsymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EncryptionPassword",
+    "parentKind": "AlterAsymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterAsymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PrincipalName",
+    "parentKind": "AlterAuthorizationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecurityTargetObject",
+    "parentKind": "AlterAuthorizationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterAvailabilityGroupFailoverAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "AlterAvailabilityGroupFailoverOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Action",
+    "parentKind": "AlterAvailabilityGroupStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Databases",
+    "parentKind": "AlterAvailabilityGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterAvailabilityGroupStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterAvailabilityGroupStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Replicas",
+    "parentKind": "AlterAvailabilityGroupStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "BrokerPriorityParameters",
+    "parentKind": "AlterBrokerPriorityStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterBrokerPriorityStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AttestedBy",
+    "parentKind": "AlterCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DecryptionPassword",
+    "parentKind": "AlterCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EncryptionPassword",
+    "parentKind": "AlterCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PrivateKeyPath",
+    "parentKind": "AlterCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Column",
+    "parentKind": "AlterColumnAlterFullTextIndexAction"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ColumnEncryptionKeyValues",
+    "parentKind": "AlterColumnEncryptionKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterColumnEncryptionKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identity",
+    "parentKind": "AlterCredentialStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterCredentialStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Secret",
+    "parentKind": "AlterCredentialStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "File",
+    "parentKind": "AlterCryptographicProviderStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterCryptographicProviderStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "AlterDatabaseAddFileGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileGroup",
+    "parentKind": "AlterDatabaseAddFileGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "AlterDatabaseAddFileStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "FileDeclarations",
+    "parentKind": "AlterDatabaseAddFileStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileGroup",
+    "parentKind": "AlterDatabaseAddFileStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AuditName",
+    "parentKind": "AlterDatabaseAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parts",
+    "parentKind": "AlterDatabaseAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SpecificationName",
+    "parentKind": "AlterDatabaseAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "AlterDatabaseCollateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "AlterDatabaseCollateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Encryptor",
+    "parentKind": "AlterDatabaseEncryptionKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "AlterDatabaseModifyFileGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileGroup",
+    "parentKind": "AlterDatabaseModifyFileGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "NewFileGroupName",
+    "parentKind": "AlterDatabaseModifyFileGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Termination",
+    "parentKind": "AlterDatabaseModifyFileGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "AlterDatabaseModifyFileStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileDeclaration",
+    "parentKind": "AlterDatabaseModifyFileStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "AlterDatabaseModifyNameStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "NewDatabaseName",
+    "parentKind": "AlterDatabaseModifyNameStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "AlterDatabasePerformCutoverStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "AlterDatabaseRebuildLogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileDeclaration",
+    "parentKind": "AlterDatabaseRebuildLogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "AlterDatabaseRemoveFileGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileGroup",
+    "parentKind": "AlterDatabaseRemoveFileGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "AlterDatabaseRemoveFileStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "File",
+    "parentKind": "AlterDatabaseRemoveFileStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Option",
+    "parentKind": "AlterDatabaseScopedConfigurationClearStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Option",
+    "parentKind": "AlterDatabaseScopedConfigurationSetStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "AlterDatabaseSetStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterDatabaseSetStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Termination",
+    "parentKind": "AlterDatabaseSetStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RollbackAfter",
+    "parentKind": "AlterDatabaseTermination"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Affinity",
+    "parentKind": "AlterEndpointStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterEndpointStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PayloadOptions",
+    "parentKind": "AlterEndpointStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ProtocolOptions",
+    "parentKind": "AlterEndpointStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "DropEventDeclarations",
+    "parentKind": "AlterEventSessionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "DropTargetDeclarations",
+    "parentKind": "AlterEventSessionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "EventDeclarations",
+    "parentKind": "AlterEventSessionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterEventSessionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SessionOptions",
+    "parentKind": "AlterEventSessionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TargetDeclarations",
+    "parentKind": "AlterEventSessionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ExternalDataSourceOptions",
+    "parentKind": "AlterExternalDataSourceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Location",
+    "parentKind": "AlterExternalDataSourceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterExternalDataSourceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExternalName",
+    "parentKind": "AlterExternalFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterExternalFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "AlterExternalFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ReturnType",
+    "parentKind": "AlterExternalFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ExternalLanguageFiles",
+    "parentKind": "AlterExternalLanguageStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterExternalLanguageStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Operation",
+    "parentKind": "AlterExternalLanguageStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "AlterExternalLanguageStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Platform",
+    "parentKind": "AlterExternalLanguageStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ExternalLibraryFiles",
+    "parentKind": "AlterExternalLibraryStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Language",
+    "parentKind": "AlterExternalLibraryStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterExternalLibraryStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "AlterExternalLibraryStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ApiFormat",
+    "parentKind": "AlterExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Credential",
+    "parentKind": "AlterExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LocalRuntimePath",
+    "parentKind": "AlterExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Location",
+    "parentKind": "AlterExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ModelName",
+    "parentKind": "AlterExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Parameters",
+    "parentKind": "AlterExternalModelStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ExternalResourcePoolParameters",
+    "parentKind": "AlterExternalResourcePoolStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterExternalResourcePoolStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Boundary",
+    "parentKind": "AlterFederationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DistributionName",
+    "parentKind": "AlterFederationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterFederationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterFullTextCatalogStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterFullTextCatalogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Action",
+    "parentKind": "AlterFullTextIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnName",
+    "parentKind": "AlterFullTextIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Action",
+    "parentKind": "AlterFullTextStopListStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterFullTextStopListStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MethodSpecifier",
+    "parentKind": "AlterFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OrderHint",
+    "parentKind": "AlterFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "AlterFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ReturnType",
+    "parentKind": "AlterFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatementList",
+    "parentKind": "AlterFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexOptions",
+    "parentKind": "AlterIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnName",
+    "parentKind": "AlterIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Partition",
+    "parentKind": "AlterIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PromotedPaths",
+    "parentKind": "AlterIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "XmlNamespaces",
+    "parentKind": "AlterIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CredentialName",
+    "parentKind": "AlterLoginAddDropCredentialStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterLoginAddDropCredentialStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterLoginEnableDisableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterLoginOptionsStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterLoginOptionsStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Password",
+    "parentKind": "AlterMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterMessageTypeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "XmlSchemaCollectionName",
+    "parentKind": "AlterMessageTypeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Boundary",
+    "parentKind": "AlterPartitionFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterPartitionFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileGroup",
+    "parentKind": "AlterPartitionSchemeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterPartitionSchemeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MethodSpecifier",
+    "parentKind": "AlterProcedureStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterProcedureStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "AlterProcedureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ProcedureReference",
+    "parentKind": "AlterProcedureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatementList",
+    "parentKind": "AlterProcedureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterQueueStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "QueueOptions",
+    "parentKind": "AlterQueueStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterRemoteServiceBindingStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterRemoteServiceBindingStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ClassifierFunction",
+    "parentKind": "AlterResourceGovernorStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterResourcePoolStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ResourcePoolParameters",
+    "parentKind": "AlterResourcePoolStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Action",
+    "parentKind": "AlterRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterRouteStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "RouteOptions",
+    "parentKind": "AlterRouteStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterSchemaStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ObjectName",
+    "parentKind": "AlterSchemaStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Action",
+    "parentKind": "AlterSearchPropertyListStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterSearchPropertyListStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterSecurityPolicyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SecurityPolicyOptions",
+    "parentKind": "AlterSecurityPolicyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SecurityPredicateActions",
+    "parentKind": "AlterSecurityPolicyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterSequenceStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SequenceOptions",
+    "parentKind": "AlterSequenceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AuditName",
+    "parentKind": "AlterServerAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parts",
+    "parentKind": "AlterServerAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SpecificationName",
+    "parentKind": "AlterServerAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AuditName",
+    "parentKind": "AlterServerAuditStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AuditTarget",
+    "parentKind": "AlterServerAuditStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "NewName",
+    "parentKind": "AlterServerAuditStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterServerAuditStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PredicateExpression",
+    "parentKind": "AlterServerAuditStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "AlterServerConfigurationBufferPoolExtensionContainerOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Suboptions",
+    "parentKind": "AlterServerConfigurationBufferPoolExtensionContainerOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "AlterServerConfigurationBufferPoolExtensionOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "AlterServerConfigurationBufferPoolExtensionSizeOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "AlterServerConfigurationDiagnosticsLogMaxSizeOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "AlterServerConfigurationDiagnosticsLogOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "AlterServerConfigurationExternalAuthenticationContainerOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Suboptions",
+    "parentKind": "AlterServerConfigurationExternalAuthenticationContainerOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "AlterServerConfigurationExternalAuthenticationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "AlterServerConfigurationFailoverClusterPropertyOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "AlterServerConfigurationHadrClusterOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterServerConfigurationSetBufferPoolExtensionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterServerConfigurationSetDiagnosticsLogStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterServerConfigurationSetExternalAuthenticationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterServerConfigurationSetFailoverClusterPropertyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterServerConfigurationSetHadrClusterStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterServerConfigurationSetSoftNumaStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "AlterServerConfigurationSoftNumaOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ProcessAffinityRanges",
+    "parentKind": "AlterServerConfigurationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Action",
+    "parentKind": "AlterServerRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterServerRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Account",
+    "parentKind": "AlterServiceMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Password",
+    "parentKind": "AlterServiceMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterServiceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "QueueName",
+    "parentKind": "AlterServiceStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ServiceContracts",
+    "parentKind": "AlterServiceStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "EncryptingMechanisms",
+    "parentKind": "AlterSymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterSymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ClusterByOption",
+    "parentKind": "AlterTableAddClusterByStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableAddClusterByStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Definition",
+    "parentKind": "AlterTableAddTableElementStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableAddTableElementStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "AlterTableAlterColumnStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnIdentifier",
+    "parentKind": "AlterTableAlterColumnStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "AlterTableAlterColumnStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Encryption",
+    "parentKind": "AlterTableAlterColumnStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MaskingFunction",
+    "parentKind": "AlterTableAlterColumnStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterTableAlterColumnStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableAlterColumnStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StorageOptions",
+    "parentKind": "AlterTableAlterColumnStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "IndexIdentifier",
+    "parentKind": "AlterTableAlterIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexOptions",
+    "parentKind": "AlterTableAlterIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableAlterIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "BoundaryValue",
+    "parentKind": "AlterTableAlterPartitionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableAlterPartitionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableChangeTrackingModificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ConstraintNames",
+    "parentKind": "AlterTableConstraintModificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableConstraintModificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "DropClusteredConstraintOptions",
+    "parentKind": "AlterTableDropTableElement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterTableDropTableElement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "AlterTableDropTableElements",
+    "parentKind": "AlterTableDropTableElementStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableDropTableElementStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableFileTableNamespaceStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexOptions",
+    "parentKind": "AlterTableRebuildStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Partition",
+    "parentKind": "AlterTableRebuildStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableRebuildStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterTableSetStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableSetStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterTableSwitchStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableSwitchStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SourcePartitionNumber",
+    "parentKind": "AlterTableSwitchStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TargetPartitionNumber",
+    "parentKind": "AlterTableSwitchStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TargetTable",
+    "parentKind": "AlterTableSwitchStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterTableTriggerModificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TriggerNames",
+    "parentKind": "AlterTableTriggerModificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MethodSpecifier",
+    "parentKind": "AlterTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterTriggerStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AlterTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatementList",
+    "parentKind": "AlterTriggerStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TriggerActions",
+    "parentKind": "AlterTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TriggerObject",
+    "parentKind": "AlterTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterUserStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "UserOptions",
+    "parentKind": "AlterUserStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "AlterViewStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "AlterViewStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SelectStatement",
+    "parentKind": "AlterViewStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ViewOptions",
+    "parentKind": "AlterViewStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExternalPoolName",
+    "parentKind": "AlterWorkloadGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterWorkloadGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PoolName",
+    "parentKind": "AlterWorkloadGroupStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "WorkloadGroupParameters",
+    "parentKind": "AlterWorkloadGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "AlterXmlSchemaCollectionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AlterXmlSchemaCollectionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "ApplicationRoleOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Assembly",
+    "parentKind": "AssemblyEncryptionSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ClassName",
+    "parentKind": "AssemblyName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "AssemblyName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Column",
+    "parentKind": "AssignmentSetClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "NewValue",
+    "parentKind": "AssignmentSetClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Variable",
+    "parentKind": "AssignmentSetClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Credential",
+    "parentKind": "AsymmetricKeyCreateLoginSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Key",
+    "parentKind": "AsymmetricKeyCreateLoginSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "AtTimeZoneCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DateValue",
+    "parentKind": "AtTimeZoneCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TimeZone",
+    "parentKind": "AtTimeZoneCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Actions",
+    "parentKind": "AuditActionSpecification"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Principals",
+    "parentKind": "AuditActionSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TargetObject",
+    "parentKind": "AuditActionSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Guid",
+    "parentKind": "AuditGuidAuditOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Details",
+    "parentKind": "AuditSpecificationPart"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TargetOptions",
+    "parentKind": "AuditTarget"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Certificate",
+    "parentKind": "AuthenticationPayloadOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AutomaticTuningDatabaseOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "AvailabilityReplica"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ServerName",
+    "parentKind": "AvailabilityReplica"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DecryptionPassword",
+    "parentKind": "BackupCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EncryptionPassword",
+    "parentKind": "BackupCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "File",
+    "parentKind": "BackupCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "BackupCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PrivateKeyPath",
+    "parentKind": "BackupCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "BackupDatabaseStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Devices",
+    "parentKind": "BackupDatabaseStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Files",
+    "parentKind": "BackupDatabaseStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "MirrorToClauses",
+    "parentKind": "BackupDatabaseStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "BackupDatabaseStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Encryptor",
+    "parentKind": "BackupEncryptionOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "BackupEncryptionOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "File",
+    "parentKind": "BackupMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Password",
+    "parentKind": "BackupMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "BackupOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Items",
+    "parentKind": "BackupRestoreFileInfo"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "File",
+    "parentKind": "BackupServiceMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Password",
+    "parentKind": "BackupServiceMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "BackupTransactionLogStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Devices",
+    "parentKind": "BackupTransactionLogStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "MirrorToClauses",
+    "parentKind": "BackupTransactionLogStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "BackupTransactionLogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Index",
+    "parentKind": "BackwardsCompatibleDropIndexClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Handle",
+    "parentKind": "BeginConversationTimerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Timeout",
+    "parentKind": "BeginConversationTimerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ContractName",
+    "parentKind": "BeginDialogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Handle",
+    "parentKind": "BeginDialogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "InitiatorServiceName",
+    "parentKind": "BeginDialogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "InstanceSpec",
+    "parentKind": "BeginDialogStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "BeginDialogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TargetServiceName",
+    "parentKind": "BeginDialogStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "BeginEndAtomicBlockStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatementList",
+    "parentKind": "BeginEndAtomicBlockStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatementList",
+    "parentKind": "BeginEndBlockStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MarkDescription",
+    "parentKind": "BeginTransactionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "BeginTransactionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstExpression",
+    "parentKind": "BinaryExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondExpression",
+    "parentKind": "BinaryExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "BinaryLiteral"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstQueryExpression",
+    "parentKind": "BinaryQueryExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ForClause",
+    "parentKind": "BinaryQueryExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OffsetClause",
+    "parentKind": "BinaryQueryExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OrderByClause",
+    "parentKind": "BinaryQueryExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondQueryExpression",
+    "parentKind": "BinaryQueryExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstExpression",
+    "parentKind": "BooleanBinaryExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondExpression",
+    "parentKind": "BooleanBinaryExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstExpression",
+    "parentKind": "BooleanComparisonExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondExpression",
+    "parentKind": "BooleanComparisonExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "BooleanIsNullExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "BooleanNotExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "BooleanParenthesisExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstExpression",
+    "parentKind": "BooleanTernaryExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondExpression",
+    "parentKind": "BooleanTernaryExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ThirdExpression",
+    "parentKind": "BooleanTernaryExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "BoundingBoxParameter"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "BoundingBoxParameters",
+    "parentKind": "BoundingBoxSpatialIndexOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ParameterValue",
+    "parentKind": "BrokerPriorityParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "BuiltInFunctionTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "BuiltInFunctionTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "BuiltInFunctionTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "From",
+    "parentKind": "BulkInsertStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "BulkInsertStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "To",
+    "parentKind": "BulkInsertStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "BulkOpenRowset"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "BulkOpenRowset"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "DataFiles",
+    "parentKind": "BulkOpenRowset"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "BulkOpenRowset"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "WithColumns",
+    "parentKind": "BulkOpenRowset"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "CastCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "CastCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Parameter",
+    "parentKind": "CastCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "CellsPerObjectSpatialIndexOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Certificate",
+    "parentKind": "CertificateCreateLoginSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Credential",
+    "parentKind": "CertificateCreateLoginSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "CertificateOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RetentionPeriod",
+    "parentKind": "ChangeRetentionChangeTrackingOptionDetail"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "ChangeTableChangesTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "ChangeTableChangesTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SinceVersion",
+    "parentKind": "ChangeTableChangesTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Target",
+    "parentKind": "ChangeTableChangesTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "ChangeTableVersionTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "ChangeTableVersionTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PrimaryKeyColumns",
+    "parentKind": "ChangeTableVersionTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PrimaryKeyValues",
+    "parentKind": "ChangeTableVersionTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Target",
+    "parentKind": "ChangeTableVersionTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Details",
+    "parentKind": "ChangeTrackingDatabaseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CheckCondition",
+    "parentKind": "CheckConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ConstraintIdentifier",
+    "parentKind": "CheckConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Duration",
+    "parentKind": "CheckpointStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "BaseIdentifier",
+    "parentKind": "ChildObjectName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ChildIdentifier",
+    "parentKind": "ChildObjectName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseIdentifier",
+    "parentKind": "ChildObjectName"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Identifiers",
+    "parentKind": "ChildObjectName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaIdentifier",
+    "parentKind": "ChildObjectName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ServerIdentifier",
+    "parentKind": "ChildObjectName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Time",
+    "parentKind": "ClassifierEndTimeOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MemberName",
+    "parentKind": "ClassifierMemberNameOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Time",
+    "parentKind": "ClassifierStartTimeOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WlmContext",
+    "parentKind": "ClassifierWlmContextOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WlmLabel",
+    "parentKind": "ClassifierWlmLabelOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WorkloadGroupName",
+    "parentKind": "ClassifierWorkloadGroupOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Cursor",
+    "parentKind": "CloseCursorStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CloseSymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "ClusterByTableOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "CoalesceExpression"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Expressions",
+    "parentKind": "CoalesceExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "ColumnDefinitionBase"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnIdentifier",
+    "parentKind": "ColumnDefinitionBase"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "ColumnDefinitionBase"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "ColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnIdentifier",
+    "parentKind": "ColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ComputedColumnExpression",
+    "parentKind": "ColumnDefinition"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Constraints",
+    "parentKind": "ColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "ColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DefaultConstraint",
+    "parentKind": "ColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Encryption",
+    "parentKind": "ColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "IdentityOptions",
+    "parentKind": "ColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Index",
+    "parentKind": "ColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MaskingFunction",
+    "parentKind": "ColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StorageOptions",
+    "parentKind": "ColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Algorithm",
+    "parentKind": "ColumnEncryptionAlgorithmNameParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EncryptionAlgorithm",
+    "parentKind": "ColumnEncryptionAlgorithmParameter"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "ColumnEncryptionDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "ColumnEncryptionKeyNameParameter"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "ColumnEncryptionKeyValue"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Signature",
+    "parentKind": "ColumnMasterKeyEnclaveComputationsParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "ColumnMasterKeyNameParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Path",
+    "parentKind": "ColumnMasterKeyPathParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "ColumnMasterKeyStoreProviderNameParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "ColumnReferenceExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MultiPartIdentifier",
+    "parentKind": "ColumnReferenceExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Column",
+    "parentKind": "ColumnWithSortOrder"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CommitTransactionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "CommonTableExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExpressionName",
+    "parentKind": "CommonTableExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "QueryExpression",
+    "parentKind": "CommonTableExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WithCtesAndXmlNamespaces",
+    "parentKind": "CommonTableExpression"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Items",
+    "parentKind": "CompositeGroupingSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "CompressionDelayIndexOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "From",
+    "parentKind": "CompressionPartitionRange"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "To",
+    "parentKind": "CompressionPartitionRange"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ByExpressions",
+    "parentKind": "ComputeClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ComputeFunctions",
+    "parentKind": "ComputeClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "ComputeFunction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "ContractMessage"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "ConvertCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "ConvertCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Parameter",
+    "parentKind": "ConvertCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Style",
+    "parentKind": "ConvertCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnName",
+    "parentKind": "CopyColumnOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DefaultValue",
+    "parentKind": "CopyColumnOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FieldNumber",
+    "parentKind": "CopyColumnOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identity",
+    "parentKind": "CopyCredentialOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Secret",
+    "parentKind": "CopyCredentialOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "CopyOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "From",
+    "parentKind": "CopyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Into",
+    "parentKind": "CopyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "OptimizerHints",
+    "parentKind": "CopyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CopyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AssemblyName",
+    "parentKind": "CreateAggregateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateAggregateStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "CreateAggregateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ReturnType",
+    "parentKind": "CreateAggregateStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ApplicationRoleOptions",
+    "parentKind": "CreateApplicationRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateApplicationRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateAssemblyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateAssemblyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateAssemblyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "CreateAssemblyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "KeySource",
+    "parentKind": "CreateAsymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateAsymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateAsymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Password",
+    "parentKind": "CreateAsymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Databases",
+    "parentKind": "CreateAvailabilityGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateAvailabilityGroupStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateAvailabilityGroupStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Replicas",
+    "parentKind": "CreateAvailabilityGroupStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "BrokerPriorityParameters",
+    "parentKind": "CreateBrokerPriorityStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateBrokerPriorityStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "CertificateOptions",
+    "parentKind": "CreateCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CertificateSource",
+    "parentKind": "CreateCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DecryptionPassword",
+    "parentKind": "CreateCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EncryptionPassword",
+    "parentKind": "CreateCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PrivateKeyPath",
+    "parentKind": "CreateCertificateStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ColumnEncryptionKeyValues",
+    "parentKind": "CreateColumnEncryptionKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateColumnEncryptionKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateColumnMasterKeyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "CreateColumnMasterKeyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "CreateColumnStoreIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FilterPredicate",
+    "parentKind": "CreateColumnStoreIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexOptions",
+    "parentKind": "CreateColumnStoreIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateColumnStoreIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnFileGroupOrPartitionScheme",
+    "parentKind": "CreateColumnStoreIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnName",
+    "parentKind": "CreateColumnStoreIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "OrderedColumns",
+    "parentKind": "CreateColumnStoreIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Messages",
+    "parentKind": "CreateContractStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateContractStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateContractStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CryptographicProviderName",
+    "parentKind": "CreateCredentialStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identity",
+    "parentKind": "CreateCredentialStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateCredentialStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Secret",
+    "parentKind": "CreateCredentialStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "File",
+    "parentKind": "CreateCryptographicProviderStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateCryptographicProviderStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AuditName",
+    "parentKind": "CreateDatabaseAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parts",
+    "parentKind": "CreateDatabaseAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SpecificationName",
+    "parentKind": "CreateDatabaseAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Encryptor",
+    "parentKind": "CreateDatabaseEncryptionKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "CreateDatabaseStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Containment",
+    "parentKind": "CreateDatabaseStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CopyOf",
+    "parentKind": "CreateDatabaseStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "CreateDatabaseStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseSnapshot",
+    "parentKind": "CreateDatabaseStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "FileGroups",
+    "parentKind": "CreateDatabaseStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "LogOn",
+    "parentKind": "CreateDatabaseStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateDatabaseStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "CreateDefaultStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateDefaultStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Affinity",
+    "parentKind": "CreateEndpointStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateEndpointStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateEndpointStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PayloadOptions",
+    "parentKind": "CreateEndpointStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ProtocolOptions",
+    "parentKind": "CreateEndpointStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "BrokerInstanceSpecifier",
+    "parentKind": "CreateEventNotificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "BrokerService",
+    "parentKind": "CreateEventNotificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "EventTypeGroups",
+    "parentKind": "CreateEventNotificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateEventNotificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Scope",
+    "parentKind": "CreateEventNotificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "EventDeclarations",
+    "parentKind": "CreateEventSessionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateEventSessionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SessionOptions",
+    "parentKind": "CreateEventSessionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TargetDeclarations",
+    "parentKind": "CreateEventSessionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ExternalDataSourceOptions",
+    "parentKind": "CreateExternalDataSourceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Location",
+    "parentKind": "CreateExternalDataSourceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateExternalDataSourceStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ExternalFileFormatOptions",
+    "parentKind": "CreateExternalFileFormatStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateExternalFileFormatStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExternalName",
+    "parentKind": "CreateExternalFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateExternalFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "CreateExternalFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ReturnType",
+    "parentKind": "CreateExternalFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ExternalLanguageFiles",
+    "parentKind": "CreateExternalLanguageStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateExternalLanguageStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateExternalLanguageStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ExternalLibraryFiles",
+    "parentKind": "CreateExternalLibraryStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Language",
+    "parentKind": "CreateExternalLibraryStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateExternalLibraryStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateExternalLibraryStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ApiFormat",
+    "parentKind": "CreateExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Credential",
+    "parentKind": "CreateExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LocalRuntimePath",
+    "parentKind": "CreateExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Location",
+    "parentKind": "CreateExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ModelName",
+    "parentKind": "CreateExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Parameters",
+    "parentKind": "CreateExternalModelStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ExternalResourcePoolParameters",
+    "parentKind": "CreateExternalResourcePoolStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateExternalResourcePoolStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateExternalStreamingJobStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Statement",
+    "parentKind": "CreateExternalStreamingJobStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ExternalStreamOptions",
+    "parentKind": "CreateExternalStreamStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "InputOptions",
+    "parentKind": "CreateExternalStreamStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Location",
+    "parentKind": "CreateExternalStreamStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateExternalStreamStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OutputOptions",
+    "parentKind": "CreateExternalStreamStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ColumnDefinitions",
+    "parentKind": "CreateExternalTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataSource",
+    "parentKind": "CreateExternalTableStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ExternalTableOptions",
+    "parentKind": "CreateExternalTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "CreateExternalTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SelectStatement",
+    "parentKind": "CreateExternalTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "CreateFederationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DistributionName",
+    "parentKind": "CreateFederationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateFederationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileGroup",
+    "parentKind": "CreateFullTextCatalogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateFullTextCatalogStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateFullTextCatalogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateFullTextCatalogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Path",
+    "parentKind": "CreateFullTextCatalogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CatalogAndFileGroup",
+    "parentKind": "CreateFullTextIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "FullTextIndexColumns",
+    "parentKind": "CreateFullTextIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "KeyIndexName",
+    "parentKind": "CreateFullTextIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnName",
+    "parentKind": "CreateFullTextIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateFullTextIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "CreateFullTextStopListStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateFullTextStopListStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateFullTextStopListStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SourceStopListName",
+    "parentKind": "CreateFullTextStopListStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MethodSpecifier",
+    "parentKind": "CreateFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OrderHint",
+    "parentKind": "CreateFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "CreateFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ReturnType",
+    "parentKind": "CreateFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatementList",
+    "parentKind": "CreateFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "CreateIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileStreamOn",
+    "parentKind": "CreateIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FilterPredicate",
+    "parentKind": "CreateIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IncludeColumns",
+    "parentKind": "CreateIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexOptions",
+    "parentKind": "CreateIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnFileGroupOrPartitionScheme",
+    "parentKind": "CreateIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnName",
+    "parentKind": "CreateIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ForJsonPaths",
+    "parentKind": "CreateJsonIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexOptions",
+    "parentKind": "CreateJsonIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "JsonColumn",
+    "parentKind": "CreateJsonIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateJsonIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnName",
+    "parentKind": "CreateJsonIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateLoginStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Source",
+    "parentKind": "CreateLoginStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Password",
+    "parentKind": "CreateMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateMessageTypeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateMessageTypeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "XmlSchemaCollectionName",
+    "parentKind": "CreateMessageTypeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExternalName",
+    "parentKind": "CreateOrAlterExternalFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateOrAlterExternalFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "CreateOrAlterExternalFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ReturnType",
+    "parentKind": "CreateOrAlterExternalFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MethodSpecifier",
+    "parentKind": "CreateOrAlterFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateOrAlterFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateOrAlterFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OrderHint",
+    "parentKind": "CreateOrAlterFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "CreateOrAlterFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ReturnType",
+    "parentKind": "CreateOrAlterFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatementList",
+    "parentKind": "CreateOrAlterFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MethodSpecifier",
+    "parentKind": "CreateOrAlterProcedureStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateOrAlterProcedureStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "CreateOrAlterProcedureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ProcedureReference",
+    "parentKind": "CreateOrAlterProcedureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatementList",
+    "parentKind": "CreateOrAlterProcedureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MethodSpecifier",
+    "parentKind": "CreateOrAlterTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateOrAlterTriggerStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateOrAlterTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatementList",
+    "parentKind": "CreateOrAlterTriggerStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TriggerActions",
+    "parentKind": "CreateOrAlterTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TriggerObject",
+    "parentKind": "CreateOrAlterTriggerStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "CreateOrAlterViewStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "CreateOrAlterViewStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SelectStatement",
+    "parentKind": "CreateOrAlterViewStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ViewOptions",
+    "parentKind": "CreateOrAlterViewStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "BoundaryValues",
+    "parentKind": "CreatePartitionFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreatePartitionFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ParameterType",
+    "parentKind": "CreatePartitionFunctionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "FileGroups",
+    "parentKind": "CreatePartitionSchemeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreatePartitionSchemeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PartitionFunction",
+    "parentKind": "CreatePartitionSchemeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MethodSpecifier",
+    "parentKind": "CreateProcedureStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateProcedureStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "CreateProcedureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ProcedureReference",
+    "parentKind": "CreateProcedureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatementList",
+    "parentKind": "CreateProcedureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateQueueStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnFileGroup",
+    "parentKind": "CreateQueueStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "QueueOptions",
+    "parentKind": "CreateQueueStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateRemoteServiceBindingStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateRemoteServiceBindingStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateRemoteServiceBindingStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Service",
+    "parentKind": "CreateRemoteServiceBindingStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateResourcePoolStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ResourcePoolParameters",
+    "parentKind": "CreateResourcePoolStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateRouteStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateRouteStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "RouteOptions",
+    "parentKind": "CreateRouteStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "CreateRuleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateRuleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateSchemaStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateSchemaStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatementList",
+    "parentKind": "CreateSchemaStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateSearchPropertyListStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateSearchPropertyListStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SourceSearchPropertyList",
+    "parentKind": "CreateSearchPropertyListStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateSecurityPolicyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SecurityPolicyOptions",
+    "parentKind": "CreateSecurityPolicyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SecurityPredicateActions",
+    "parentKind": "CreateSecurityPolicyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexOptions",
+    "parentKind": "CreateSelectiveXmlIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateSelectiveXmlIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnName",
+    "parentKind": "CreateSelectiveXmlIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PathName",
+    "parentKind": "CreateSelectiveXmlIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PromotedPaths",
+    "parentKind": "CreateSelectiveXmlIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "UsingXmlIndexName",
+    "parentKind": "CreateSelectiveXmlIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "XmlColumn",
+    "parentKind": "CreateSelectiveXmlIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "XmlNamespaces",
+    "parentKind": "CreateSelectiveXmlIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "CreateSemanticIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExternalModelName",
+    "parentKind": "CreateSemanticIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExternalModelParameters",
+    "parentKind": "CreateSemanticIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FulltextStoplistOption",
+    "parentKind": "CreateSemanticIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexOptions",
+    "parentKind": "CreateSemanticIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateSemanticIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnFileGroupOrPartitionScheme",
+    "parentKind": "CreateSemanticIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnName",
+    "parentKind": "CreateSemanticIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "VectorIndexOptions",
+    "parentKind": "CreateSemanticIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateSequenceStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SequenceOptions",
+    "parentKind": "CreateSequenceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AuditName",
+    "parentKind": "CreateServerAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parts",
+    "parentKind": "CreateServerAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SpecificationName",
+    "parentKind": "CreateServerAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AuditName",
+    "parentKind": "CreateServerAuditStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AuditTarget",
+    "parentKind": "CreateServerAuditStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateServerAuditStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PredicateExpression",
+    "parentKind": "CreateServerAuditStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateServerRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateServerRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateServiceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateServiceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "QueueName",
+    "parentKind": "CreateServiceStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ServiceContracts",
+    "parentKind": "CreateServiceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateSpatialIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Object",
+    "parentKind": "CreateSpatialIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnFileGroup",
+    "parentKind": "CreateSpatialIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SpatialColumnName",
+    "parentKind": "CreateSpatialIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SpatialIndexOptions",
+    "parentKind": "CreateSpatialIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "CreateStatisticsStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FilterPredicate",
+    "parentKind": "CreateStatisticsStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateStatisticsStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnName",
+    "parentKind": "CreateStatisticsStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "StatisticsOptions",
+    "parentKind": "CreateStatisticsStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "EncryptingMechanisms",
+    "parentKind": "CreateSymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "KeyOptions",
+    "parentKind": "CreateSymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateSymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "CreateSymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Provider",
+    "parentKind": "CreateSymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ForName",
+    "parentKind": "CreateSynonymStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateSynonymStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ClonePointInTime",
+    "parentKind": "CreateTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CloneSource",
+    "parentKind": "CreateTableStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "CtasColumns",
+    "parentKind": "CreateTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Definition",
+    "parentKind": "CreateTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FederationScheme",
+    "parentKind": "CreateTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileStreamOn",
+    "parentKind": "CreateTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnFileGroupOrPartitionScheme",
+    "parentKind": "CreateTableStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "CreateTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SelectStatement",
+    "parentKind": "CreateTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TextImageOn",
+    "parentKind": "CreateTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MethodSpecifier",
+    "parentKind": "CreateTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateTriggerStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatementList",
+    "parentKind": "CreateTriggerStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TriggerActions",
+    "parentKind": "CreateTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TriggerObject",
+    "parentKind": "CreateTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Definition",
+    "parentKind": "CreateTypeTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateTypeTableStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateTypeTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "CreateTypeUddtStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateTypeUddtStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "NullableConstraint",
+    "parentKind": "CreateTypeUddtStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AssemblyName",
+    "parentKind": "CreateTypeUdtStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateTypeUdtStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateUserStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "UserLoginOption",
+    "parentKind": "CreateUserStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "UserOptions",
+    "parentKind": "CreateUserStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexOptions",
+    "parentKind": "CreateVectorIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateVectorIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnFileGroupOrPartitionScheme",
+    "parentKind": "CreateVectorIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnName",
+    "parentKind": "CreateVectorIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "VectorColumn",
+    "parentKind": "CreateVectorIndexStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "CreateViewStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "CreateViewStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SelectStatement",
+    "parentKind": "CreateViewStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ViewOptions",
+    "parentKind": "CreateViewStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ClassifierName",
+    "parentKind": "CreateWorkloadClassifierStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CreateWorkloadClassifierStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExternalPoolName",
+    "parentKind": "CreateWorkloadGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateWorkloadGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PoolName",
+    "parentKind": "CreateWorkloadGroupStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "WorkloadGroupParameters",
+    "parentKind": "CreateWorkloadGroupStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexOptions",
+    "parentKind": "CreateXmlIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateXmlIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnFileGroupOrPartitionScheme",
+    "parentKind": "CreateXmlIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnName",
+    "parentKind": "CreateXmlIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondaryXmlIndexName",
+    "parentKind": "CreateXmlIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "XmlColumn",
+    "parentKind": "CreateXmlIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "CreateXmlSchemaCollectionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CreateXmlSchemaCollectionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identifier",
+    "parentKind": "CryptoMechanism"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PasswordOrSignature",
+    "parentKind": "CryptoMechanism"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Arguments",
+    "parentKind": "CubeGroupingSpecification"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "CursorDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Select",
+    "parentKind": "CursorDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "CursorId"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PlanHandle",
+    "parentKind": "DatabaseConfigurationClearOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "GenericOptionKind",
+    "parentKind": "DatabaseConfigurationSetOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PartitionRanges",
+    "parentKind": "DataCompressionOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "DataModificationTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "DataModificationTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataModificationSpecification",
+    "parentKind": "DataModificationTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FilterColumn",
+    "parentKind": "DataRetentionTableOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RetentionPeriod",
+    "parentKind": "DataRetentionTableOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "DataTypeSequenceOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "DbccNamedLiteral"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Literals",
+    "parentKind": "DbccStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "DbccStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Cursor",
+    "parentKind": "DeallocateCursorStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CursorDefinition",
+    "parentKind": "DeclareCursorStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DeclareCursorStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Definition",
+    "parentKind": "DeclareTableVariableBody"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "VariableName",
+    "parentKind": "DeclareTableVariableBody"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Body",
+    "parentKind": "DeclareTableVariableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "DeclareVariableElement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Nullable",
+    "parentKind": "DeclareVariableElement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "DeclareVariableElement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "VariableName",
+    "parentKind": "DeclareVariableElement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Declarations",
+    "parentKind": "DeclareVariableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Column",
+    "parentKind": "DefaultConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ConstraintIdentifier",
+    "parentKind": "DefaultConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "DefaultConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "DefaultLiteral"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FromClause",
+    "parentKind": "DeleteSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OutputClause",
+    "parentKind": "DeleteSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OutputIntoClause",
+    "parentKind": "DeleteSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Target",
+    "parentKind": "DeleteSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TopRowFilter",
+    "parentKind": "DeleteSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WhereClause",
+    "parentKind": "DeleteSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DeleteSpecification",
+    "parentKind": "DeleteStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "OptimizerHints",
+    "parentKind": "DeleteStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WithCtesAndXmlNamespaces",
+    "parentKind": "DeleteStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecurityElement80",
+    "parentKind": "DenyStatement80"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecurityUserClause80",
+    "parentKind": "DenyStatement80"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AsClause",
+    "parentKind": "DenyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Permissions",
+    "parentKind": "DenyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Principals",
+    "parentKind": "DenyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecurityTargetObject",
+    "parentKind": "DenyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LogicalDevice",
+    "parentKind": "DeviceInfo"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PhysicalDevice",
+    "parentKind": "DeviceInfo"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "DiskStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "DiskStatementOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstExpression",
+    "parentKind": "DistinctPredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondExpression",
+    "parentKind": "DistinctPredicate"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropAggregateStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "DropAlterFullTextIndexAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropApplicationRoleStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropAssemblyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropAsymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropAvailabilityGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropBrokerPriorityStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropCertificateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "DropClusteredConstraintMoveOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "DropClusteredConstraintValueOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "DropClusteredConstraintWaitAtLowPriorityLockOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropColumnEncryptionKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropColumnMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropContractStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropCredentialStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropCryptographicProviderStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropDatabaseAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Databases",
+    "parentKind": "DropDatabaseStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropDefaultStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropEndpointStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Notifications",
+    "parentKind": "DropEventNotificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Scope",
+    "parentKind": "DropEventNotificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropEventSessionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropExternalDataSourceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropExternalFileFormatStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropExternalLanguageStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "DropExternalLanguageStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropExternalLibraryStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Owner",
+    "parentKind": "DropExternalLibraryStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropExternalModelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropExternalResourcePoolStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropExternalStreamingJobStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropExternalStreamStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropExternalTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropFederationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropFullTextCatalogStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TableName",
+    "parentKind": "DropFullTextIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropFullTextStopListStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Index",
+    "parentKind": "DropIndexClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Object",
+    "parentKind": "DropIndexClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "DropIndexClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "DropIndexClauses",
+    "parentKind": "DropIndexStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropLoginStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Member",
+    "parentKind": "DropMemberAlterRoleAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropMessageTypeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropPartitionFunctionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropPartitionSchemeStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropProcedureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropQueueStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropRemoteServiceBindingStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropResourcePoolStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropRouteStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropRuleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Schema",
+    "parentKind": "DropSchemaStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PropertyName",
+    "parentKind": "DropSearchPropertyListAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropSearchPropertyListStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropSecurityPolicyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "DropSensitivityClassificationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropSequenceStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropServerAuditSpecificationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropServerAuditStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropServerRoleStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropServiceStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Cryptos",
+    "parentKind": "DropSignatureStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Element",
+    "parentKind": "DropSignatureStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropStatisticsStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropSymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropSynonymStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropTableStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropTypeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropUserStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Objects",
+    "parentKind": "DropViewStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropWorkloadClassifierStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropWorkloadGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "DropXmlSchemaCollectionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "GenericOptionKind",
+    "parentKind": "DWCompatibilityLevelConfigurationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "DWCompatibilityLevelConfigurationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ElasticPoolName",
+    "parentKind": "ElasticPoolSpecification"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TriggerNames",
+    "parentKind": "EnableDisableTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TriggerObject",
+    "parentKind": "EnableDisableTriggerStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "EncryptedValueParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Conversation",
+    "parentKind": "EndConversationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ErrorCode",
+    "parentKind": "EndConversationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ErrorDescription",
+    "parentKind": "EndConversationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "EndpointAffinity"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EventValue",
+    "parentKind": "EventDeclarationCompareFunctionParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "EventDeclarationCompareFunctionParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SourceDeclaration",
+    "parentKind": "EventDeclarationCompareFunctionParameter"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "EventDeclarationActionParameters",
+    "parentKind": "EventDeclaration"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EventDeclarationPredicateParameter",
+    "parentKind": "EventDeclaration"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "EventDeclarationSetParameters",
+    "parentKind": "EventDeclaration"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ObjectName",
+    "parentKind": "EventDeclaration"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EventField",
+    "parentKind": "EventDeclarationSetParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EventValue",
+    "parentKind": "EventDeclarationSetParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "QueueName",
+    "parentKind": "EventNotificationObjectScope"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MultiPartIdentifier",
+    "parentKind": "EventSessionObjectName"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "EventDeclarations",
+    "parentKind": "EventSessionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "EventSessionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SessionOptions",
+    "parentKind": "EventSessionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TargetDeclarations",
+    "parentKind": "EventSessionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AdHocDataSource",
+    "parentKind": "ExecutableProcedureReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "ExecutableProcedureReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ProcedureReference",
+    "parentKind": "ExecutableProcedureReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "ExecutableStringList"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Strings",
+    "parentKind": "ExecutableStringList"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Literal",
+    "parentKind": "ExecuteAsClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExecuteAs",
+    "parentKind": "ExecuteAsFunctionOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExecuteAs",
+    "parentKind": "ExecuteAsProcedureOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Cookie",
+    "parentKind": "ExecuteAsStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExecuteContext",
+    "parentKind": "ExecuteAsStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExecuteAsClause",
+    "parentKind": "ExecuteAsTriggerOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Principal",
+    "parentKind": "ExecuteContext"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Execute",
+    "parentKind": "ExecuteInsertSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ParameterValue",
+    "parentKind": "ExecuteParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Variable",
+    "parentKind": "ExecuteParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExecutableEntity",
+    "parentKind": "ExecuteSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExecuteContext",
+    "parentKind": "ExecuteSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LinkedServer",
+    "parentKind": "ExecuteSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Variable",
+    "parentKind": "ExecuteSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExecuteSpecification",
+    "parentKind": "ExecuteStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "ExecuteStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Subquery",
+    "parentKind": "ExistsPredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "ExpressionCallTarget"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "ExpressionGroupingSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "ExpressionWithSortOrder"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "ExternalCreateLoginSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "ExternalDataSourceLiteralOrIdentifierOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Suboptions",
+    "parentKind": "ExternalFileFormatContainerOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "ExternalFileFormatLiteralOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Content",
+    "parentKind": "ExternalLanguageFileOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EnvironmentVariables",
+    "parentKind": "ExternalLanguageFileOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileName",
+    "parentKind": "ExternalLanguageFileOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Parameters",
+    "parentKind": "ExternalLanguageFileOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Path",
+    "parentKind": "ExternalLanguageFileOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Platform",
+    "parentKind": "ExternalLanguageFileOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Content",
+    "parentKind": "ExternalLibraryFileOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Path",
+    "parentKind": "ExternalLibraryFileOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Platform",
+    "parentKind": "ExternalLibraryFileOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ParameterValue",
+    "parentKind": "ExternalResourcePoolAffinitySpecification"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PoolAffinityRanges",
+    "parentKind": "ExternalResourcePoolAffinitySpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AffinitySpecification",
+    "parentKind": "ExternalResourcePoolParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ParameterValue",
+    "parentKind": "ExternalResourcePoolParameter"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ExternalResourcePoolParameters",
+    "parentKind": "ExternalResourcePoolStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "ExternalResourcePoolStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "ExternalStreamLiteralOrIdentifierOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnDefinition",
+    "parentKind": "ExternalTableColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "NullableConstraint",
+    "parentKind": "ExternalTableColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "ExternalTableDistributionOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "ExternalTableLiteralOrIdentifierOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ShardingColumn",
+    "parentKind": "ExternalTableShardedDistributionPolicy"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "ExtractFromExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ExtractedElement",
+    "parentKind": "ExtractFromExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnName",
+    "parentKind": "FederationScheme"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DistributionName",
+    "parentKind": "FederationScheme"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Cursor",
+    "parentKind": "FetchCursorStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FetchType",
+    "parentKind": "FetchCursorStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IntoVariables",
+    "parentKind": "FetchCursorStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RowOffset",
+    "parentKind": "FetchType"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "FileDeclaration"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "File",
+    "parentKind": "FileEncryptionSource"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "FileDeclarations",
+    "parentKind": "FileGroupDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "FileGroupDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "FileGroupOrPartitionScheme"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PartitionSchemeColumns",
+    "parentKind": "FileGroupOrPartitionScheme"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "GrowthIncrement",
+    "parentKind": "FileGrowthFileDeclarationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OSFileName",
+    "parentKind": "FileNameFileDeclarationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DirectoryName",
+    "parentKind": "FileStreamDatabaseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileStreamOn",
+    "parentKind": "FileStreamOnDropIndexOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "FileStreamOnTableOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileStreamOption",
+    "parentKind": "FileStreamRestoreOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "FileTableCollateFileNameTableOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "FileTableConstraintNameTableOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "FileTableDirectoryTableOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ColumnValues",
+    "parentKind": "ForceSeekTableHint"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "IndexValue",
+    "parentKind": "ForceSeekTableHint"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "ForeignKeyConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ConstraintIdentifier",
+    "parentKind": "ForeignKeyConstraintDefinition"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ReferencedTableColumns",
+    "parentKind": "ForeignKeyConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ReferenceTableName",
+    "parentKind": "ForeignKeyConstraintDefinition"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PredictTableReference",
+    "parentKind": "FromClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TableReferences",
+    "parentKind": "FromClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CatalogName",
+    "parentKind": "FullTextCatalogAndFileGroup"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileGroupName",
+    "parentKind": "FullTextCatalogAndFileGroup"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LanguageTerm",
+    "parentKind": "FullTextIndexColumn"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "FullTextIndexColumn"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TypeColumn",
+    "parentKind": "FullTextIndexColumn"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "FullTextPredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LanguageTerm",
+    "parentKind": "FullTextPredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PropertyName",
+    "parentKind": "FullTextPredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "FullTextPredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LanguageTerm",
+    "parentKind": "FullTextStopListAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StopWord",
+    "parentKind": "FullTextStopListAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "FullTextTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "FullTextTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Language",
+    "parentKind": "FullTextTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PropertyName",
+    "parentKind": "FullTextTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SearchCondition",
+    "parentKind": "FullTextTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TableName",
+    "parentKind": "FullTextTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TopN",
+    "parentKind": "FullTextTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "AbsentOrNullOnNull",
+    "parentKind": "FunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CallTarget",
+    "parentKind": "FunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "FunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FunctionName",
+    "parentKind": "FunctionCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IgnoreRespectNulls",
+    "parentKind": "FunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "JsonOrderByClause",
+    "parentKind": "FunctionCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "JsonParameters",
+    "parentKind": "FunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OverClause",
+    "parentKind": "FunctionCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "FunctionCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ReturnType",
+    "parentKind": "FunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MutatorFunction",
+    "parentKind": "FunctionCallSetClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TrimOptions",
+    "parentKind": "FunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WithinGroupClause",
+    "parentKind": "FunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Parameter",
+    "parentKind": "GeneralSetCommand"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "GenericOptionKind",
+    "parentKind": "GenericConfigurationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "GenericOptionState",
+    "parentKind": "GenericConfigurationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "GroupId",
+    "parentKind": "GetConversationGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Queue",
+    "parentKind": "GetConversationGroupStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "GlobalFunctionTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "GlobalFunctionTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "GlobalFunctionTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "GlobalVariableExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LabelName",
+    "parentKind": "GoToStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AsClause",
+    "parentKind": "GrantStatement80"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecurityElement80",
+    "parentKind": "GrantStatement80"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecurityUserClause80",
+    "parentKind": "GrantStatement80"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AsClause",
+    "parentKind": "GrantStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Permissions",
+    "parentKind": "GrantStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Principals",
+    "parentKind": "GrantStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecurityTargetObject",
+    "parentKind": "GrantStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FromNode",
+    "parentKind": "GraphConnectionBetweenNodes"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ToNode",
+    "parentKind": "GraphConnectionBetweenNodes"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ConstraintIdentifier",
+    "parentKind": "GraphConnectionConstraintDefinition"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "FromNodeToNodeList",
+    "parentKind": "GraphConnectionConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Edge",
+    "parentKind": "GraphMatchCompositeExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LeftNode",
+    "parentKind": "GraphMatchCompositeExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RightNode",
+    "parentKind": "GraphMatchCompositeExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Edge",
+    "parentKind": "GraphMatchExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LeftNode",
+    "parentKind": "GraphMatchExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RightNode",
+    "parentKind": "GraphMatchExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LeftExpression",
+    "parentKind": "GraphMatchLastNodePredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RightExpression",
+    "parentKind": "GraphMatchLastNodePredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Node",
+    "parentKind": "GraphMatchNodeExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "GraphMatchPredicate"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Expression",
+    "parentKind": "GraphMatchRecursivePredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OuterNodeExpression",
+    "parentKind": "GraphMatchRecursivePredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RecursiveQuantifier",
+    "parentKind": "GraphMatchRecursivePredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LowerLimit",
+    "parentKind": "GraphRecursiveMatchQuantifier"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "UpperLimit",
+    "parentKind": "GraphRecursiveMatchQuantifier"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "GridParameters",
+    "parentKind": "GridsSpatialIndexOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "GroupingSpecifications",
+    "parentKind": "GroupByClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Sets",
+    "parentKind": "GroupingSetsGroupingSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "GroupName",
+    "parentKind": "HadrAvailabilityGroupDatabaseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SearchCondition",
+    "parentKind": "HavingClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "IdentifierAtomicBlockOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "IdentifierDatabaseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "IdentifierLiteral"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identifier",
+    "parentKind": "IdentifierOrScalarExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ScalarExpression",
+    "parentKind": "IdentifierOrScalarExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identifier",
+    "parentKind": "IdentifierOrValueExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ValueExpression",
+    "parentKind": "IdentifierOrValueExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identifier",
+    "parentKind": "IdentifierPrincipalOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "IdentityFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Increment",
+    "parentKind": "IdentityFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Seed",
+    "parentKind": "IdentityFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "IdentityIncrement",
+    "parentKind": "IdentityOptions"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "IdentitySeed",
+    "parentKind": "IdentityOptions"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "IdentityPhrase",
+    "parentKind": "IdentityValueKeyOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ElseStatement",
+    "parentKind": "IfStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Predicate",
+    "parentKind": "IfStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ThenStatement",
+    "parentKind": "IfStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "IIfCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ElseExpression",
+    "parentKind": "IIfCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Predicate",
+    "parentKind": "IIfCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ThenExpression",
+    "parentKind": "IIfCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "IndexDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileStreamOn",
+    "parentKind": "IndexDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FilterPredicate",
+    "parentKind": "IndexDefinition"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IncludeColumns",
+    "parentKind": "IndexDefinition"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexOptions",
+    "parentKind": "IndexDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "IndexType",
+    "parentKind": "IndexDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "IndexDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnFileGroupOrPartitionScheme",
+    "parentKind": "IndexDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "IndexExpressionOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexValues",
+    "parentKind": "IndexTableHint"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "InlineDerivedTable"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "InlineDerivedTable"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "RowValues",
+    "parentKind": "InlineDerivedTable"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ResultColumnDefinitions",
+    "parentKind": "InlineResultSetDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "InPredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Subquery",
+    "parentKind": "InPredicate"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Values",
+    "parentKind": "InPredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Column",
+    "parentKind": "InsertBulkColumnDefinition"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ColumnDefinitions",
+    "parentKind": "InsertBulkStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "InsertBulkStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "To",
+    "parentKind": "InsertBulkStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "InsertMergeAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Source",
+    "parentKind": "InsertMergeAction"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "InsertSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "InsertSource",
+    "parentKind": "InsertSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OutputClause",
+    "parentKind": "InsertSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OutputIntoClause",
+    "parentKind": "InsertSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Target",
+    "parentKind": "InsertSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TopRowFilter",
+    "parentKind": "InsertSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "InsertSpecification",
+    "parentKind": "InsertStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "OptimizerHints",
+    "parentKind": "InsertStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WithCtesAndXmlNamespaces",
+    "parentKind": "InsertStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "IntegerLiteral"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "InternalOpenRowset"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identifier",
+    "parentKind": "InternalOpenRowset"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "VarArgs",
+    "parentKind": "InternalOpenRowset"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Arguments",
+    "parentKind": "InvokeExternalApiFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "InvokeExternalApiFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FunctionName",
+    "parentKind": "InvokeExternalApiFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FunctionSetName",
+    "parentKind": "InvokeExternalApiFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OctetFour",
+    "parentKind": "IPv4"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OctetOne",
+    "parentKind": "IPv4"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OctetThree",
+    "parentKind": "IPv4"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OctetTwo",
+    "parentKind": "IPv4"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Join",
+    "parentKind": "JoinParenthesisTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "JsonForClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "JsonForClauseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "JsonKeyName",
+    "parentKind": "JsonKeyValue"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "JsonValue",
+    "parentKind": "JsonKeyValue"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PassPhrase",
+    "parentKind": "KeySourceKeyOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SubscriptionId",
+    "parentKind": "KillQueryNotificationSubscriptionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Parameter",
+    "parentKind": "KillStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "JobId",
+    "parentKind": "KillStatsJobStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LedgerViewOption",
+    "parentKind": "LedgerTableOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OperationTypeColumnName",
+    "parentKind": "LedgerViewOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OperationTypeDescColumnName",
+    "parentKind": "LedgerViewOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SequenceNumberColumnName",
+    "parentKind": "LedgerViewOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TransactionIdColumnName",
+    "parentKind": "LedgerViewOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ViewName",
+    "parentKind": "LedgerViewOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "LeftFunctionCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "LeftFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EscapeExpression",
+    "parentKind": "LikePredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstExpression",
+    "parentKind": "LikePredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondExpression",
+    "parentKind": "LikePredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LineNo",
+    "parentKind": "LineNoStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "IPv4PartOne",
+    "parentKind": "ListenerIPEndpointProtocolOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "IPv4PartTwo",
+    "parentKind": "ListenerIPEndpointProtocolOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "IPv6",
+    "parentKind": "ListenerIPEndpointProtocolOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "ListTypeCopyOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralAtomicBlockOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralAuditTargetOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralAvailabilityGroupOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralBulkInsertOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralDatabaseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralEndpointProtocolOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralOpenRowsetCosmosOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralOptimizerHint"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralOptionValue"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralPayloadOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralPrincipalOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "From",
+    "parentKind": "LiteralRange"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "To",
+    "parentKind": "LiteralRange"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralReplicaOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralSessionOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Literal",
+    "parentKind": "LiteralStatisticsOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "LiteralTableHint"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LocationValue",
+    "parentKind": "LocationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MaxDuration",
+    "parentKind": "LowPriorityLockWaitMaxDurationOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "LowPriorityLockWaitTableSwitchOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "MaxDispatchLatencySessionOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "GenericOptionKind",
+    "parentKind": "MaxDopConfigurationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "MaxDopConfigurationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MaxDuration",
+    "parentKind": "MaxDurationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "MaxLiteral"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "MaxRolloverFilesAuditTargetOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Size",
+    "parentKind": "MaxSizeAuditTargetOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MaxSize",
+    "parentKind": "MaxSizeDatabaseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MaxSize",
+    "parentKind": "MaxSizeFileDeclarationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Action",
+    "parentKind": "MergeActionClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SearchCondition",
+    "parentKind": "MergeActionClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ActionClauses",
+    "parentKind": "MergeSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OutputClause",
+    "parentKind": "MergeSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OutputIntoClause",
+    "parentKind": "MergeSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SearchCondition",
+    "parentKind": "MergeSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TableAlias",
+    "parentKind": "MergeSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TableReference",
+    "parentKind": "MergeSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Target",
+    "parentKind": "MergeSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TopRowFilter",
+    "parentKind": "MergeSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MergeSpecification",
+    "parentKind": "MergeStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "OptimizerHints",
+    "parentKind": "MergeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WithCtesAndXmlNamespaces",
+    "parentKind": "MergeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AssemblyName",
+    "parentKind": "MethodSpecifier"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ClassName",
+    "parentKind": "MethodSpecifier"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MethodName",
+    "parentKind": "MethodSpecifier"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Devices",
+    "parentKind": "MirrorToClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "MoneyLiteral"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Conversation",
+    "parentKind": "MoveConversationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Group",
+    "parentKind": "MoveConversationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LogicalFileName",
+    "parentKind": "MoveRestoreOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OSFileName",
+    "parentKind": "MoveRestoreOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MoveTo",
+    "parentKind": "MoveToDropIndexOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MultiPartIdentifier",
+    "parentKind": "MultiPartIdentifierCallTarget"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Identifiers",
+    "parentKind": "MultiPartIdentifier"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "NamedTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObject",
+    "parentKind": "NamedTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TableHints",
+    "parentKind": "NamedTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TableSampleClause",
+    "parentKind": "NamedTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TemporalClause",
+    "parentKind": "NamedTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LogicalFileName",
+    "parentKind": "NameFileDeclarationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "NextValueForExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OverClause",
+    "parentKind": "NextValueForExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SequenceName",
+    "parentKind": "NextValueForExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ConstraintIdentifier",
+    "parentKind": "NullableConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "NullIfExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstExpression",
+    "parentKind": "NullIfExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondExpression",
+    "parentKind": "NullIfExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "NullLiteral"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "NumericLiteral"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identifier",
+    "parentKind": "OdbcConvertSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "OdbcFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "OdbcFunctionCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "OdbcFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "OdbcLiteral"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TableReference",
+    "parentKind": "OdbcQualifiedJoinTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FetchExpression",
+    "parentKind": "OffsetClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OffsetExpression",
+    "parentKind": "OffsetClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "OnlineIndexLowPriorityLockWaitOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LowPriorityLockWaitOption",
+    "parentKind": "OnlineIndexOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "GenericOptionKind",
+    "parentKind": "OnOffPrimaryConfigurationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Cursor",
+    "parentKind": "OpenCursorStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "OpenJsonTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RowPattern",
+    "parentKind": "OpenJsonTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SchemaDeclarationItems",
+    "parentKind": "OpenJsonTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Variable",
+    "parentKind": "OpenJsonTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Password",
+    "parentKind": "OpenMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "OpenQueryTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "LinkedServer",
+    "parentKind": "OpenQueryTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Query",
+    "parentKind": "OpenQueryTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "OpenRowsetColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnIdentifier",
+    "parentKind": "OpenRowsetColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnOrdinal",
+    "parentKind": "OpenRowsetColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "OpenRowsetColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "JsonPath",
+    "parentKind": "OpenRowsetColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "OpenRowsetCosmos"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "OpenRowsetCosmos"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "OpenRowsetCosmos"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "WithColumns",
+    "parentKind": "OpenRowsetCosmos"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "OpenRowsetTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "OpenRowsetTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataSource",
+    "parentKind": "OpenRowsetTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Object",
+    "parentKind": "OpenRowsetTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Password",
+    "parentKind": "OpenRowsetTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ProviderName",
+    "parentKind": "OpenRowsetTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ProviderString",
+    "parentKind": "OpenRowsetTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Query",
+    "parentKind": "OpenRowsetTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "UserId",
+    "parentKind": "OpenRowsetTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "WithColumns",
+    "parentKind": "OpenRowsetTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DecryptionMechanism",
+    "parentKind": "OpenSymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "OpenSymmetricKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "OpenXmlTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Flags",
+    "parentKind": "OpenXmlTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RowPattern",
+    "parentKind": "OpenXmlTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SchemaDeclarationItems",
+    "parentKind": "OpenXmlTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TableName",
+    "parentKind": "OpenXmlTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Variable",
+    "parentKind": "OpenXmlTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Pairs",
+    "parentKind": "OptimizeForOptimizerHint"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "OrderBulkInsertOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "OrderByElements",
+    "parentKind": "OrderByClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "OrderIndexOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SelectColumns",
+    "parentKind": "OutputClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IntoTableColumns",
+    "parentKind": "OutputIntoClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "IntoTable",
+    "parentKind": "OutputIntoClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SelectColumns",
+    "parentKind": "OutputIntoClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OrderByClause",
+    "parentKind": "OverClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Partitions",
+    "parentKind": "OverClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WindowFrameClause",
+    "parentKind": "OverClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WindowName",
+    "parentKind": "OverClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "ParameterlessCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "ParenthesisExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "ParenthesisExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "ParseCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Culture",
+    "parentKind": "ParseCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "ParseCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StringValue",
+    "parentKind": "ParseCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "PartitionFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "PartitionFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FunctionName",
+    "parentKind": "PartitionFunctionCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "PartitionFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "PartitionParameterType"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "PartitionParameterType"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Number",
+    "parentKind": "PartitionSpecifier"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PartnerServer",
+    "parentKind": "PartnerDatabaseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Timeout",
+    "parentKind": "PartnerDatabaseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OldPassword",
+    "parentKind": "PasswordAlterPrincipalOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Password",
+    "parentKind": "PasswordAlterPrincipalOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "PasswordCreateLoginSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Password",
+    "parentKind": "PasswordCreateLoginSource"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "Permission"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Identifiers",
+    "parentKind": "Permission"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AggregateFunctionIdentifier",
+    "parentKind": "PivotedTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "PivotedTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "InColumns",
+    "parentKind": "PivotedTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PivotColumn",
+    "parentKind": "PivotedTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TableReference",
+    "parentKind": "PivotedTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ValueColumns",
+    "parentKind": "PivotedTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "PredictTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataSource",
+    "parentKind": "PredictTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ModelSubquery",
+    "parentKind": "PredictTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ModelVariable",
+    "parentKind": "PredictTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RunTime",
+    "parentKind": "PredictTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SchemaDeclarationItems",
+    "parentKind": "PredictTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "PrintStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "Privilege80"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "PrivilegeSecurityElement80"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Privileges",
+    "parentKind": "PrivilegeSecurityElement80"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "PrivilegeSecurityElement80"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "ProcedureParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Nullable",
+    "parentKind": "ProcedureParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "ProcedureParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "VariableName",
+    "parentKind": "ProcedureParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ProcedureReference",
+    "parentKind": "ProcedureReferenceName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ProcedureVariable",
+    "parentKind": "ProcedureReferenceName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "ProcedureReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Number",
+    "parentKind": "ProcedureReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "From",
+    "parentKind": "ProcessAffinityRange"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "To",
+    "parentKind": "ProcessAffinityRange"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "KeyOptions",
+    "parentKind": "ProviderEncryptionSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "ProviderEncryptionSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "KeyName",
+    "parentKind": "ProviderKeyNameKeyOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstTableReference",
+    "parentKind": "QualifiedJoin"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SearchCondition",
+    "parentKind": "QualifiedJoin"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondTableReference",
+    "parentKind": "QualifiedJoin"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "QueryDerivedTable"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "QueryDerivedTable"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "QueryExpression",
+    "parentKind": "QueryDerivedTable"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ForClause",
+    "parentKind": "QueryParenthesisExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OffsetClause",
+    "parentKind": "QueryParenthesisExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OrderByClause",
+    "parentKind": "QueryParenthesisExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "QueryExpression",
+    "parentKind": "QueryParenthesisExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ForClause",
+    "parentKind": "QuerySpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FromClause",
+    "parentKind": "QuerySpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "GroupByClause",
+    "parentKind": "QuerySpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "HavingClause",
+    "parentKind": "QuerySpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OffsetClause",
+    "parentKind": "QuerySpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OrderByClause",
+    "parentKind": "QuerySpecification"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SelectElements",
+    "parentKind": "QuerySpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TopRowFilter",
+    "parentKind": "QuerySpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WhereClause",
+    "parentKind": "QuerySpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WindowClause",
+    "parentKind": "QuerySpecification"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "QueryStoreDatabaseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FlushInterval",
+    "parentKind": "QueryStoreDataFlushIntervalOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StatsIntervalLength",
+    "parentKind": "QueryStoreIntervalLengthOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MaxPlansPerQuery",
+    "parentKind": "QueryStoreMaxPlansPerQueryOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MaxQdsSize",
+    "parentKind": "QueryStoreMaxStorageSizeOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StaleQueryThreshold",
+    "parentKind": "QueryStoreTimeCleanupPolicyOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Delay",
+    "parentKind": "QueueDelayAuditOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "QueueExecuteAsOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "QueueProcedureOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "QueueValueOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstParameter",
+    "parentKind": "RaiseErrorLegacyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondParameter",
+    "parentKind": "RaiseErrorLegacyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstParameter",
+    "parentKind": "RaiseErrorStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "OptionalParameters",
+    "parentKind": "RaiseErrorStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondParameter",
+    "parentKind": "RaiseErrorStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ThirdParameter",
+    "parentKind": "RaiseErrorStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Column",
+    "parentKind": "ReadTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Offset",
+    "parentKind": "ReadTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Size",
+    "parentKind": "ReadTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TextPointer",
+    "parentKind": "ReadTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "RealLiteral"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Into",
+    "parentKind": "ReceiveStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Queue",
+    "parentKind": "ReceiveStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SelectElements",
+    "parentKind": "ReceiveStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Top",
+    "parentKind": "ReceiveStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Where",
+    "parentKind": "ReceiveStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Flags",
+    "parentKind": "RegexpLikePredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Pattern",
+    "parentKind": "RegexpLikePredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Text",
+    "parentKind": "RegexpLikePredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FilterPredicate",
+    "parentKind": "RemoteDataArchiveAlterTableOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Settings",
+    "parentKind": "RemoteDataArchiveDatabaseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Credential",
+    "parentKind": "RemoteDataArchiveDbCredentialSetting"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Server",
+    "parentKind": "RemoteDataArchiveDbServerSetting"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "NewName",
+    "parentKind": "RenameAlterRoleAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "NewName",
+    "parentKind": "RenameEntityStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OldName",
+    "parentKind": "RenameEntityStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Partitions",
+    "parentKind": "ResampleStatisticsOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ParameterValue",
+    "parentKind": "ResourcePoolAffinitySpecification"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PoolAffinityRanges",
+    "parentKind": "ResourcePoolAffinitySpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AffinitySpecification",
+    "parentKind": "ResourcePoolParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ParameterValue",
+    "parentKind": "ResourcePoolParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "ResourcePoolStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ResourcePoolParameters",
+    "parentKind": "ResourcePoolStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EncryptionPassword",
+    "parentKind": "RestoreMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "File",
+    "parentKind": "RestoreMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Password",
+    "parentKind": "RestoreMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "File",
+    "parentKind": "RestoreServiceMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Password",
+    "parentKind": "RestoreServiceMasterKeyStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "RestoreStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Devices",
+    "parentKind": "RestoreStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Files",
+    "parentKind": "RestoreStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "RestoreStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnDefinition",
+    "parentKind": "ResultColumnDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Nullable",
+    "parentKind": "ResultColumnDefinition"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Definitions",
+    "parentKind": "ResultSetsExecuteOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Days",
+    "parentKind": "RetentionDaysAuditTargetOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Duration",
+    "parentKind": "RetentionPeriodDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "ReturnStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Cookie",
+    "parentKind": "RevertStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AsClause",
+    "parentKind": "RevokeStatement80"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecurityElement80",
+    "parentKind": "RevokeStatement80"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecurityUserClause80",
+    "parentKind": "RevokeStatement80"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "AsClause",
+    "parentKind": "RevokeStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Permissions",
+    "parentKind": "RevokeStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Principals",
+    "parentKind": "RevokeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecurityTargetObject",
+    "parentKind": "RevokeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "RightFunctionCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "RightFunctionCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "RollbackTransactionStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Arguments",
+    "parentKind": "RollupGroupingSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Literal",
+    "parentKind": "RouteOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ColumnValues",
+    "parentKind": "RowValue"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "SaveTransactionStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "ScalarExpressionDialogOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "ScalarExpressionRestoreOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OptionValue",
+    "parentKind": "ScalarExpressionSequenceOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "ScalarFunctionReturnType"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "ScalarSubquery"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "QueryExpression",
+    "parentKind": "ScalarSubquery"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnDefinition",
+    "parentKind": "SchemaDeclarationItem"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Mapping",
+    "parentKind": "SchemaDeclarationItem"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnDefinition",
+    "parentKind": "SchemaDeclarationItemOpenjson"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Mapping",
+    "parentKind": "SchemaDeclarationItemOpenjson"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "SchemaObjectFunctionTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "SchemaObjectFunctionTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "SchemaObjectFunctionTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObject",
+    "parentKind": "SchemaObjectFunctionTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "BaseIdentifier",
+    "parentKind": "SchemaObjectName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseIdentifier",
+    "parentKind": "SchemaObjectName"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Identifiers",
+    "parentKind": "SchemaObjectName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "SchemaObjectNameOrValueExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ValueExpression",
+    "parentKind": "SchemaObjectNameOrValueExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaIdentifier",
+    "parentKind": "SchemaObjectName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ServerIdentifier",
+    "parentKind": "SchemaObjectName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "BaseIdentifier",
+    "parentKind": "SchemaObjectNameSnippet"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseIdentifier",
+    "parentKind": "SchemaObjectNameSnippet"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Identifiers",
+    "parentKind": "SchemaObjectNameSnippet"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaIdentifier",
+    "parentKind": "SchemaObjectNameSnippet"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ServerIdentifier",
+    "parentKind": "SchemaObjectNameSnippet"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "SchemaObjectResultSetDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "SearchedCaseExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ElseExpression",
+    "parentKind": "SearchedCaseExpression"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "WhenClauses",
+    "parentKind": "SearchedCaseExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ThenExpression",
+    "parentKind": "SearchedWhenClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WhenExpression",
+    "parentKind": "SearchedWhenClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PropertyListName",
+    "parentKind": "SearchPropertyListFullTextIndexOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FunctionCall",
+    "parentKind": "SecurityPredicateAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TargetObjectName",
+    "parentKind": "SecurityPredicateAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identifier",
+    "parentKind": "SecurityPrincipal"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "SecurityTargetObject"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MultiPartIdentifier",
+    "parentKind": "SecurityTargetObjectName"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ObjectName",
+    "parentKind": "SecurityTargetObject"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Users",
+    "parentKind": "SecurityUserClause80"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SelectStatement",
+    "parentKind": "SelectFunctionReturnType"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Select",
+    "parentKind": "SelectInsertSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MaxLength",
+    "parentKind": "SelectiveXmlIndexPromotedPath"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "SelectiveXmlIndexPromotedPath"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Path",
+    "parentKind": "SelectiveXmlIndexPromotedPath"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SQLDataType",
+    "parentKind": "SelectiveXmlIndexPromotedPath"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "XQueryDataType",
+    "parentKind": "SelectiveXmlIndexPromotedPath"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnName",
+    "parentKind": "SelectScalarExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "SelectScalarExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "SelectSetVariable"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Variable",
+    "parentKind": "SelectSetVariable"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Qualifier",
+    "parentKind": "SelectStarExpression"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ComputeClauses",
+    "parentKind": "SelectStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Into",
+    "parentKind": "SelectStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "On",
+    "parentKind": "SelectStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "OptimizerHints",
+    "parentKind": "SelectStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "QueryExpression",
+    "parentKind": "SelectStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ComputeClauses",
+    "parentKind": "SelectStatementSnippet"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Into",
+    "parentKind": "SelectStatementSnippet"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "On",
+    "parentKind": "SelectStatementSnippet"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "OptimizerHints",
+    "parentKind": "SelectStatementSnippet"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "QueryExpression",
+    "parentKind": "SelectStatementSnippet"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WithCtesAndXmlNamespaces",
+    "parentKind": "SelectStatementSnippet"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WithCtesAndXmlNamespaces",
+    "parentKind": "SelectStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "SemanticIndexChunkOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ChunkOptions",
+    "parentKind": "SemanticIndexColumn"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ColumnName",
+    "parentKind": "SemanticIndexColumn"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Language",
+    "parentKind": "SemanticIndexColumn"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TypeColumnName",
+    "parentKind": "SemanticIndexColumn"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "SemanticTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "SemanticTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MatchedColumn",
+    "parentKind": "SemanticTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MatchedKey",
+    "parentKind": "SemanticTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SourceKey",
+    "parentKind": "SemanticTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TableName",
+    "parentKind": "SemanticTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ConversationHandles",
+    "parentKind": "SendStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MessageBody",
+    "parentKind": "SendStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MessageTypeName",
+    "parentKind": "SendStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "SensitivityClassificationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "ServiceContract"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Timeout",
+    "parentKind": "SessionTimeoutPayloadOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Commands",
+    "parentKind": "SetCommandStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Level",
+    "parentKind": "SetErrorLevelStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Table",
+    "parentKind": "SetIdentityInsertStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "NumberRows",
+    "parentKind": "SetRowCountStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SearchPropertyListOption",
+    "parentKind": "SetSearchPropertyListAlterFullTextIndexAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StopListOption",
+    "parentKind": "SetStopListAlterFullTextIndexAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TextSize",
+    "parentKind": "SetTextSizeStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "UserName",
+    "parentKind": "SetUserStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CursorDefinition",
+    "parentKind": "SetVariableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "SetVariableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identifier",
+    "parentKind": "SetVariableStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "SetVariableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Variable",
+    "parentKind": "SetVariableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "SimpleCaseExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ElseExpression",
+    "parentKind": "SimpleCaseExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "InputExpression",
+    "parentKind": "SimpleCaseExpression"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "WhenClauses",
+    "parentKind": "SimpleCaseExpression"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ThenExpression",
+    "parentKind": "SimpleWhenClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WhenExpression",
+    "parentKind": "SimpleWhenClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SingleValue",
+    "parentKind": "SingleValueTypeCopyOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Size",
+    "parentKind": "SizeFileDeclarationOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "SoapMethod"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "SoapMethod"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Namespace",
+    "parentKind": "SoapMethod"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "SourceDeclaration"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Option",
+    "parentKind": "SpatialIndexRegularOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "SqlDataTypeReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "SqlDataTypeReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Statements",
+    "parentKind": "StatementListSnippet"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Statements",
+    "parentKind": "StatementList"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "From",
+    "parentKind": "StatisticsPartitionRange"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "To",
+    "parentKind": "StatisticsPartitionRange"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StopListName",
+    "parentKind": "StopListFullTextIndexOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "After",
+    "parentKind": "StopRestoreOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Mark",
+    "parentKind": "StopRestoreOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "StringLiteral"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "SubqueryComparisonPredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Subquery",
+    "parentKind": "SubqueryComparisonPredicate"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EndTimeColumn",
+    "parentKind": "SystemTimePeriodDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StartTimeColumn",
+    "parentKind": "SystemTimePeriodDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "HistoryTable",
+    "parentKind": "SystemVersioningTableOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RetentionPeriod",
+    "parentKind": "SystemVersioningTableOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "TableClusteredIndexType"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "OrderedColumns",
+    "parentKind": "TableClusteredIndexType"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataCompressionOption",
+    "parentKind": "TableDataCompressionOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "ColumnDefinitions",
+    "parentKind": "TableDefinition"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Indexes",
+    "parentKind": "TableDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SystemTimePeriod",
+    "parentKind": "TableDefinition"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TableConstraints",
+    "parentKind": "TableDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "TableDistributionOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "DistributionColumns",
+    "parentKind": "TableHashDistributionPolicy"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DistributionColumn",
+    "parentKind": "TableHashDistributionPolicy"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ObjectName",
+    "parentKind": "TableHintsOptimizerHint"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TableHints",
+    "parentKind": "TableHintsOptimizerHint"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "TableIndexOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PartitionColumn",
+    "parentKind": "TablePartitionOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PartitionOptionSpecs",
+    "parentKind": "TablePartitionOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "BoundaryValues",
+    "parentKind": "TablePartitionOptionSpecifications"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RepeatSeed",
+    "parentKind": "TableSampleClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SampleNumber",
+    "parentKind": "TableSampleClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DeclareTableVariableBody",
+    "parentKind": "TableValuedFunctionReturnType"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "XmlCompressionOption",
+    "parentKind": "TableXmlCompressionOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ObjectName",
+    "parentKind": "TargetDeclaration"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "TargetDeclarationParameters",
+    "parentKind": "TargetDeclaration"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RecoveryTime",
+    "parentKind": "TargetRecoveryTimeDatabaseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EndTime",
+    "parentKind": "TemporalClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StartTime",
+    "parentKind": "TemporalClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ErrorNumber",
+    "parentKind": "ThrowStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Message",
+    "parentKind": "ThrowStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "State",
+    "parentKind": "ThrowStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "TopRowFilter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "EventTypeGroup",
+    "parentKind": "TriggerAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "TriggerObject"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PartitionRanges",
+    "parentKind": "TruncateTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TableName",
+    "parentKind": "TruncateTableStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "TryCastCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "TryCastCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Parameter",
+    "parentKind": "TryCastCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CatchStatements",
+    "parentKind": "TryCatchStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TryStatements",
+    "parentKind": "TryCatchStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "TryConvertCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "TryConvertCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Parameter",
+    "parentKind": "TryConvertCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Style",
+    "parentKind": "TryConvertCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "TryParseCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Culture",
+    "parentKind": "TryParseCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DataType",
+    "parentKind": "TryParseCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "StringValue",
+    "parentKind": "TryParseCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstExpression",
+    "parentKind": "TSEqualCall"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondExpression",
+    "parentKind": "TSEqualCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Statements",
+    "parentKind": "TSqlBatch"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Batches",
+    "parentKind": "TSqlScript"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Expression",
+    "parentKind": "UnaryExpression"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "UniqueConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ConstraintIdentifier",
+    "parentKind": "UniqueConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FileStreamOn",
+    "parentKind": "UniqueConstraintDefinition"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "IndexOptions",
+    "parentKind": "UniqueConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "IndexType",
+    "parentKind": "UniqueConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OnFileGroupOrPartitionScheme",
+    "parentKind": "UniqueConstraintDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "UnpivotedTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "InColumns",
+    "parentKind": "UnpivotedTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PivotColumn",
+    "parentKind": "UnpivotedTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TableReference",
+    "parentKind": "UnpivotedTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ValueColumn",
+    "parentKind": "UnpivotedTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FirstTableReference",
+    "parentKind": "UnqualifiedJoin"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SecondTableReference",
+    "parentKind": "UnqualifiedJoin"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identifier",
+    "parentKind": "UpdateCall"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "UpdateForClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SetClauses",
+    "parentKind": "UpdateMergeAction"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FromClause",
+    "parentKind": "UpdateSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OutputClause",
+    "parentKind": "UpdateSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OutputIntoClause",
+    "parentKind": "UpdateSpecification"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SetClauses",
+    "parentKind": "UpdateSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Target",
+    "parentKind": "UpdateSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TopRowFilter",
+    "parentKind": "UpdateSpecification"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WhereClause",
+    "parentKind": "UpdateSpecification"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "OptimizerHints",
+    "parentKind": "UpdateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "UpdateSpecification",
+    "parentKind": "UpdateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WithCtesAndXmlNamespaces",
+    "parentKind": "UpdateStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "UpdateStatisticsStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "StatisticsOptions",
+    "parentKind": "UpdateStatisticsStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "SubElements",
+    "parentKind": "UpdateStatisticsStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Column",
+    "parentKind": "UpdateTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DeleteLength",
+    "parentKind": "UpdateTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "InsertOffset",
+    "parentKind": "UpdateTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SourceColumn",
+    "parentKind": "UpdateTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SourceParameter",
+    "parentKind": "UpdateTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TextId",
+    "parentKind": "UpdateTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Timestamp",
+    "parentKind": "UpdateTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DistributionName",
+    "parentKind": "UseFederationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "FederationName",
+    "parentKind": "UseFederationStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "UseFederationStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Hints",
+    "parentKind": "UseHintList"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "UserDataTypeReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "UserDataTypeReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SchemaObjectName",
+    "parentKind": "UserDefinedTypeCallTarget"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "CallTarget",
+    "parentKind": "UserDefinedTypePropertyAccess"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "UserDefinedTypePropertyAccess"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "PropertyName",
+    "parentKind": "UserDefinedTypePropertyAccess"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identifier",
+    "parentKind": "UserLoginOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "User",
+    "parentKind": "UserRemoteServiceBindingOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DatabaseName",
+    "parentKind": "UseStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "RowValues",
+    "parentKind": "ValuesInsertSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "VariableMethodCallTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Columns",
+    "parentKind": "VariableMethodCallTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "MethodName",
+    "parentKind": "VariableMethodCallTableReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Parameters",
+    "parentKind": "VariableMethodCallTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Variable",
+    "parentKind": "VariableMethodCallTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Collation",
+    "parentKind": "VariableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "VariableTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Variable",
+    "parentKind": "VariableTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "VariableValuePair"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Variable",
+    "parentKind": "VariableValuePair"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "BaseType",
+    "parentKind": "VectorDataTypeReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Dimension",
+    "parentKind": "VectorDataTypeReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "VectorDataTypeReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Alias",
+    "parentKind": "VectorSearchTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Column",
+    "parentKind": "VectorSearchTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Metric",
+    "parentKind": "VectorSearchTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SimilarTo",
+    "parentKind": "VectorSearchTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Table",
+    "parentKind": "VectorSearchTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TopN",
+    "parentKind": "VectorSearchTableReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "ViewDistributionOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "DistributionColumns",
+    "parentKind": "ViewHashDistributionPolicy"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "DistributionColumn",
+    "parentKind": "ViewHashDistributionPolicy"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "WaitAtLowPriorityOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Parameter",
+    "parentKind": "WaitForStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Statement",
+    "parentKind": "WaitForStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Timeout",
+    "parentKind": "WaitForStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Cursor",
+    "parentKind": "WhereClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SearchCondition",
+    "parentKind": "WhereClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Predicate",
+    "parentKind": "WhileStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Statement",
+    "parentKind": "WhileStatement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "WindowDefinition",
+    "parentKind": "WindowClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OrderByClause",
+    "parentKind": "WindowDefinition"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Partitions",
+    "parentKind": "WindowDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "RefWindowName",
+    "parentKind": "WindowDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WindowFrameClause",
+    "parentKind": "WindowDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WindowName",
+    "parentKind": "WindowDefinition"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OffsetValue",
+    "parentKind": "WindowDelimiter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Bottom",
+    "parentKind": "WindowFrameClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Top",
+    "parentKind": "WindowFrameClause"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "WindowsCreateLoginSource"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ChangeTrackingContext",
+    "parentKind": "WithCtesAndXmlNamespaces"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "CommonTableExpressions",
+    "parentKind": "WithCtesAndXmlNamespaces"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "XmlNamespaces",
+    "parentKind": "WithCtesAndXmlNamespaces"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "OrderByClause",
+    "parentKind": "WithinGroupClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "WitnessServer",
+    "parentKind": "WitnessDatabaseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TimeString",
+    "parentKind": "WlmTimeLiteral"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "ParameterValue",
+    "parentKind": "WorkloadGroupResourceParameter"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Column",
+    "parentKind": "WriteTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "SourceParameter",
+    "parentKind": "WriteTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "TextId",
+    "parentKind": "WriteTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Timestamp",
+    "parentKind": "WriteTextStatement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "WsdlPayloadOption"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "PartitionRanges",
+    "parentKind": "XmlCompressionOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Name",
+    "parentKind": "XmlDataTypeReference"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "XmlSchemaCollection",
+    "parentKind": "XmlDataTypeReference"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "Options",
+    "parentKind": "XmlForClause"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Value",
+    "parentKind": "XmlForClauseOption"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "Identifier",
+    "parentKind": "XmlNamespacesAliasElement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "String",
+    "parentKind": "XmlNamespacesAliasElement"
+  },
+  {
+    "edgeKind": "single",
+    "edgeName": "String",
+    "parentKind": "XmlNamespacesDefaultElement"
+  },
+  {
+    "edgeKind": "array",
+    "edgeName": "XmlNamespacesElements",
+    "parentKind": "XmlNamespaces"
+  }
+];
 var TSQL_STRUCTURAL_ATTRIBUTE_NAMES = [
   "QuoteType",
   "Value"
@@ -2035,6 +10822,12 @@ var identifierRedactedAttributeKeys = /* @__PURE__ */ new Set(["name", "kind", "
 var scalarAttributeKeys = /* @__PURE__ */ new Set(["name", "kind", "value"]);
 var nodeKindSet = new Set(TSQL_STRUCTURAL_NODE_KINDS);
 var edgeNameSet = new Set(TSQL_STRUCTURAL_EDGE_NAMES);
+var edgePolicyKinds = new Map(
+  TSQL_STRUCTURAL_EDGE_POLICIES.map((policy) => [
+    edgePolicyKey(policy.parentKind, policy.edgeName),
+    policy.edgeKind
+  ])
+);
 var attributeNameSet = new Set(TSQL_STRUCTURAL_ATTRIBUTE_NAMES);
 var attributeKindSet = new Set(TSQL_STRUCTURAL_ATTRIBUTE_KINDS);
 var attributePolicySet = new Set(
@@ -2224,11 +11017,16 @@ function validateInspectResult(sql, value, options) {
   if (value.parser !== INTROSPECTOR_PROJECTION_ABI.parser || value.projectionVersion !== INTROSPECTOR_PROJECTION_ABI.projectionVersion) {
     throw new Error("Invalid ScriptDOM result: inspect result ABI");
   }
+  const validatedNodes = [];
   const nodes = validateArray(
     value.nodes,
     "nodes",
     INTROSPECTOR_PROJECTION_ABI.limits.nodes,
-    (item, index) => validateNode(sql, item, index, options)
+    (item, index) => {
+      const node = validateNode(sql, item, index, options, validatedNodes);
+      validatedNodes.push(node);
+      return node;
+    }
   );
   const errors = validateArray(
     value.errors,
@@ -2253,7 +11051,7 @@ function validateInspectResult(sql, value, options) {
   }
   return result;
 }
-function validateNode(sql, value, index, options) {
+function validateNode(sql, value, index, options, validatedNodes) {
   assertObject(value, `nodes[${index}]`);
   assertRequiredAllowedKeysLocal(
     value,
@@ -2270,16 +11068,28 @@ function validateNode(sql, value, index, options) {
     throw new Error("Invalid ScriptDOM result: node kind");
   }
   const nodeKind = value.kind;
-  if (value.parentId !== null) {
+  let parentKind;
+  if (index === 0) {
+    if (value.parentId !== null) {
+      throw new Error("Invalid ScriptDOM result: node parent");
+    }
+  } else {
+    if (value.parentId === null) {
+      throw new Error("Invalid ScriptDOM result: node parent");
+    }
     assertNonNegativeInteger(value.parentId, `nodes[${index}].parentId`);
-    if (value.parentId >= value.id) {
+    if (value.parentId >= index) {
+      throw new Error("Invalid ScriptDOM result: node parent");
+    }
+    parentKind = validatedNodes[value.parentId]?.kind;
+    if (parentKind === void 0) {
       throw new Error("Invalid ScriptDOM result: node parent");
     }
   }
   const pathFromParent = validatePathFromParent(
     value.pathFromParent,
     index,
-    value.parentId !== null
+    parentKind
   );
   const attributes = validateArray(
     value.attributes,
@@ -2302,11 +11112,11 @@ function validateNode(sql, value, index, options) {
   }
   return node;
 }
-function validatePathFromParent(value, nodeIndex, hasParent) {
+function validatePathFromParent(value, nodeIndex, parentKind) {
   if (!Array.isArray(value)) {
     throw new Error("Invalid ScriptDOM result: node path");
   }
-  if (!hasParent) {
+  if (parentKind === void 0) {
     if (value.length !== 0) {
       throw new Error("Invalid ScriptDOM result: node path");
     }
@@ -2319,8 +11129,18 @@ function validatePathFromParent(value, nodeIndex, hasParent) {
   if (!edgeNameSet.has(value[0])) {
     throw new Error("Invalid ScriptDOM result: node path");
   }
+  const edgeKind = edgePolicyKinds.get(edgePolicyKey(parentKind, value[0]));
+  if (edgeKind === void 0) {
+    throw new Error("Invalid ScriptDOM result: node path");
+  }
   if (value.length === 1) {
+    if (edgeKind !== "single") {
+      throw new Error("Invalid ScriptDOM result: node path");
+    }
     return [value[0]];
+  }
+  if (edgeKind !== "array") {
+    throw new Error("Invalid ScriptDOM result: node path");
   }
   assertString(value[1], `nodes[${nodeIndex}].pathFromParent[1]`);
   if (!pathIndexPattern.test(value[1])) {
@@ -2387,6 +11207,9 @@ function validateAttribute(value, fieldName, nodeKind) {
 }
 function attributePolicyKey(nodeKind, attributeName, attributeKind) {
   return `${nodeKind}\0${attributeName}\0${attributeKind}`;
+}
+function edgePolicyKey(parentKind, edgeName) {
+  return `${parentKind}\0${edgeName}`;
 }
 function validateSpan(sql, value, fieldName) {
   assertObject(value, fieldName);

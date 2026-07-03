@@ -8,8 +8,8 @@ internal static class IntrospectorProjectionManifest
     public const string Parser = "TSql160Parser";
     public const int ProjectionVersion = 1;
     public const string ManifestSha256 = "c772369fd341ee586e13e1d080b2f4d2842bbd946c9c2f0b3b4e805b8f0a576b";
-    public const string ResultSchemaSha256 = "bb734e86840e30187b95ed274c006c6f5da393d2fc6f461919a444d0c4398a46";
-    public const string AllowlistSha256 = "55c6d664b5afac33359c66438c132f5fc6f0bb4566d93df569f71cc401dd07bf";
+    public const string ResultSchemaSha256 = "0ffa1b8f8804b3322a95d31072537e06720b815ce9741ee6f9a6fbe4393ae10a";
+    public const string AllowlistSha256 = "7a643f7cfaffc8cf599587e73a79cbf82ae15d496d574f1ded9b263007aec977";
     public const int MaxSqlUtf16CodeUnits = 2097152;
     public const int MaxPrivateOptionsJsonUtf16CodeUnits = 80;
     public const int MaxNodes = 100000;

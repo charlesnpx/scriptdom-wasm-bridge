@@ -242,6 +242,15 @@ function generateArtifacts(sourceManifest, discovery) {
   }));
   const nodeKinds = nodes.map((node) => node.Name);
   const edgeNames = uniqueSorted(nodes.flatMap((node) => node.Edges.map((edge) => edge.Name)));
+  const edgePolicies = sortEdgePolicies(
+    nodes.flatMap((node) =>
+      node.Edges.map((edge) => ({
+        edgeKind: edge.Kind,
+        edgeName: edge.Name,
+        parentKind: node.Name,
+      })),
+    ),
+  );
   const attributePolicies = sortAttributePolicies(
     sourceManifest.attributePolicies.map((policy) =>
       normalizeAttributePolicy(policy, nodes),
@@ -252,6 +261,7 @@ function generateArtifacts(sourceManifest, discovery) {
   const tokenTypes = [...discovery.TokenTypes].sort((a, b) => a - b);
   const schema = buildSchema(sourceManifest, {
     edgeNames,
+    edgePolicies,
     nodeKinds,
     attributeNames,
     attributeKinds,
@@ -264,6 +274,7 @@ function generateArtifacts(sourceManifest, discovery) {
     attributePolicies,
     coordinateStates: sourceManifest.coordinateStates,
     edgeNames,
+    edgePolicies,
     identifierRedactionProfile: sourceManifest.identifierRedactionProfile,
     identifierStates: sourceManifest.identifierStates,
     nodeKinds,
@@ -330,7 +341,17 @@ function buildScalarValueSchema(policy) {
   throw new Error(`Unsupported scalar attribute policy kind ${policy.attributeKind}`);
 }
 
-function buildSchema(sourceManifest, { edgeNames, nodeKinds, attributePolicies, tokenTypes }) {
+function buildSchema(sourceManifest, { edgePolicies, nodeKinds, attributePolicies, tokenTypes }) {
+  const singleEdgeNames = uniqueSorted(
+    edgePolicies
+      .filter((policy) => policy.edgeKind === 'single')
+      .map((policy) => policy.edgeName),
+  );
+  const arrayEdgeNames = uniqueSorted(
+    edgePolicies
+      .filter((policy) => policy.edgeKind === 'array')
+      .map((policy) => policy.edgeName),
+  );
   const attributeSchemas = attributePolicies.flatMap((policy) => {
     if (policy.attributeKind === 'identifier') {
       return [
@@ -433,14 +454,14 @@ function buildSchema(sourceManifest, { edgeNames, nodeKinds, attributePolicies, 
                 type: 'array',
                 minItems: 1,
                 maxItems: 1,
-                prefixItems: [{ enum: edgeNames }],
+                prefixItems: [{ enum: singleEdgeNames }],
               },
               {
                 type: 'array',
                 minItems: 2,
                 maxItems: 2,
                 prefixItems: [
-                  { enum: edgeNames },
+                  { enum: arrayEdgeNames },
                   { type: 'string', pattern: '^(0|[1-9][0-9]*)$' },
                 ],
               },
@@ -502,6 +523,7 @@ function generateTypeScript(sourceManifest, allowlistBundle, digests) {
     `export type TsqlStructuralNodeKind = (typeof TSQL_STRUCTURAL_NODE_KINDS)[number];\n\n` +
     `export const TSQL_STRUCTURAL_EDGE_NAMES = ${stableTsObject(allowlistBundle.edgeNames)} as const;\n` +
     `export type TsqlStructuralEdgeName = (typeof TSQL_STRUCTURAL_EDGE_NAMES)[number];\n\n` +
+    `export const TSQL_STRUCTURAL_EDGE_POLICIES = ${stableTsObject(allowlistBundle.edgePolicies)} as const;\n\n` +
     `export const TSQL_STRUCTURAL_ATTRIBUTE_NAMES = ${stableTsObject(allowlistBundle.attributeNames)} as const;\n` +
     `export type TsqlStructuralAttributeName = (typeof TSQL_STRUCTURAL_ATTRIBUTE_NAMES)[number];\n\n` +
     `export const TSQL_STRUCTURAL_ATTRIBUTE_KINDS = ${stableTsObject(allowlistBundle.attributeKinds)} as const;\n` +
@@ -727,6 +749,14 @@ function sortAttributePolicies(policies) {
     [left.nodeKind, left.propertyName, left.attributeKind]
       .join('\u0000')
       .localeCompare([right.nodeKind, right.propertyName, right.attributeKind].join('\u0000'), 'en-US'),
+  );
+}
+
+function sortEdgePolicies(policies) {
+  return [...policies].sort((left, right) =>
+    [left.parentKind, left.edgeName, left.edgeKind]
+      .join('\u0000')
+      .localeCompare([right.parentKind, right.edgeName, right.edgeKind].join('\u0000'), 'en-US'),
   );
 }
 

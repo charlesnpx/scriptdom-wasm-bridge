@@ -492,6 +492,66 @@ try {
     malformedPathBundlePath,
     'malformed introspector path policy',
   );
+
+  const malformedExtraRootBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'extra-root-policy',
+  );
+  const malformedExtraRootIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedExtraRootBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedExtraRootIntrospector.inspect('select 1'),
+    Error,
+    'node parent',
+    ['ExtraRootSecret', 'select 1'],
+    'malformed introspector extra root policy',
+  );
+  await assertRuntimeCacheMissing(
+    malformedExtraRootBundlePath,
+    'malformed introspector extra root policy',
+  );
+
+  const malformedParentEdgeBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'parent-edge-policy',
+  );
+  const malformedParentEdgeIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedParentEdgeBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedParentEdgeIntrospector.inspect('select 1'),
+    Error,
+    'node path',
+    ['SecretTokenPath', 'select 1'],
+    'malformed introspector parent edge policy',
+  );
+  await assertRuntimeCacheMissing(
+    malformedParentEdgeBundlePath,
+    'malformed introspector parent edge policy',
+  );
+
+  const malformedPathIndexBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'path-index-policy',
+  );
+  const malformedPathIndexIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedPathIndexBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedPathIndexIntrospector.inspect('select 1'),
+    Error,
+    'node path',
+    ['IndexSecretPath', 'select 1'],
+    'malformed introspector path index policy',
+  );
+  await assertRuntimeCacheMissing(
+    malformedPathIndexBundlePath,
+    'malformed introspector path index policy',
+  );
 } finally {
   await fs.rm(malformedBundleRoot, { recursive: true, force: true });
 }
@@ -1117,6 +1177,83 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                               kind: 'Identifier',
                               parentId: 0,
                               pathFromParent: ['SecretTokenPath'],
+                              attributes: [],
+                            },
+                          ],
+                          errors: [],
+                        });
+`;
+  } else if (variant === 'extra-root-policy') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 1,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'TSqlScript',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [],
+                            },
+                            {
+                              id: 1,
+                              kind: 'Identifier',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [
+                                { name: 'Value', kind: 'identifier', state: 'present', value: 'ExtraRootSecret' },
+                              ],
+                            },
+                          ],
+                          errors: [],
+                        });
+`;
+  } else if (variant === 'parent-edge-policy') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 1,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'TSqlScript',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [],
+                            },
+                            {
+                              id: 1,
+                              kind: 'Identifier',
+                              parentId: 0,
+                              pathFromParent: ['Value'],
+                              attributes: [],
+                            },
+                          ],
+                          errors: [],
+                        });
+`;
+  } else if (variant === 'path-index-policy') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 1,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'TSqlScript',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [],
+                            },
+                            {
+                              id: 1,
+                              kind: 'Identifier',
+                              parentId: 0,
+                              pathFromParent: ['Batches'],
                               attributes: [],
                             },
                           ],
