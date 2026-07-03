@@ -157,6 +157,9 @@ static IEnumerable<PropertyInfoData> GetProperties(Type type)
             property.Name,
             GetTypeLabel(propertyType),
             propertyType.IsEnum,
+            propertyType.IsEnum
+                ? Enum.GetNames(propertyType).OrderBy(value => value, StringComparer.Ordinal).ToArray()
+                : Array.Empty<string>(),
             propertyType == typeof(string),
             propertyType == typeof(bool));
     }
@@ -225,6 +228,7 @@ public sealed record PropertyInfoData(
     string Name,
     string Type,
     bool IsEnum,
+    string[] EnumValues,
     bool IsString,
     bool IsBoolean);
 `;
@@ -239,12 +243,15 @@ function generateArtifacts(sourceManifest, discovery) {
   const nodeKinds = nodes.map((node) => node.Name);
   const edgeNames = uniqueSorted(nodes.flatMap((node) => node.Edges.map((edge) => edge.Name)));
   const attributePolicies = sortAttributePolicies(
-    sourceManifest.attributePolicies.map((policy) => ({ ...policy })),
+    sourceManifest.attributePolicies.map((policy) =>
+      normalizeAttributePolicy(policy, nodes),
+    ),
   );
   const attributeNames = uniqueSorted(attributePolicies.map((policy) => policy.propertyName));
   const attributeKinds = uniqueSorted(attributePolicies.map((policy) => policy.attributeKind));
   const tokenTypes = [...discovery.TokenTypes].sort((a, b) => a - b);
   const schema = buildSchema(sourceManifest, {
+    edgeNames,
     nodeKinds,
     attributeNames,
     attributeKinds,
@@ -276,7 +283,54 @@ function generateArtifacts(sourceManifest, discovery) {
   };
 }
 
-function buildSchema(sourceManifest, { nodeKinds, attributePolicies, tokenTypes }) {
+function normalizeAttributePolicy(policy, nodes) {
+  const node = nodes.find((candidate) => candidate.Name === policy.nodeKind);
+  if (!node) {
+    throw new Error(`Unknown attribute policy node ${policy.nodeKind}`);
+  }
+
+  const property = node.Properties.find((candidate) => candidate.Name === policy.propertyName);
+  if (!property) {
+    throw new Error(
+      `Unknown attribute policy property ${policy.nodeKind}.${policy.propertyName}`,
+    );
+  }
+
+  if (policy.attributeKind === 'identifier') {
+    if (!property.IsString) {
+      throw new Error(
+        `Identifier attribute policy must target a string property: ${policy.nodeKind}.${policy.propertyName}`,
+      );
+    }
+
+    return { ...policy };
+  }
+
+  if (policy.attributeKind === 'enum') {
+    if (!property.IsEnum || property.EnumValues.length === 0) {
+      throw new Error(
+        `Enum attribute policy must target an enum property: ${policy.nodeKind}.${policy.propertyName}`,
+      );
+    }
+
+    return {
+      ...policy,
+      allowedValues: uniqueSorted(property.EnumValues),
+    };
+  }
+
+  throw new Error(`Unsupported attribute policy kind ${policy.attributeKind}`);
+}
+
+function buildScalarValueSchema(policy) {
+  if (policy.attributeKind === 'enum') {
+    return { enum: policy.allowedValues };
+  }
+
+  throw new Error(`Unsupported scalar attribute policy kind ${policy.attributeKind}`);
+}
+
+function buildSchema(sourceManifest, { edgeNames, nodeKinds, attributePolicies, tokenTypes }) {
   const attributeSchemas = attributePolicies.flatMap((policy) => {
     if (policy.attributeKind === 'identifier') {
       return [
@@ -314,7 +368,7 @@ function buildSchema(sourceManifest, { nodeKinds, attributePolicies, tokenTypes 
         properties: {
           name: { const: policy.propertyName },
           kind: { const: policy.attributeKind },
-          value: { type: ['string', 'boolean'] },
+          value: buildScalarValueSchema(policy),
         },
       },
     ];
@@ -370,8 +424,27 @@ function buildSchema(sourceManifest, { nodeKinds, attributePolicies, tokenTypes 
             anyOf: [{ type: 'integer', minimum: 0 }, { type: 'null' }],
           },
           pathFromParent: {
-            type: 'array',
-            items: { type: 'string' },
+            anyOf: [
+              {
+                type: 'array',
+                maxItems: 0,
+              },
+              {
+                type: 'array',
+                minItems: 1,
+                maxItems: 1,
+                prefixItems: [{ enum: edgeNames }],
+              },
+              {
+                type: 'array',
+                minItems: 2,
+                maxItems: 2,
+                prefixItems: [
+                  { enum: edgeNames },
+                  { type: 'string', pattern: '^(0|[1-9][0-9]*)$' },
+                ],
+              },
+            ],
           },
           span: { $ref: '#/$defs/span' },
           attributes: {
@@ -427,6 +500,8 @@ function generateTypeScript(sourceManifest, allowlistBundle, digests) {
     })} as const;\n\n` +
     `export const TSQL_STRUCTURAL_NODE_KINDS = ${stableTsObject(allowlistBundle.nodeKinds)} as const;\n` +
     `export type TsqlStructuralNodeKind = (typeof TSQL_STRUCTURAL_NODE_KINDS)[number];\n\n` +
+    `export const TSQL_STRUCTURAL_EDGE_NAMES = ${stableTsObject(allowlistBundle.edgeNames)} as const;\n` +
+    `export type TsqlStructuralEdgeName = (typeof TSQL_STRUCTURAL_EDGE_NAMES)[number];\n\n` +
     `export const TSQL_STRUCTURAL_ATTRIBUTE_NAMES = ${stableTsObject(allowlistBundle.attributeNames)} as const;\n` +
     `export type TsqlStructuralAttributeName = (typeof TSQL_STRUCTURAL_ATTRIBUTE_NAMES)[number];\n\n` +
     `export const TSQL_STRUCTURAL_ATTRIBUTE_KINDS = ${stableTsObject(allowlistBundle.attributeKinds)} as const;\n` +

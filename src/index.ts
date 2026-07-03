@@ -11,11 +11,13 @@ export {
   type TsqlInspectTokenType,
   type TsqlIntrospector,
   type TsqlStructuralAttribute,
+  type TsqlStructuralEdgeName,
   type TsqlStructuralAttributeKind,
   type TsqlStructuralAttributeName,
   type TsqlStructuralIdentifierAttribute,
   type TsqlStructuralNode,
   type TsqlStructuralNodeKind,
+  type TsqlStructuralPathFromParent,
   type TsqlStructuralScalarAttribute,
 } from './introspector.js';
 export {

@@ -1,5 +1,5 @@
-import { INTROSPECTOR_PROJECTION_ABI, type TsqlIdentifierState, type TsqlInspectCoordinateState, type TsqlInspectTokenType, type TsqlStructuralAttributeKind, type TsqlStructuralAttributeName, type TsqlStructuralNodeKind } from './introspector-projection.v1.generated.js';
-export type { TsqlIdentifierState, TsqlInspectCoordinateState, TsqlInspectTokenType, TsqlStructuralAttributeKind, TsqlStructuralAttributeName, TsqlStructuralNodeKind, };
+import { INTROSPECTOR_PROJECTION_ABI, type TsqlIdentifierState, type TsqlInspectCoordinateState, type TsqlInspectTokenType, type TsqlStructuralEdgeName, type TsqlStructuralAttributeKind, type TsqlStructuralAttributeName, type TsqlStructuralNodeKind } from './introspector-projection.v1.generated.js';
+export type { TsqlIdentifierState, TsqlInspectCoordinateState, TsqlInspectTokenType, TsqlStructuralEdgeName, TsqlStructuralAttributeKind, TsqlStructuralAttributeName, TsqlStructuralNodeKind, };
 export type CreateTsqlIntrospectorOptions = {
     appBundlePath?: string;
 };
@@ -31,11 +31,12 @@ export type TsqlStructuralScalarAttribute = {
     value: string | boolean;
 };
 export type TsqlStructuralAttribute = TsqlStructuralIdentifierAttribute | TsqlStructuralScalarAttribute;
+export type TsqlStructuralPathFromParent = [] | [TsqlStructuralEdgeName] | [TsqlStructuralEdgeName, string];
 export type TsqlStructuralNode = {
     id: number;
     kind: TsqlStructuralNodeKind;
     parentId: number | null;
-    pathFromParent: string[];
+    pathFromParent: TsqlStructuralPathFromParent;
     span?: TsqlInspectSpan;
     attributes: TsqlStructuralAttribute[];
 };

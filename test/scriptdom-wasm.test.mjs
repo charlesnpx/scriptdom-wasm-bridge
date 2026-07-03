@@ -452,6 +452,46 @@ try {
     malformedAttributeBundlePath,
     'malformed introspector attribute policy',
   );
+
+  const malformedAttributeValueBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'attribute-value-policy',
+  );
+  const malformedAttributeValueIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedAttributeValueBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedAttributeValueIntrospector.inspect('select 1'),
+    Error,
+    'structural scalar attribute value',
+    ['SecretTokenTable', 'select 1'],
+    'malformed introspector attribute value policy',
+  );
+  await assertRuntimeCacheMissing(
+    malformedAttributeValueBundlePath,
+    'malformed introspector attribute value policy',
+  );
+
+  const malformedPathBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'path-policy',
+  );
+  const malformedPathIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedPathBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedPathIntrospector.inspect('select 1'),
+    Error,
+    'node path',
+    ['SecretTokenPath', 'select 1'],
+    'malformed introspector path policy',
+  );
+  await assertRuntimeCacheMissing(
+    malformedPathBundlePath,
+    'malformed introspector path policy',
+  );
 } finally {
   await fs.rm(malformedBundleRoot, { recursive: true, force: true });
 }
@@ -1016,9 +1056,10 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
   const appBundlePath = path.join(rootDirectory, `introspector-${variant}`, 'AppBundle');
   const frameworkPath = path.join(appBundlePath, '_framework');
   const abi = await readGeneratedIntrospectorAbi();
-  const inspectBody =
-    variant === 'attribute-policy'
-      ? `
+  let inspectBody;
+
+  if (variant === 'attribute-policy') {
+    inspectBody = `
                         return JSON.stringify({
                           failed: false,
                           parser: 'TSql160Parser',
@@ -1036,8 +1077,54 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                           ],
                           errors: [],
                         });
-`
-      : `
+`;
+  } else if (variant === 'attribute-value-policy') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 1,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'Identifier',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [
+                                { name: 'QuoteType', kind: 'enum', value: 'SecretTokenTable' },
+                              ],
+                            },
+                          ],
+                          errors: [],
+                        });
+`;
+  } else if (variant === 'path-policy') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 1,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'TSqlScript',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [],
+                            },
+                            {
+                              id: 1,
+                              kind: 'Identifier',
+                              parentId: 0,
+                              pathFromParent: ['SecretTokenPath'],
+                              attributes: [],
+                            },
+                          ],
+                          errors: [],
+                        });
+`;
+  } else {
+    inspectBody = `
                         return JSON.stringify({
                           failed: true,
                           parser: 'TSql160Parser',
@@ -1054,6 +1141,7 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                           ],
                         });
 `;
+  }
 
   await fs.mkdir(frameworkPath, { recursive: true });
   await fs.writeFile(

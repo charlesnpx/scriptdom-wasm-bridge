@@ -5,6 +5,7 @@ import {
   TSQL_IDENTIFIER_STATES,
   TSQL_INSPECT_COORDINATE_STATES,
   TSQL_INSPECT_TOKEN_TYPES,
+  TSQL_STRUCTURAL_EDGE_NAMES,
   TSQL_STRUCTURAL_ATTRIBUTE_KINDS,
   TSQL_STRUCTURAL_ATTRIBUTE_NAMES,
   TSQL_STRUCTURAL_ATTRIBUTE_POLICIES,
@@ -12,6 +13,7 @@ import {
   type TsqlIdentifierState,
   type TsqlInspectCoordinateState,
   type TsqlInspectTokenType,
+  type TsqlStructuralEdgeName,
   type TsqlStructuralAttributeKind,
   type TsqlStructuralAttributeName,
   type TsqlStructuralNodeKind,
@@ -30,6 +32,7 @@ export type {
   TsqlIdentifierState,
   TsqlInspectCoordinateState,
   TsqlInspectTokenType,
+  TsqlStructuralEdgeName,
   TsqlStructuralAttributeKind,
   TsqlStructuralAttributeName,
   TsqlStructuralNodeKind,
@@ -76,11 +79,16 @@ export type TsqlStructuralAttribute =
   | TsqlStructuralIdentifierAttribute
   | TsqlStructuralScalarAttribute;
 
+export type TsqlStructuralPathFromParent =
+  | []
+  | [TsqlStructuralEdgeName]
+  | [TsqlStructuralEdgeName, string];
+
 export type TsqlStructuralNode = {
   id: number;
   kind: TsqlStructuralNodeKind;
   parentId: number | null;
-  pathFromParent: string[];
+  pathFromParent: TsqlStructuralPathFromParent;
   span?: TsqlInspectSpan;
   attributes: TsqlStructuralAttribute[];
 };
@@ -163,17 +171,27 @@ const identifierPresentAttributeKeys = new Set(['name', 'kind', 'state', 'value'
 const identifierRedactedAttributeKeys = new Set(['name', 'kind', 'state', 'profile', 'reason']);
 const scalarAttributeKeys = new Set(['name', 'kind', 'value']);
 const nodeKindSet = new Set<string>(TSQL_STRUCTURAL_NODE_KINDS);
+const edgeNameSet = new Set<string>(TSQL_STRUCTURAL_EDGE_NAMES);
 const attributeNameSet = new Set<string>(TSQL_STRUCTURAL_ATTRIBUTE_NAMES);
 const attributeKindSet = new Set<string>(TSQL_STRUCTURAL_ATTRIBUTE_KINDS);
 const attributePolicySet = new Set(
   TSQL_STRUCTURAL_ATTRIBUTE_POLICIES.map(
-    (policy) => `${policy.propertyName}\u0000${policy.attributeKind}`,
+    (policy) => attributePolicyKey(policy.nodeKind, policy.propertyName, policy.attributeKind),
+  ),
+);
+const scalarAttributeValueSets: Map<string, ReadonlySet<unknown>> = new Map(
+  TSQL_STRUCTURAL_ATTRIBUTE_POLICIES.filter((policy) => 'allowedValues' in policy).map(
+    (policy) => [
+      attributePolicyKey(policy.nodeKind, policy.propertyName, policy.attributeKind),
+      new Set<unknown>(policy.allowedValues),
+    ],
   ),
 );
 const identifierStateSet = new Set<string>(TSQL_IDENTIFIER_STATES);
 const coordinateStateSet = new Set<string>(TSQL_INSPECT_COORDINATE_STATES);
 const tokenTypeSet = new Set<number>(TSQL_INSPECT_TOKEN_TYPES);
 const redactedReasons = new Set(['literal-origin', 'secret-pattern']);
+const pathIndexPattern = /^(0|[1-9]\d*)$/;
 
 export async function createTsqlIntrospector(
   options: CreateTsqlIntrospectorOptions = {},
@@ -456,9 +474,11 @@ function validateNode(
     throw new Error('Invalid ScriptDOM result: node id order');
   }
 
-  if (!nodeKindSet.has(String(value.kind))) {
+  assertString(value.kind, `nodes[${index}].kind`);
+  if (!nodeKindSet.has(value.kind)) {
     throw new Error('Invalid ScriptDOM result: node kind');
   }
+  const nodeKind = value.kind as TsqlStructuralNodeKind;
 
   if (value.parentId !== null) {
     assertNonNegativeInteger(value.parentId, `nodes[${index}].parentId`);
@@ -467,25 +487,22 @@ function validateNode(
     }
   }
 
-  if (!Array.isArray(value.pathFromParent)) {
-    throw new Error('Invalid ScriptDOM result: node path');
-  }
-
-  const pathFromParent = value.pathFromParent.map((segment, segmentIndex) => {
-    assertString(segment, `nodes[${index}].pathFromParent[${segmentIndex}]`);
-    return segment;
-  });
+  const pathFromParent = validatePathFromParent(
+    value.pathFromParent,
+    index,
+    value.parentId !== null,
+  );
 
   const attributes = validateArray(
     value.attributes,
     `nodes[${index}].attributes`,
     Number.MAX_SAFE_INTEGER,
     (item, attributeIndex) =>
-      validateAttribute(item, `nodes[${index}].attributes[${attributeIndex}]`),
+      validateAttribute(item, `nodes[${index}].attributes[${attributeIndex}]`, nodeKind),
   );
   const node: TsqlStructuralNode = {
     id: value.id,
-    kind: value.kind as TsqlStructuralNodeKind,
+    kind: nodeKind,
     parentId: value.parentId,
     pathFromParent,
     attributes,
@@ -502,7 +519,49 @@ function validateNode(
   return node;
 }
 
-function validateAttribute(value: unknown, fieldName: string): TsqlStructuralAttribute {
+function validatePathFromParent(
+  value: unknown,
+  nodeIndex: number,
+  hasParent: boolean,
+): TsqlStructuralPathFromParent {
+  if (!Array.isArray(value)) {
+    throw new Error('Invalid ScriptDOM result: node path');
+  }
+
+  if (!hasParent) {
+    if (value.length !== 0) {
+      throw new Error('Invalid ScriptDOM result: node path');
+    }
+
+    return [];
+  }
+
+  if (value.length !== 1 && value.length !== 2) {
+    throw new Error('Invalid ScriptDOM result: node path');
+  }
+
+  assertString(value[0], `nodes[${nodeIndex}].pathFromParent[0]`);
+  if (!edgeNameSet.has(value[0])) {
+    throw new Error('Invalid ScriptDOM result: node path');
+  }
+
+  if (value.length === 1) {
+    return [value[0] as TsqlStructuralEdgeName];
+  }
+
+  assertString(value[1], `nodes[${nodeIndex}].pathFromParent[1]`);
+  if (!pathIndexPattern.test(value[1])) {
+    throw new Error('Invalid ScriptDOM result: node path');
+  }
+
+  return [value[0] as TsqlStructuralEdgeName, value[1]];
+}
+
+function validateAttribute(
+  value: unknown,
+  fieldName: string,
+  nodeKind: TsqlStructuralNodeKind,
+): TsqlStructuralAttribute {
   assertObject(value, fieldName);
   assertString(value.name, `${fieldName}.name`);
   assertString(value.kind, `${fieldName}.kind`);
@@ -515,7 +574,8 @@ function validateAttribute(value: unknown, fieldName: string): TsqlStructuralAtt
     throw new Error('Invalid ScriptDOM result: structural attribute kind');
   }
 
-  if (!attributePolicySet.has(`${value.name}\u0000${value.kind}`)) {
+  const policyKey = attributePolicyKey(nodeKind, value.name, value.kind);
+  if (!attributePolicySet.has(policyKey)) {
     throw new Error('Invalid ScriptDOM result: structural attribute policy');
   }
 
@@ -562,11 +622,20 @@ function validateAttribute(value: unknown, fieldName: string): TsqlStructuralAtt
     throw new Error('Invalid ScriptDOM result: structural scalar attribute value');
   }
 
+  const allowedValues = scalarAttributeValueSets.get(policyKey);
+  if (!allowedValues?.has(value.value)) {
+    throw new Error('Invalid ScriptDOM result: structural scalar attribute value');
+  }
+
   return {
     name: value.name as TsqlStructuralAttributeName,
     kind: value.kind as Exclude<TsqlStructuralAttributeKind, 'identifier'>,
     value: value.value,
   };
+}
+
+function attributePolicyKey(nodeKind: string, attributeName: string, attributeKind: string) {
+  return `${nodeKind}\u0000${attributeName}\u0000${attributeKind}`;
 }
 
 function validateSpan(sql: string, value: unknown, fieldName: string): TsqlInspectSpan {
