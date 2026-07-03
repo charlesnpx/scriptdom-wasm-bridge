@@ -35,9 +35,9 @@ __export(introspector_exports, {
 module.exports = __toCommonJS(introspector_exports);
 var import_node_path2 = __toESM(require("node:path"), 1);
 
-// src/introspector-projection.v1.generated.ts
+// src/introspector-projection.v2.generated.ts
 var INTROSPECTOR_PROJECTION_ABI = {
-  "allowlistSha256": "66ed25e204b2d9fb048f53bbecee2fadedc66c0e500d604c118ecc0b163d3819",
+  "allowlistSha256": "03647b12fe1f822f63f06687ac05e9f8a63b65a5837c6af6d5dee4e5177ec9f7",
   "identifierRedactionProfile": "v1-conservative",
   "limits": {
     "nodes": 1e5,
@@ -51,10 +51,10 @@ var INTROSPECTOR_PROJECTION_ABI = {
     "traversalDepth": 1e3,
     "traversedFragments": 25e4
   },
-  "manifestSha256": "c772369fd341ee586e13e1d080b2f4d2842bbd946c9c2f0b3b4e805b8f0a576b",
+  "manifestSha256": "6f3f6c8b2d1b96825959efbbc99a5939de11a2e60687d899703358310d104d0a",
   "parser": "TSql160Parser",
-  "projectionVersion": 1,
-  "resultSchemaSha256": "0ffa1b8f8804b3322a95d31072537e06720b815ce9741ee6f9a6fbe4393ae10a"
+  "projectionVersion": 2,
+  "resultSchemaSha256": "759cbfa7cc1dcf8a47ea3985bd962b790c23018692519c6daa621db49f64cecc"
 };
 var TSQL_STRUCTURAL_NODE_KINDS = [
   "AIAnalyzeSentimentFunctionCall",
@@ -31912,14 +31912,82 @@ var TSQL_STRUCTURAL_EDGE_POLICIES = [
   }
 ];
 var TSQL_STRUCTURAL_ATTRIBUTE_NAMES = [
+  "BinaryExpressionType",
+  "ComparisonType",
+  "FullTextFunctionType",
+  "IsNot",
+  "NotDefined",
+  "OdbcEscape",
   "QuoteType",
+  "SubqueryComparisonPredicateType",
+  "TernaryExpressionType",
   "Value"
 ];
 var TSQL_STRUCTURAL_ATTRIBUTE_KINDS = [
+  "boolean",
   "enum",
   "identifier"
 ];
 var TSQL_STRUCTURAL_ATTRIBUTE_POLICIES = [
+  {
+    "allowedValues": [
+      "And",
+      "Or"
+    ],
+    "attributeKind": "enum",
+    "nodeKind": "BooleanBinaryExpression",
+    "propertyName": "BinaryExpressionType"
+  },
+  {
+    "allowedValues": [
+      "Equals",
+      "GreaterThan",
+      "GreaterThanOrEqualTo",
+      "IsDistinctFrom",
+      "IsNotDistinctFrom",
+      "LeftOuterJoin",
+      "LessThan",
+      "LessThanOrEqualTo",
+      "NotEqualToBrackets",
+      "NotEqualToExclamation",
+      "NotGreaterThan",
+      "NotLessThan",
+      "NotLike",
+      "RightOuterJoin"
+    ],
+    "attributeKind": "enum",
+    "nodeKind": "BooleanComparisonExpression",
+    "propertyName": "ComparisonType"
+  },
+  {
+    "attributeKind": "boolean",
+    "nodeKind": "BooleanIsNullExpression",
+    "propertyName": "IsNot"
+  },
+  {
+    "allowedValues": [
+      "Between",
+      "NotBetween"
+    ],
+    "attributeKind": "enum",
+    "nodeKind": "BooleanTernaryExpression",
+    "propertyName": "TernaryExpressionType"
+  },
+  {
+    "attributeKind": "boolean",
+    "nodeKind": "DistinctPredicate",
+    "propertyName": "IsNot"
+  },
+  {
+    "allowedValues": [
+      "Contains",
+      "FreeText",
+      "None"
+    ],
+    "attributeKind": "enum",
+    "nodeKind": "FullTextPredicate",
+    "propertyName": "FullTextFunctionType"
+  },
   {
     "allowedValues": [
       "DoubleQuote",
@@ -31934,6 +32002,52 @@ var TSQL_STRUCTURAL_ATTRIBUTE_POLICIES = [
     "attributeKind": "identifier",
     "nodeKind": "Identifier",
     "propertyName": "Value"
+  },
+  {
+    "attributeKind": "boolean",
+    "nodeKind": "InPredicate",
+    "propertyName": "NotDefined"
+  },
+  {
+    "attributeKind": "boolean",
+    "nodeKind": "LikePredicate",
+    "propertyName": "NotDefined"
+  },
+  {
+    "attributeKind": "boolean",
+    "nodeKind": "LikePredicate",
+    "propertyName": "OdbcEscape"
+  },
+  {
+    "allowedValues": [
+      "Equals",
+      "GreaterThan",
+      "GreaterThanOrEqualTo",
+      "IsDistinctFrom",
+      "IsNotDistinctFrom",
+      "LeftOuterJoin",
+      "LessThan",
+      "LessThanOrEqualTo",
+      "NotEqualToBrackets",
+      "NotEqualToExclamation",
+      "NotGreaterThan",
+      "NotLessThan",
+      "NotLike",
+      "RightOuterJoin"
+    ],
+    "attributeKind": "enum",
+    "nodeKind": "SubqueryComparisonPredicate",
+    "propertyName": "ComparisonType"
+  },
+  {
+    "allowedValues": [
+      "All",
+      "Any",
+      "None"
+    ],
+    "attributeKind": "enum",
+    "nodeKind": "SubqueryComparisonPredicate",
+    "propertyName": "SubqueryComparisonPredicateType"
   }
 ];
 var TSQL_IDENTIFIER_STATES = [
@@ -32351,19 +32465,28 @@ var edgePoliciesByPath = new Map(
 );
 var attributeNameSet = new Set(TSQL_STRUCTURAL_ATTRIBUTE_NAMES);
 var attributeKindSet = new Set(TSQL_STRUCTURAL_ATTRIBUTE_KINDS);
-var attributePolicySet = new Set(
-  TSQL_STRUCTURAL_ATTRIBUTE_POLICIES.map(
-    (policy) => attributePolicyKey(policy.nodeKind, policy.propertyName, policy.attributeKind)
-  )
-);
-var scalarAttributeValueSets = new Map(
-  TSQL_STRUCTURAL_ATTRIBUTE_POLICIES.filter((policy) => "allowedValues" in policy).map(
-    (policy) => [
-      attributePolicyKey(policy.nodeKind, policy.propertyName, policy.attributeKind),
-      new Set(policy.allowedValues)
-    ]
-  )
-);
+var attributePoliciesByKey = /* @__PURE__ */ new Map();
+var requiredBooleanAttributesByNodeKind = /* @__PURE__ */ new Map();
+for (const policy of TSQL_STRUCTURAL_ATTRIBUTE_POLICIES) {
+  const runtimePolicy = {
+    attributeKind: policy.attributeKind
+  };
+  if ("allowedValues" in policy) {
+    runtimePolicy.allowedValues = new Set(policy.allowedValues);
+  }
+  attributePoliciesByKey.set(
+    attributePolicyKey(policy.nodeKind, policy.propertyName, policy.attributeKind),
+    runtimePolicy
+  );
+  if (policy.attributeKind === "boolean") {
+    let requiredNames = requiredBooleanAttributesByNodeKind.get(policy.nodeKind);
+    if (requiredNames === void 0) {
+      requiredNames = /* @__PURE__ */ new Set();
+      requiredBooleanAttributesByNodeKind.set(policy.nodeKind, requiredNames);
+    }
+    requiredNames.add(policy.propertyName);
+  }
+}
 var identifierStateSet = new Set(TSQL_IDENTIFIER_STATES);
 var coordinateStateSet = new Set(TSQL_INSPECT_COORDINATE_STATES);
 var tokenTypeSet = new Set(TSQL_INSPECT_TOKEN_TYPES);
@@ -32629,12 +32752,36 @@ function validateNode(sql, value, index, options, validatedNodes) {
     parentKind,
     nodeKind
   );
+  const seenAttributeNames = /* @__PURE__ */ new Set();
+  const presentBooleanAttributeNames = /* @__PURE__ */ new Set();
   const attributes = validateArray(
     value.attributes,
     `nodes[${index}].attributes`,
     Number.MAX_SAFE_INTEGER,
-    (item, attributeIndex) => validateAttribute(item, `nodes[${index}].attributes[${attributeIndex}]`, nodeKind)
+    (item, attributeIndex) => {
+      const attribute = validateAttribute(
+        item,
+        `nodes[${index}].attributes[${attributeIndex}]`,
+        nodeKind
+      );
+      if (seenAttributeNames.has(attribute.name)) {
+        throw new Error("Invalid ScriptDOM result: structural attribute duplicate");
+      }
+      seenAttributeNames.add(attribute.name);
+      if (attribute.kind === "boolean") {
+        presentBooleanAttributeNames.add(attribute.name);
+      }
+      return attribute;
+    }
   );
+  const requiredBooleanAttributeNames = requiredBooleanAttributesByNodeKind.get(nodeKind);
+  if (requiredBooleanAttributeNames !== void 0) {
+    for (const requiredName of requiredBooleanAttributeNames) {
+      if (!presentBooleanAttributeNames.has(requiredName)) {
+        throw new Error("Invalid ScriptDOM result: structural boolean attribute");
+      }
+    }
+  }
   const node = {
     id: value.id,
     kind: nodeKind,
@@ -32697,7 +32844,8 @@ function validateAttribute(value, fieldName, nodeKind) {
     throw new Error("Invalid ScriptDOM result: structural attribute kind");
   }
   const policyKey = attributePolicyKey(nodeKind, value.name, value.kind);
-  if (!attributePolicySet.has(policyKey)) {
+  const attributePolicy = attributePoliciesByKey.get(policyKey);
+  if (attributePolicy === void 0) {
     throw new Error("Invalid ScriptDOM result: structural attribute policy");
   }
   if (value.kind === "identifier") {
@@ -32730,18 +32878,30 @@ function validateAttribute(value, fieldName, nodeKind) {
     };
   }
   assertExactKeysLocal(value, scalarAttributeKeys, `${fieldName} keys`);
-  if (typeof value.value !== "string" && typeof value.value !== "boolean") {
-    throw new Error("Invalid ScriptDOM result: structural scalar attribute value");
+  if (value.kind === "enum") {
+    if (typeof value.value !== "string") {
+      throw new Error("Invalid ScriptDOM result: structural enum attribute value");
+    }
+    if (!attributePolicy.allowedValues?.has(value.value)) {
+      throw new Error("Invalid ScriptDOM result: structural scalar attribute value");
+    }
+    return {
+      name: value.name,
+      kind: "enum",
+      value: value.value
+    };
   }
-  const allowedValues = scalarAttributeValueSets.get(policyKey);
-  if (!allowedValues?.has(value.value)) {
-    throw new Error("Invalid ScriptDOM result: structural scalar attribute value");
+  if (value.kind === "boolean") {
+    if (typeof value.value !== "boolean") {
+      throw new Error("Invalid ScriptDOM result: structural boolean attribute value");
+    }
+    return {
+      name: value.name,
+      kind: "boolean",
+      value: value.value
+    };
   }
-  return {
-    name: value.name,
-    kind: value.kind,
-    value: value.value
-  };
+  throw new Error("Invalid ScriptDOM result: structural attribute kind");
 }
 function attributePolicyKey(nodeKind, attributeName, attributeKind) {
   return `${nodeKind}\0${attributeName}\0${attributeKind}`;

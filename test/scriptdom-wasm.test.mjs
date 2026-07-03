@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import Ajv2020 from 'ajv/dist/2020.js';
 
 const runtimeCacheSymbol = Symbol.for('scriptdom-wasm-bridge.runtimeCache.v2');
 
@@ -273,6 +274,7 @@ assertDoesNotContain(
 );
 
 const introspector = await introspectorModule.createTsqlIntrospector();
+const validateIntrospectorResultSchema = await createIntrospectorSchemaValidator();
 
 assertRuntimeCacheSize(2, 'introspector did not load exactly one additional WASM bundle');
 
@@ -291,6 +293,11 @@ if (!rawPlaceholderInspectResult.failed) {
 }
 
 assertInspectResultShape(rawPlaceholderInspectResult, { includeTokens: false });
+assertMatchesIntrospectorSchema(
+  validateIntrospectorResultSchema,
+  rawPlaceholderInspectResult,
+  'raw placeholder inspect result',
+);
 
 const normalizedPlaceholderInspectResult = introspector.inspect(normalizedPlaceholderSql);
 
@@ -310,6 +317,11 @@ const inspectResult = introspector.inspect(inspectSql, { includeSpans: true, inc
 const inspectJson = JSON.stringify(inspectResult);
 
 assertInspectResultShape(inspectResult, { includeTokens: true });
+assertMatchesIntrospectorSchema(
+  validateIntrospectorResultSchema,
+  inspectResult,
+  'successful inspect result',
+);
 
 if (inspectResult.failed) {
   throw new Error(`Introspection failed: ${JSON.stringify(inspectResult.errors)}`);
@@ -349,8 +361,15 @@ assertDoesNotContain(
   'introspection JSON',
 );
 
+runPredicateAttributeTests(introspector, validateIntrospectorResultSchema);
+
 const redactedIdentifierResult = introspector.inspect('select * from dbo.SecretTokenTable');
 assertInspectResultShape(redactedIdentifierResult, { includeTokens: false });
+assertMatchesIntrospectorSchema(
+  validateIntrospectorResultSchema,
+  redactedIdentifierResult,
+  'redacted identifier inspect result',
+);
 assertHasRedactedIdentifier(redactedIdentifierResult.nodes, 'secret-pattern');
 assertDoesNotContain(
   JSON.stringify(redactedIdentifierResult),
@@ -375,6 +394,17 @@ if (invalidInspectResult.nodes.length !== 0) {
 if (!Array.isArray(invalidInspectWithTokens.tokens) || invalidInspectWithTokens.tokens.length !== 0) {
   throw new Error('Introspector returned tokens for a failed parse');
 }
+
+assertMatchesIntrospectorSchema(
+  validateIntrospectorResultSchema,
+  invalidInspectResult,
+  'failed inspect result',
+);
+assertMatchesIntrospectorSchema(
+  validateIntrospectorResultSchema,
+  invalidInspectWithTokens,
+  'failed inspect result with tokens',
+);
 
 assertDoesNotContain(
   invalidInspectJson,
@@ -420,6 +450,22 @@ try {
       throw error;
     }
   }
+
+  const staleV1IntrospectorBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'stale-v1-abi',
+  );
+
+  await assertRejectsWithoutLeak(
+    () =>
+      introspectorModule.createTsqlIntrospector({
+        appBundlePath: staleV1IntrospectorBundlePath,
+      }),
+    Error,
+    'Incompatible ScriptDOM introspector ABI',
+    [],
+    'stale v1 introspector ABI',
+  );
 
   const malformedIntrospectorBundlePath =
     await writeMalformedIntrospectorBundle(malformedBundleRoot);
@@ -486,6 +532,130 @@ try {
   await assertRuntimeCacheMissing(
     malformedAttributeValueBundlePath,
     'malformed introspector attribute value policy',
+  );
+
+  const malformedUnknownBooleanBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'unknown-boolean-attribute',
+  );
+  const malformedUnknownBooleanIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedUnknownBooleanBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedUnknownBooleanIntrospector.inspect('select 1'),
+    Error,
+    'structural attribute name',
+    ['UnknownBooleanPayload', 'select 1'],
+    'malformed introspector unknown boolean attribute',
+  );
+  await assertRuntimeCacheMissing(
+    malformedUnknownBooleanBundlePath,
+    'malformed introspector unknown boolean attribute',
+  );
+
+  const malformedBooleanValueBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'wrong-boolean-value-type',
+  );
+  const malformedBooleanValueIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedBooleanValueBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedBooleanValueIntrospector.inspect('select 1'),
+    Error,
+    'structural boolean attribute value',
+    ['BooleanStringPayload', 'select 1'],
+    'malformed introspector boolean value type',
+  );
+  await assertRuntimeCacheMissing(
+    malformedBooleanValueBundlePath,
+    'malformed introspector boolean value type',
+  );
+
+  const malformedBooleanNodeBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'wrong-boolean-node-kind',
+  );
+  const malformedBooleanNodeIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedBooleanNodeBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedBooleanNodeIntrospector.inspect('select 1'),
+    Error,
+    'structural attribute policy',
+    ['WrongNodeBooleanPayload', 'select 1'],
+    'malformed introspector boolean node kind',
+  );
+  await assertRuntimeCacheMissing(
+    malformedBooleanNodeBundlePath,
+    'malformed introspector boolean node kind',
+  );
+
+  const malformedMissingBooleanBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'missing-boolean-attribute',
+  );
+  const malformedMissingBooleanIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedMissingBooleanBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedMissingBooleanIntrospector.inspect('select 1'),
+    Error,
+    'structural boolean attribute',
+    ['MissingBooleanPayload', 'select 1'],
+    'malformed introspector missing boolean attribute',
+  );
+  await assertRuntimeCacheMissing(
+    malformedMissingBooleanBundlePath,
+    'malformed introspector missing boolean attribute',
+  );
+
+  const malformedDuplicateBooleanBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'duplicate-boolean-attribute',
+  );
+  const malformedDuplicateBooleanIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedDuplicateBooleanBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedDuplicateBooleanIntrospector.inspect('select 1'),
+    Error,
+    'structural attribute duplicate',
+    ['DuplicateBooleanPayload', 'select 1'],
+    'malformed introspector duplicate boolean attribute',
+  );
+  await assertRuntimeCacheMissing(
+    malformedDuplicateBooleanBundlePath,
+    'malformed introspector duplicate boolean attribute',
+  );
+
+  const explicitFalseBooleanBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'explicit-false-boolean',
+  );
+  const explicitFalseBooleanIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: explicitFalseBooleanBundlePath,
+  });
+  const explicitFalseBooleanResult = explicitFalseBooleanIntrospector.inspect('select 1');
+
+  assertInspectResultShape(explicitFalseBooleanResult, { includeTokens: false });
+  assertMatchesIntrospectorSchema(
+    validateIntrospectorResultSchema,
+    explicitFalseBooleanResult,
+    'explicit false boolean result',
+  );
+  assertHasStructuralAttribute(
+    explicitFalseBooleanResult.nodes,
+    'InPredicate',
+    'NotDefined',
+    'boolean',
+    false,
+    'explicit false boolean',
   );
 
   const malformedPathBundlePath = await writeMalformedIntrospectorBundle(
@@ -632,6 +802,273 @@ try {
 }
 
 console.log(`parse errors: ${JSON.stringify(parseErrorResult.errors)}`);
+
+async function createIntrospectorSchemaValidator() {
+  const schema = JSON.parse(
+    await fs.readFile(
+      fileURLToPath(new URL('../src/introspector-result.v2.schema.json', import.meta.url)),
+      'utf8',
+    ),
+  );
+  const ajv = new Ajv2020({ strict: false });
+
+  return ajv.compile(schema);
+}
+
+function assertMatchesIntrospectorSchema(validate, value, context) {
+  if (!validate(value)) {
+    throw new Error(`${context} failed introspector schema validation: ${JSON.stringify(validate.errors)}`);
+  }
+}
+
+function runPredicateAttributeTests(introspector, validateSchema) {
+  const cases = [
+    {
+      context: 'equals comparison',
+      sql: 'select * from dbo.T where a = 1',
+      nodeKind: 'BooleanComparisonExpression',
+      attributeName: 'ComparisonType',
+      attributeKind: 'enum',
+      expectedValue: 'Equals',
+    },
+    {
+      context: 'not-equals angle comparison',
+      sql: 'select * from dbo.T where a <> 1',
+      nodeKind: 'BooleanComparisonExpression',
+      attributeName: 'ComparisonType',
+      attributeKind: 'enum',
+      expectedValue: 'NotEqualToBrackets',
+    },
+    {
+      context: 'not-equals exclamation comparison',
+      sql: 'select * from dbo.T where a != 1',
+      nodeKind: 'BooleanComparisonExpression',
+      attributeName: 'ComparisonType',
+      attributeKind: 'enum',
+      expectedValue: 'NotEqualToExclamation',
+    },
+    {
+      context: 'less-than comparison',
+      sql: 'select * from dbo.T where a < 1',
+      nodeKind: 'BooleanComparisonExpression',
+      attributeName: 'ComparisonType',
+      attributeKind: 'enum',
+      expectedValue: 'LessThan',
+    },
+    {
+      context: 'less-than-or-equal comparison',
+      sql: 'select * from dbo.T where a <= 1',
+      nodeKind: 'BooleanComparisonExpression',
+      attributeName: 'ComparisonType',
+      attributeKind: 'enum',
+      expectedValue: 'LessThanOrEqualTo',
+    },
+    {
+      context: 'greater-than comparison',
+      sql: 'select * from dbo.T where a > 1',
+      nodeKind: 'BooleanComparisonExpression',
+      attributeName: 'ComparisonType',
+      attributeKind: 'enum',
+      expectedValue: 'GreaterThan',
+    },
+    {
+      context: 'greater-than-or-equal comparison',
+      sql: 'select * from dbo.T where a >= 1',
+      nodeKind: 'BooleanComparisonExpression',
+      attributeName: 'ComparisonType',
+      attributeKind: 'enum',
+      expectedValue: 'GreaterThanOrEqualTo',
+    },
+    {
+      context: 'not-less-than comparison',
+      sql: 'select * from dbo.T where a !< 1',
+      nodeKind: 'BooleanComparisonExpression',
+      attributeName: 'ComparisonType',
+      attributeKind: 'enum',
+      expectedValue: 'NotLessThan',
+    },
+    {
+      context: 'not-greater-than comparison',
+      sql: 'select * from dbo.T where a !> 1',
+      nodeKind: 'BooleanComparisonExpression',
+      attributeName: 'ComparisonType',
+      attributeKind: 'enum',
+      expectedValue: 'NotGreaterThan',
+    },
+    {
+      context: 'and boolean binary',
+      sql: 'select * from dbo.T where a = 1 and b = 2',
+      nodeKind: 'BooleanBinaryExpression',
+      attributeName: 'BinaryExpressionType',
+      attributeKind: 'enum',
+      expectedValue: 'And',
+    },
+    {
+      context: 'or boolean binary',
+      sql: 'select * from dbo.T where a = 1 or b = 2',
+      nodeKind: 'BooleanBinaryExpression',
+      attributeName: 'BinaryExpressionType',
+      attributeKind: 'enum',
+      expectedValue: 'Or',
+    },
+    {
+      context: 'between ternary',
+      sql: 'select * from dbo.T where a between 1 and 2',
+      nodeKind: 'BooleanTernaryExpression',
+      attributeName: 'TernaryExpressionType',
+      attributeKind: 'enum',
+      expectedValue: 'Between',
+    },
+    {
+      context: 'not between ternary',
+      sql: 'select * from dbo.T where a not between 1 and 2',
+      nodeKind: 'BooleanTernaryExpression',
+      attributeName: 'TernaryExpressionType',
+      attributeKind: 'enum',
+      expectedValue: 'NotBetween',
+    },
+    {
+      context: 'any subquery predicate',
+      sql: 'select * from dbo.T where a = any (select b from dbo.U)',
+      nodeKind: 'SubqueryComparisonPredicate',
+      attributeName: 'SubqueryComparisonPredicateType',
+      attributeKind: 'enum',
+      expectedValue: 'Any',
+    },
+    {
+      context: 'all subquery predicate',
+      sql: 'select * from dbo.T where a > all (select b from dbo.U)',
+      nodeKind: 'SubqueryComparisonPredicate',
+      attributeName: 'SubqueryComparisonPredicateType',
+      attributeKind: 'enum',
+      expectedValue: 'All',
+    },
+    {
+      context: 'all subquery comparison operator',
+      sql: 'select * from dbo.T where a > all (select b from dbo.U)',
+      nodeKind: 'SubqueryComparisonPredicate',
+      attributeName: 'ComparisonType',
+      attributeKind: 'enum',
+      expectedValue: 'GreaterThan',
+    },
+    {
+      context: 'some subquery predicate',
+      sql: 'select * from dbo.T where a = some (select b from dbo.U)',
+      nodeKind: 'SubqueryComparisonPredicate',
+      attributeName: 'SubqueryComparisonPredicateType',
+      attributeKind: 'enum',
+      expectedValue: 'Any',
+    },
+    {
+      context: 'in predicate',
+      sql: 'select * from dbo.T where a in (1, 2)',
+      nodeKind: 'InPredicate',
+      attributeName: 'NotDefined',
+      attributeKind: 'boolean',
+      expectedValue: false,
+    },
+    {
+      context: 'not in predicate',
+      sql: 'select * from dbo.T where a not in (1, 2)',
+      nodeKind: 'InPredicate',
+      attributeName: 'NotDefined',
+      attributeKind: 'boolean',
+      expectedValue: true,
+    },
+    {
+      context: 'like predicate',
+      sql: "select * from dbo.T where a like 'x%'",
+      nodeKind: 'LikePredicate',
+      attributeName: 'NotDefined',
+      attributeKind: 'boolean',
+      expectedValue: false,
+    },
+    {
+      context: 'not like predicate',
+      sql: "select * from dbo.T where a not like 'x%'",
+      nodeKind: 'LikePredicate',
+      attributeName: 'NotDefined',
+      attributeKind: 'boolean',
+      expectedValue: true,
+    },
+    {
+      context: 'odbc escape like predicate',
+      sql: "select * from dbo.T where a like 'x!%' {escape '!'}",
+      nodeKind: 'LikePredicate',
+      attributeName: 'OdbcEscape',
+      attributeKind: 'boolean',
+      expectedValue: true,
+    },
+    {
+      context: 'is null predicate',
+      sql: 'select * from dbo.T where a is null',
+      nodeKind: 'BooleanIsNullExpression',
+      attributeName: 'IsNot',
+      attributeKind: 'boolean',
+      expectedValue: false,
+    },
+    {
+      context: 'is not null predicate',
+      sql: 'select * from dbo.T where a is not null',
+      nodeKind: 'BooleanIsNullExpression',
+      attributeName: 'IsNot',
+      attributeKind: 'boolean',
+      expectedValue: true,
+    },
+    {
+      context: 'is distinct from predicate',
+      sql: 'select * from dbo.T where a is distinct from b',
+      nodeKind: 'DistinctPredicate',
+      attributeName: 'IsNot',
+      attributeKind: 'boolean',
+      expectedValue: false,
+    },
+    {
+      context: 'is not distinct from predicate',
+      sql: 'select * from dbo.T where a is not distinct from b',
+      nodeKind: 'DistinctPredicate',
+      attributeName: 'IsNot',
+      attributeKind: 'boolean',
+      expectedValue: true,
+    },
+    {
+      context: 'contains full text predicate',
+      sql: "select * from dbo.T where contains(a, 'term')",
+      nodeKind: 'FullTextPredicate',
+      attributeName: 'FullTextFunctionType',
+      attributeKind: 'enum',
+      expectedValue: 'Contains',
+    },
+    {
+      context: 'freetext full text predicate',
+      sql: "select * from dbo.T where freetext(a, 'term')",
+      nodeKind: 'FullTextPredicate',
+      attributeName: 'FullTextFunctionType',
+      attributeKind: 'enum',
+      expectedValue: 'FreeText',
+    },
+  ];
+
+  for (const testCase of cases) {
+    const result = introspector.inspect(testCase.sql);
+
+    assertInspectResultShape(result, { includeTokens: false });
+    assertMatchesIntrospectorSchema(validateSchema, result, testCase.context);
+
+    if (result.failed) {
+      throw new Error(`${testCase.context} unexpectedly failed: ${JSON.stringify(result.errors)}`);
+    }
+
+    assertHasStructuralAttribute(
+      result.nodes,
+      testCase.nodeKind,
+      testCase.attributeName,
+      testCase.attributeKind,
+      testCase.expectedValue,
+      testCase.context,
+    );
+  }
+}
 
 function assertExports(moduleValue, expectedExports) {
   for (const expectedExport of expectedExports) {
@@ -1031,7 +1468,7 @@ function assertInspectResultShape(inspectResult, options) {
     'inspect result',
   );
 
-  if (inspectResult.parser !== 'TSql160Parser' || inspectResult.projectionVersion !== 1) {
+  if (inspectResult.parser !== 'TSql160Parser' || inspectResult.projectionVersion !== 2) {
     throw new Error('inspect result returned unexpected projection ABI');
   }
 
@@ -1113,6 +1550,32 @@ function assertHasKind(items, kind, context) {
   }
 }
 
+function assertHasStructuralAttribute(
+  nodes,
+  nodeKind,
+  attributeName,
+  attributeKind,
+  expectedValue,
+  context,
+) {
+  if (
+    !nodes.some(
+      (node) =>
+        node.kind === nodeKind &&
+        node.attributes.some(
+          (attribute) =>
+            attribute.name === attributeName &&
+            attribute.kind === attributeKind &&
+            attribute.value === expectedValue,
+        ),
+    )
+  ) {
+    throw new Error(
+      `Missing ${context} ${nodeKind}.${attributeName} ${String(expectedValue)}: ${JSON.stringify(nodes)}`,
+    );
+  }
+}
+
 function assertHasIdentifierValue(nodes, value, context) {
   if (
     !nodes.some((node) =>
@@ -1190,7 +1653,16 @@ export const dotnet = {
 async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'location-error') {
   const appBundlePath = path.join(rootDirectory, `introspector-${variant}`, 'AppBundle');
   const frameworkPath = path.join(appBundlePath, '_framework');
-  const abi = await readGeneratedIntrospectorAbi();
+  const abi =
+    variant === 'stale-v1-abi'
+      ? {
+          parser: 'TSql160Parser',
+          projectionVersion: 1,
+          manifestSha256: 'stale-v1-manifest',
+          resultSchemaSha256: 'stale-v1-schema',
+          allowlistSha256: 'stale-v1-allowlist',
+        }
+      : await readGeneratedIntrospectorAbi();
   let inspectBody;
 
   if (variant === 'attribute-policy') {
@@ -1198,7 +1670,7 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                         return JSON.stringify({
                           failed: false,
                           parser: 'TSql160Parser',
-                          projectionVersion: 1,
+                          projectionVersion: 2,
                           nodes: [
                             {
                               id: 0,
@@ -1218,7 +1690,7 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                         return JSON.stringify({
                           failed: false,
                           parser: 'TSql160Parser',
-                          projectionVersion: 1,
+                          projectionVersion: 2,
                           nodes: [
                             {
                               id: 0,
@@ -1233,12 +1705,134 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                           errors: [],
                         });
 `;
+  } else if (variant === 'unknown-boolean-attribute') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 2,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'InPredicate',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [
+                                { name: 'UnknownBooleanPayload', kind: 'boolean', value: false },
+                              ],
+                            },
+                          ],
+                          errors: [],
+                        });
+`;
+  } else if (variant === 'wrong-boolean-value-type') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 2,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'InPredicate',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [
+                                { name: 'NotDefined', kind: 'boolean', value: 'BooleanStringPayload' },
+                              ],
+                            },
+                          ],
+                          errors: [],
+                        });
+`;
+  } else if (variant === 'wrong-boolean-node-kind') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 2,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'BooleanComparisonExpression',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [
+                                { name: 'ComparisonType', kind: 'enum', value: 'Equals' },
+                                { name: 'NotDefined', kind: 'boolean', value: false },
+                                { name: 'Value', kind: 'identifier', state: 'present', value: 'WrongNodeBooleanPayload' },
+                              ],
+                            },
+                          ],
+                          errors: [],
+                        });
+`;
+  } else if (variant === 'missing-boolean-attribute') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 2,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'InPredicate',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [],
+                            },
+                          ],
+                          errors: [],
+                        });
+`;
+  } else if (variant === 'duplicate-boolean-attribute') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 2,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'InPredicate',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [
+                                { name: 'NotDefined', kind: 'boolean', value: false },
+                                { name: 'NotDefined', kind: 'boolean', value: true },
+                                { name: 'Value', kind: 'identifier', state: 'present', value: 'DuplicateBooleanPayload' },
+                              ],
+                            },
+                          ],
+                          errors: [],
+                        });
+`;
+  } else if (variant === 'explicit-false-boolean') {
+    inspectBody = `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 2,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'InPredicate',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [
+                                { name: 'NotDefined', kind: 'boolean', value: false },
+                              ],
+                            },
+                          ],
+                          errors: [],
+                        });
+`;
   } else if (variant === 'path-policy') {
     inspectBody = `
                         return JSON.stringify({
                           failed: false,
                           parser: 'TSql160Parser',
-                          projectionVersion: 1,
+                          projectionVersion: 2,
                           nodes: [
                             {
                               id: 0,
@@ -1263,7 +1857,7 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                         return JSON.stringify({
                           failed: false,
                           parser: 'TSql160Parser',
-                          projectionVersion: 1,
+                          projectionVersion: 2,
                           nodes: [
                             {
                               id: 0,
@@ -1290,7 +1884,7 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                         return JSON.stringify({
                           failed: false,
                           parser: 'TSql160Parser',
-                          projectionVersion: 1,
+                          projectionVersion: 2,
                           nodes: [
                             {
                               id: 0,
@@ -1315,7 +1909,7 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                         return JSON.stringify({
                           failed: false,
                           parser: 'TSql160Parser',
-                          projectionVersion: 1,
+                          projectionVersion: 2,
                           nodes: [
                             {
                               id: 0,
@@ -1340,7 +1934,7 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                         return JSON.stringify({
                           failed: false,
                           parser: 'TSql160Parser',
-                          projectionVersion: 1,
+                          projectionVersion: 2,
                           nodes: [
                             {
                               id: 0,
@@ -1365,7 +1959,7 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                         return JSON.stringify({
                           failed: false,
                           parser: 'TSql160Parser',
-                          projectionVersion: 1,
+                          projectionVersion: 2,
                           nodes: [],
                           errors: [],
                         });
@@ -1375,7 +1969,7 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                         return JSON.stringify({
                           failed: true,
                           parser: 'TSql160Parser',
-                          projectionVersion: 1,
+                          projectionVersion: 2,
                           nodes: [
                             {
                               id: 0,
@@ -1396,7 +1990,7 @@ async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'locati
                         return JSON.stringify({
                           failed: true,
                           parser: 'TSql160Parser',
-                          projectionVersion: 1,
+                          projectionVersion: 2,
                           nodes: [],
                           errors: [
                             {
@@ -1452,13 +2046,13 @@ ${inspectBody}
 
 async function readGeneratedIntrospectorAbi() {
   const generatedSource = await fs.readFile(
-    fileURLToPath(new URL('../src/introspector-projection.v1.generated.ts', import.meta.url)),
+    fileURLToPath(new URL('../src/introspector-projection.v2.generated.ts', import.meta.url)),
     'utf8',
   );
 
   return {
     parser: 'TSql160Parser',
-    projectionVersion: 1,
+    projectionVersion: 2,
     manifestSha256: readGeneratedString(generatedSource, 'manifestSha256'),
     resultSchemaSha256: readGeneratedString(generatedSource, 'resultSchemaSha256'),
     allowlistSha256: readGeneratedString(generatedSource, 'allowlistSha256'),

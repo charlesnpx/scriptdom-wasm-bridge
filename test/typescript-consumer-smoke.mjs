@@ -40,6 +40,7 @@ import {
   type NormalizeTsqlPlaceholdersOptions,
   type NormalizeTsqlPlaceholdersResult,
   type TsqlInspectResult,
+  type TsqlStructuralAttribute,
   type TsqlSanitizeResult,
   type TsqlTokenizeResult,
 } from 'scriptdom-wasm-bridge';
@@ -62,6 +63,26 @@ async function smoke() {
   const tokenized: TsqlTokenizeResult = tokenizer.tokenize('select 1');
   const sanitized: TsqlSanitizeResult = sanitizer.sanitize('select 1');
   const inspected: TsqlInspectResult = introspector.inspect('select 1');
+  const structuralAttributeValues = inspected.nodes.flatMap((node) =>
+    node.attributes.map((attribute: TsqlStructuralAttribute) => {
+      if (attribute.kind === 'enum') {
+        const value: string = attribute.value;
+        return value;
+      }
+
+      if (attribute.kind === 'boolean') {
+        const value: boolean = attribute.value;
+        return value;
+      }
+
+      if (attribute.state === 'present') {
+        const value: string = attribute.value;
+        return value;
+      }
+
+      return attribute.reason;
+    }),
+  );
   const normalizeOptions: NormalizeTsqlPlaceholdersOptions = {
     prefix: '@smoke',
     startAt: 2,
@@ -81,6 +102,7 @@ async function smoke() {
     tokenized.failed,
     sanitized.tokenizationFailed,
     inspected.failed,
+    structuralAttributeValues.length,
     normalized.placeholderCount,
   ] as const;
 }

@@ -1,7 +1,7 @@
 export const config = /*json-start*/{
   "mainAssemblyName": "ScriptDomTokenizerWasmBridge.dll",
   "resources": {
-    "hash": "sha256-CCJCMl+B1FBeFO+ErgIso0DAq9K2F+NlXuzlBGjJGmw=",
+    "hash": "sha256-jp6yUyPkKE1TdjuWfKLUWGvuJAS6AmfwvmbcMj6plK8=",
     "jsModuleNative": [
       {
         "name": "dotnet.native.js"
@@ -39,7 +39,7 @@ export const config = /*json-start*/{
       {
         "virtualPath": "ScriptDomTokenizerWasmBridge.wasm",
         "name": "ScriptDomTokenizerWasmBridge.wasm",
-        "hash": "sha256-HdV8fCHypit029oMBz+Gq1n6cPpbP2y63u+URtfUnHc="
+        "hash": "sha256-XTcSCtlycXFTlzbIzELcmc+hKjVyJi/dHp0QzrITnqg="
       },
       {
         "virtualPath": "System.Memory.wasm",

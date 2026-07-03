@@ -22526,11 +22526,67 @@ internal static class IntrospectorProjectionAccessors
         writer.WriteStartArray("attributes");
         var nodeType = node.GetType();
 
+        if (nodeType == typeof(BooleanBinaryExpression))
+        {
+            var typed = (BooleanBinaryExpression)node;
+            StructuralJsonWriter.WriteScalarAttribute(writer, "BinaryExpressionType", "enum", typed.BinaryExpressionType.ToString());
+        }
+
+        if (nodeType == typeof(BooleanComparisonExpression))
+        {
+            var typed = (BooleanComparisonExpression)node;
+            StructuralJsonWriter.WriteScalarAttribute(writer, "ComparisonType", "enum", typed.ComparisonType.ToString());
+        }
+
+        if (nodeType == typeof(BooleanIsNullExpression))
+        {
+            var typed = (BooleanIsNullExpression)node;
+            StructuralJsonWriter.WriteBooleanAttribute(writer, "IsNot", typed.IsNot);
+        }
+
+        if (nodeType == typeof(BooleanTernaryExpression))
+        {
+            var typed = (BooleanTernaryExpression)node;
+            StructuralJsonWriter.WriteScalarAttribute(writer, "TernaryExpressionType", "enum", typed.TernaryExpressionType.ToString());
+        }
+
+        if (nodeType == typeof(DistinctPredicate))
+        {
+            var typed = (DistinctPredicate)node;
+            StructuralJsonWriter.WriteBooleanAttribute(writer, "IsNot", typed.IsNot);
+        }
+
+        if (nodeType == typeof(FullTextPredicate))
+        {
+            var typed = (FullTextPredicate)node;
+            StructuralJsonWriter.WriteScalarAttribute(writer, "FullTextFunctionType", "enum", typed.FullTextFunctionType.ToString());
+        }
+
         if (nodeType == typeof(Identifier))
         {
             var typed = (Identifier)node;
             StructuralJsonWriter.WriteIdentifierAttribute(writer, "Value", typed.Value, context);
             StructuralJsonWriter.WriteScalarAttribute(writer, "QuoteType", "enum", typed.QuoteType.ToString());
+        }
+
+        if (nodeType == typeof(InPredicate))
+        {
+            var typed = (InPredicate)node;
+            StructuralJsonWriter.WriteBooleanAttribute(writer, "NotDefined", typed.NotDefined);
+        }
+
+        if (nodeType == typeof(LikePredicate))
+        {
+            var typed = (LikePredicate)node;
+            StructuralJsonWriter.WriteBooleanAttribute(writer, "NotDefined", typed.NotDefined);
+            StructuralJsonWriter.WriteBooleanAttribute(writer, "OdbcEscape", typed.OdbcEscape);
+        }
+
+        if (nodeType == typeof(SubqueryComparisonPredicate))
+        {
+            var typed = (SubqueryComparisonPredicate)node;
+            StructuralJsonWriter.WriteScalarAttribute(writer, "ComparisonType", "enum", typed.ComparisonType.ToString());
+            StructuralJsonWriter.WriteScalarAttribute(writer, "SubqueryComparisonPredicateType", "enum", typed.SubqueryComparisonPredicateType.ToString());
         }
         writer.WriteEndArray();
     }

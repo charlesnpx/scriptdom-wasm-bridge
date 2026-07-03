@@ -6,10 +6,10 @@ namespace ScriptDom.WasmBridge;
 internal static class IntrospectorProjectionManifest
 {
     public const string Parser = "TSql160Parser";
-    public const int ProjectionVersion = 1;
-    public const string ManifestSha256 = "c772369fd341ee586e13e1d080b2f4d2842bbd946c9c2f0b3b4e805b8f0a576b";
-    public const string ResultSchemaSha256 = "0ffa1b8f8804b3322a95d31072537e06720b815ce9741ee6f9a6fbe4393ae10a";
-    public const string AllowlistSha256 = "66ed25e204b2d9fb048f53bbecee2fadedc66c0e500d604c118ecc0b163d3819";
+    public const int ProjectionVersion = 2;
+    public const string ManifestSha256 = "6f3f6c8b2d1b96825959efbbc99a5939de11a2e60687d899703358310d104d0a";
+    public const string ResultSchemaSha256 = "759cbfa7cc1dcf8a47ea3985bd962b790c23018692519c6daa621db49f64cecc";
+    public const string AllowlistSha256 = "03647b12fe1f822f63f06687ac05e9f8a63b65a5837c6af6d5dee4e5177ec9f7";
     public const int MaxSqlUtf16CodeUnits = 2097152;
     public const int MaxPrivateOptionsJsonUtf16CodeUnits = 80;
     public const int MaxNodes = 100000;

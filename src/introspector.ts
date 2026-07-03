@@ -18,7 +18,7 @@ import {
   type TsqlStructuralAttributeKind,
   type TsqlStructuralAttributeName,
   type TsqlStructuralNodeKind,
-} from './introspector-projection.v1.generated.js';
+} from './introspector-projection.v2.generated.js';
 import {
   assertInteger,
   assertNonNegativeInteger,
@@ -70,11 +70,17 @@ export type TsqlStructuralIdentifierAttribute =
       reason: 'literal-origin' | 'secret-pattern';
     };
 
-export type TsqlStructuralScalarAttribute = {
-  name: TsqlStructuralAttributeName;
-  kind: Exclude<TsqlStructuralAttributeKind, 'identifier'>;
-  value: string | boolean;
-};
+export type TsqlStructuralScalarAttribute =
+  | {
+      name: TsqlStructuralAttributeName;
+      kind: 'enum';
+      value: string;
+    }
+  | {
+      name: TsqlStructuralAttributeName;
+      kind: 'boolean';
+      value: boolean;
+    };
 
 export type TsqlStructuralAttribute =
   | TsqlStructuralIdentifierAttribute
@@ -138,6 +144,11 @@ type StructuralEdgePolicy = {
   childKinds: ReadonlySet<string>;
 };
 
+type StructuralAttributePolicy = {
+  attributeKind: TsqlStructuralAttributeKind;
+  allowedValues?: ReadonlySet<unknown>;
+};
+
 const defaultIntrospectorAppBundlePath = path.resolve(
   __scriptdomBridgeModuleDirectory,
   '../vendor/scriptdom-introspector-wasm/AppBundle',
@@ -189,19 +200,34 @@ const edgePoliciesByPath: Map<string, StructuralEdgePolicy> = new Map(
 );
 const attributeNameSet = new Set<string>(TSQL_STRUCTURAL_ATTRIBUTE_NAMES);
 const attributeKindSet = new Set<string>(TSQL_STRUCTURAL_ATTRIBUTE_KINDS);
-const attributePolicySet = new Set(
-  TSQL_STRUCTURAL_ATTRIBUTE_POLICIES.map(
-    (policy) => attributePolicyKey(policy.nodeKind, policy.propertyName, policy.attributeKind),
-  ),
-);
-const scalarAttributeValueSets: Map<string, ReadonlySet<unknown>> = new Map(
-  TSQL_STRUCTURAL_ATTRIBUTE_POLICIES.filter((policy) => 'allowedValues' in policy).map(
-    (policy) => [
-      attributePolicyKey(policy.nodeKind, policy.propertyName, policy.attributeKind),
-      new Set<unknown>(policy.allowedValues),
-    ],
-  ),
-);
+const attributePoliciesByKey = new Map<string, StructuralAttributePolicy>();
+const requiredBooleanAttributesByNodeKind = new Map<string, Set<string>>();
+
+for (const policy of TSQL_STRUCTURAL_ATTRIBUTE_POLICIES) {
+  const runtimePolicy: StructuralAttributePolicy = {
+    attributeKind: policy.attributeKind,
+  };
+
+  if ('allowedValues' in policy) {
+    runtimePolicy.allowedValues = new Set<unknown>(policy.allowedValues);
+  }
+
+  attributePoliciesByKey.set(
+    attributePolicyKey(policy.nodeKind, policy.propertyName, policy.attributeKind),
+    runtimePolicy,
+  );
+
+  if (policy.attributeKind === 'boolean') {
+    let requiredNames = requiredBooleanAttributesByNodeKind.get(policy.nodeKind);
+
+    if (requiredNames === undefined) {
+      requiredNames = new Set<string>();
+      requiredBooleanAttributesByNodeKind.set(policy.nodeKind, requiredNames);
+    }
+
+    requiredNames.add(policy.propertyName);
+  }
+}
 const identifierStateSet = new Set<string>(TSQL_IDENTIFIER_STATES);
 const coordinateStateSet = new Set<string>(TSQL_INSPECT_COORDINATE_STATES);
 const tokenTypeSet = new Set<number>(TSQL_INSPECT_TOKEN_TYPES);
@@ -553,13 +579,42 @@ function validateNode(
     nodeKind,
   );
 
+  const seenAttributeNames = new Set<string>();
+  const presentBooleanAttributeNames = new Set<string>();
   const attributes = validateArray(
     value.attributes,
     `nodes[${index}].attributes`,
     Number.MAX_SAFE_INTEGER,
-    (item, attributeIndex) =>
-      validateAttribute(item, `nodes[${index}].attributes[${attributeIndex}]`, nodeKind),
+    (item, attributeIndex) => {
+      const attribute = validateAttribute(
+        item,
+        `nodes[${index}].attributes[${attributeIndex}]`,
+        nodeKind,
+      );
+
+      if (seenAttributeNames.has(attribute.name)) {
+        throw new Error('Invalid ScriptDOM result: structural attribute duplicate');
+      }
+
+      seenAttributeNames.add(attribute.name);
+
+      if (attribute.kind === 'boolean') {
+        presentBooleanAttributeNames.add(attribute.name);
+      }
+
+      return attribute;
+    },
   );
+  const requiredBooleanAttributeNames = requiredBooleanAttributesByNodeKind.get(nodeKind);
+
+  if (requiredBooleanAttributeNames !== undefined) {
+    for (const requiredName of requiredBooleanAttributeNames) {
+      if (!presentBooleanAttributeNames.has(requiredName)) {
+        throw new Error('Invalid ScriptDOM result: structural boolean attribute');
+      }
+    }
+  }
+
   const node: TsqlStructuralNode = {
     id: value.id,
     kind: nodeKind,
@@ -649,7 +704,8 @@ function validateAttribute(
   }
 
   const policyKey = attributePolicyKey(nodeKind, value.name, value.kind);
-  if (!attributePolicySet.has(policyKey)) {
+  const attributePolicy = attributePoliciesByKey.get(policyKey);
+  if (attributePolicy === undefined) {
     throw new Error('Invalid ScriptDOM result: structural attribute policy');
   }
 
@@ -692,20 +748,35 @@ function validateAttribute(
   }
 
   assertExactKeysLocal(value, scalarAttributeKeys, `${fieldName} keys`);
-  if (typeof value.value !== 'string' && typeof value.value !== 'boolean') {
-    throw new Error('Invalid ScriptDOM result: structural scalar attribute value');
+  if (value.kind === 'enum') {
+    if (typeof value.value !== 'string') {
+      throw new Error('Invalid ScriptDOM result: structural enum attribute value');
+    }
+
+    if (!attributePolicy.allowedValues?.has(value.value)) {
+      throw new Error('Invalid ScriptDOM result: structural scalar attribute value');
+    }
+
+    return {
+      name: value.name as TsqlStructuralAttributeName,
+      kind: 'enum',
+      value: value.value,
+    };
   }
 
-  const allowedValues = scalarAttributeValueSets.get(policyKey);
-  if (!allowedValues?.has(value.value)) {
-    throw new Error('Invalid ScriptDOM result: structural scalar attribute value');
+  if (value.kind === 'boolean') {
+    if (typeof value.value !== 'boolean') {
+      throw new Error('Invalid ScriptDOM result: structural boolean attribute value');
+    }
+
+    return {
+      name: value.name as TsqlStructuralAttributeName,
+      kind: 'boolean',
+      value: value.value,
+    };
   }
 
-  return {
-    name: value.name as TsqlStructuralAttributeName,
-    kind: value.kind as Exclude<TsqlStructuralAttributeKind, 'identifier'>,
-    value: value.value,
-  };
+  throw new Error('Invalid ScriptDOM result: structural attribute kind');
 }
 
 function attributePolicyKey(nodeKind: string, attributeName: string, attributeKind: string) {
