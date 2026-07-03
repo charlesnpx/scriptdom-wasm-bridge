@@ -19,7 +19,7 @@
     },
     {
       "path": "c-sharp/introspector/ScriptDomIntrospectorWasmBridge.csproj",
-      "sha256": "eb0dc2c9d2da09ebf8a4a55ef6080062d19b2045e6461a2925e0929098580483"
+      "sha256": "6f2940f92f65b4ef4095ab2c70020aa184abb64a0451aa8d34fccf8753bc4883"
     },
     {
       "path": "c-sharp/tokenizer/main.mjs",
@@ -31,7 +31,7 @@
     },
     {
       "path": "c-sharp/tokenizer/ScriptDomTokenizerWasmBridge.csproj",
-      "sha256": "281dedf08c9d11e5cbb7d71c33d1dda4c6354e8b544f2b163cd97182bdcd8225"
+      "sha256": "22d3f6147a9c2ff3cf6163b3c3e5c1797712799d3ee817a3f67445c4494f99de"
     },
     {
       "path": "dist/index.cjs",
@@ -311,7 +311,7 @@
     },
     {
       "path": "vendor/scriptdom-introspector-wasm/AppBundle/_framework/dotnet.boot.js",
-      "sha256": "be73dd9927f4e1bf6e941e3f97ec64e57d930905941ab10dcd3f8b5dd6377478"
+      "sha256": "d0696c0c56241de2eee1baf03fbd313eacfb4b24c3bd0d599ea3487a151b14a0"
     },
     {
       "path": "vendor/scriptdom-introspector-wasm/AppBundle/_framework/dotnet.js",
@@ -375,7 +375,7 @@
     },
     {
       "path": "vendor/scriptdom-introspector-wasm/AppBundle/_framework/ScriptDomIntrospectorWasmBridge.wasm",
-      "sha256": "b611f1b4534ed9d1053f6b919e9cb916d2848c0d4e440915ac62c3b652e85f97"
+      "sha256": "5a912ef7624d6b4b7ea1f6dd14654b481af2d0c260e3afa76cd6109ac1ca56ec"
     },
     {
       "path": "vendor/scriptdom-introspector-wasm/AppBundle/_framework/System.Collections.Concurrent.wasm",
@@ -451,7 +451,7 @@
     },
     {
       "path": "vendor/scriptdom-tokenizer-wasm/AppBundle/_framework/dotnet.boot.js",
-      "sha256": "6f69a6b335cac64b270130cb64d37b15f230dcb57e14f43db40acd4c6c1da253"
+      "sha256": "906cb9a5989239fe91ada2555c6d9e8ab4972c07c86a3832f17901af92ed3817"
     },
     {
       "path": "vendor/scriptdom-tokenizer-wasm/AppBundle/_framework/dotnet.js",
@@ -515,7 +515,7 @@
     },
     {
       "path": "vendor/scriptdom-tokenizer-wasm/AppBundle/_framework/ScriptDomTokenizerWasmBridge.wasm",
-      "sha256": "5d37120ad9727171539736c8cc42dc99cfa12a3572262fdd1e9d10ceb2139ea8"
+      "sha256": "3e106f354208f56713b3579678d3d166a988d9e0c80351ae0e8887b1d1706c2a"
     },
     {
       "path": "vendor/scriptdom-tokenizer-wasm/AppBundle/_framework/System.Memory.wasm",
