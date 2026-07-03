@@ -432,6 +432,26 @@ try {
     malformedIntrospectorBundlePath,
     'malformed introspector invalid result',
   );
+
+  const malformedAttributeBundlePath = await writeMalformedIntrospectorBundle(
+    malformedBundleRoot,
+    'attribute-policy',
+  );
+  const malformedAttributeIntrospector = await introspectorModule.createTsqlIntrospector({
+    appBundlePath: malformedAttributeBundlePath,
+  });
+
+  assertThrowsWithoutLeak(
+    () => malformedAttributeIntrospector.inspect('select 1'),
+    Error,
+    'structural attribute policy',
+    ['SecretTokenTable', 'select 1'],
+    'malformed introspector attribute policy',
+  );
+  await assertRuntimeCacheMissing(
+    malformedAttributeBundlePath,
+    'malformed introspector attribute policy',
+  );
 } finally {
   await fs.rm(malformedBundleRoot, { recursive: true, force: true });
 }
@@ -992,10 +1012,48 @@ export const dotnet = {
   return appBundlePath;
 }
 
-async function writeMalformedIntrospectorBundle(rootDirectory) {
-  const appBundlePath = path.join(rootDirectory, 'introspector', 'AppBundle');
+async function writeMalformedIntrospectorBundle(rootDirectory, variant = 'location-error') {
+  const appBundlePath = path.join(rootDirectory, `introspector-${variant}`, 'AppBundle');
   const frameworkPath = path.join(appBundlePath, '_framework');
   const abi = await readGeneratedIntrospectorAbi();
+  const inspectBody =
+    variant === 'attribute-policy'
+      ? `
+                        return JSON.stringify({
+                          failed: false,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 1,
+                          nodes: [
+                            {
+                              id: 0,
+                              kind: 'TSqlScript',
+                              parentId: null,
+                              pathFromParent: [],
+                              attributes: [
+                                { name: 'Value', kind: 'enum', value: 'SecretTokenTable' },
+                              ],
+                            },
+                          ],
+                          errors: [],
+                        });
+`
+      : `
+                        return JSON.stringify({
+                          failed: true,
+                          parser: 'TSql160Parser',
+                          projectionVersion: 1,
+                          nodes: [],
+                          errors: [
+                            {
+                              number: 1,
+                              offset: sql.length + 1,
+                              line: 1,
+                              column: 1,
+                              coordinateState: 'available',
+                            },
+                          ],
+                        });
+`;
 
   await fs.mkdir(frameworkPath, { recursive: true });
   await fs.writeFile(
@@ -1018,21 +1076,7 @@ export const dotnet = {
 	                      return ${JSON.stringify(JSON.stringify(abi))};
 	                    },
 	                    InspectJson(sql) {
-	                      return JSON.stringify({
-	                        failed: true,
-	                        parser: 'TSql160Parser',
-	                        projectionVersion: 1,
-	                        nodes: [],
-	                        errors: [
-	                          {
-	                            number: 1,
-	                            offset: sql.length + 1,
-	                            line: 1,
-	                            column: 1,
-	                            coordinateState: 'available',
-	                          },
-	                        ],
-	                      });
+${inspectBody}
 	                    },
 	                  },
                 },

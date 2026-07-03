@@ -21,6 +21,7 @@ const allowlistPath = args.allowlist ?? defaultAllowlistPath;
 const allowlist = args.writeAllowlist ? undefined : await readAllowlist(allowlistPath);
 if (allowlist) {
   verifyExactFileList(dryRunFiles, [...allowlist.keys()], 'dry-run packlist');
+  verifyHashes(await hashLocalFiles(dryRunFiles), allowlist);
 }
 
 if (args.tarball) {
@@ -173,6 +174,23 @@ async function hashTarballFiles(tarballPath, files) {
       maxBuffer: 64 * 1024 * 1024,
     });
     hashes.set(file, createHash('sha256').update(stdout).digest('hex'));
+  }
+
+  return hashes;
+}
+
+async function hashLocalFiles(files) {
+  const hashes = new Map();
+
+  for (const file of files) {
+    const localPath = path.join(root, file);
+    const fileStatus = await fs.lstat(localPath);
+
+    if (!fileStatus.isFile()) {
+      throw new Error(`Packed local path is not a regular file: ${file}`);
+    }
+
+    hashes.set(file, createHash('sha256').update(await fs.readFile(localPath)).digest('hex'));
   }
 
   return hashes;

@@ -238,7 +238,9 @@ function generateArtifacts(sourceManifest, discovery) {
   }));
   const nodeKinds = nodes.map((node) => node.Name);
   const edgeNames = uniqueSorted(nodes.flatMap((node) => node.Edges.map((edge) => edge.Name)));
-  const attributePolicies = sourceManifest.attributePolicies.map((policy) => ({ ...policy }));
+  const attributePolicies = sortAttributePolicies(
+    sourceManifest.attributePolicies.map((policy) => ({ ...policy })),
+  );
   const attributeNames = uniqueSorted(attributePolicies.map((policy) => policy.propertyName));
   const attributeKinds = uniqueSorted(attributePolicies.map((policy) => policy.attributeKind));
   const tokenTypes = [...discovery.TokenTypes].sort((a, b) => a - b);
@@ -246,6 +248,7 @@ function generateArtifacts(sourceManifest, discovery) {
     nodeKinds,
     attributeNames,
     attributeKinds,
+    attributePolicies,
     tokenTypes,
   });
   const allowlistBundle = {
@@ -273,7 +276,50 @@ function generateArtifacts(sourceManifest, discovery) {
   };
 }
 
-function buildSchema(sourceManifest, { nodeKinds, attributeNames, attributeKinds, tokenTypes }) {
+function buildSchema(sourceManifest, { nodeKinds, attributePolicies, tokenTypes }) {
+  const attributeSchemas = attributePolicies.flatMap((policy) => {
+    if (policy.attributeKind === 'identifier') {
+      return [
+        {
+          type: 'object',
+          additionalProperties: false,
+          required: ['name', 'kind', 'state', 'value'],
+          properties: {
+            name: { const: policy.propertyName },
+            kind: { const: 'identifier' },
+            state: { const: 'present' },
+            value: { type: 'string' },
+          },
+        },
+        {
+          type: 'object',
+          additionalProperties: false,
+          required: ['name', 'kind', 'state', 'profile', 'reason'],
+          properties: {
+            name: { const: policy.propertyName },
+            kind: { const: 'identifier' },
+            state: { const: 'redacted' },
+            profile: { const: sourceManifest.identifierRedactionProfile.name },
+            reason: { enum: ['literal-origin', 'secret-pattern'] },
+          },
+        },
+      ];
+    }
+
+    return [
+      {
+        type: 'object',
+        additionalProperties: false,
+        required: ['name', 'kind', 'value'],
+        properties: {
+          name: { const: policy.propertyName },
+          kind: { const: policy.attributeKind },
+          value: { type: ['string', 'boolean'] },
+        },
+      },
+    ];
+  });
+
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     $id: 'https://scriptdom-wasm-bridge.local/introspector-result.v1.schema.json',
@@ -335,41 +381,7 @@ function buildSchema(sourceManifest, { nodeKinds, attributeNames, attributeKinds
         },
       },
       attribute: {
-        oneOf: [
-          {
-            type: 'object',
-            additionalProperties: false,
-            required: ['name', 'kind', 'state', 'value'],
-            properties: {
-              name: { enum: attributeNames },
-              kind: { const: 'identifier' },
-              state: { const: 'present' },
-              value: { type: 'string' },
-            },
-          },
-          {
-            type: 'object',
-            additionalProperties: false,
-            required: ['name', 'kind', 'state', 'profile', 'reason'],
-            properties: {
-              name: { enum: attributeNames },
-              kind: { const: 'identifier' },
-              state: { const: 'redacted' },
-              profile: { const: sourceManifest.identifierRedactionProfile.name },
-              reason: { enum: ['literal-origin', 'secret-pattern'] },
-            },
-          },
-          {
-            type: 'object',
-            additionalProperties: false,
-            required: ['name', 'kind', 'value'],
-            properties: {
-              name: { enum: attributeNames },
-              kind: { enum: attributeKinds.filter((kind) => kind !== 'identifier') },
-              value: { type: ['string', 'boolean'] },
-            },
-          },
-        ],
+        oneOf: attributeSchemas,
       },
       token: {
         type: 'object',
@@ -419,6 +431,7 @@ function generateTypeScript(sourceManifest, allowlistBundle, digests) {
     `export type TsqlStructuralAttributeName = (typeof TSQL_STRUCTURAL_ATTRIBUTE_NAMES)[number];\n\n` +
     `export const TSQL_STRUCTURAL_ATTRIBUTE_KINDS = ${stableTsObject(allowlistBundle.attributeKinds)} as const;\n` +
     `export type TsqlStructuralAttributeKind = (typeof TSQL_STRUCTURAL_ATTRIBUTE_KINDS)[number];\n\n` +
+    `export const TSQL_STRUCTURAL_ATTRIBUTE_POLICIES = ${stableTsObject(allowlistBundle.attributePolicies)} as const;\n\n` +
     `export const TSQL_IDENTIFIER_STATES = ${stableTsObject(allowlistBundle.identifierStates)} as const;\n` +
     `export type TsqlIdentifierState = (typeof TSQL_IDENTIFIER_STATES)[number];\n\n` +
     `export const TSQL_INSPECT_COORDINATE_STATES = ${stableTsObject(allowlistBundle.coordinateStates)} as const;\n` +
@@ -632,6 +645,14 @@ function uniqueSorted(values) {
 
     return String(left).localeCompare(String(right), 'en-US');
   });
+}
+
+function sortAttributePolicies(policies) {
+  return [...policies].sort((left, right) =>
+    [left.nodeKind, left.propertyName, left.attributeKind]
+      .join('\u0000')
+      .localeCompare([right.nodeKind, right.propertyName, right.attributeKind].join('\u0000'), 'en-US'),
+  );
 }
 
 function csString(value) {

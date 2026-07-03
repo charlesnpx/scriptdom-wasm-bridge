@@ -7,7 +7,7 @@ import path2 from "node:path";
 
 // src/introspector-projection.v1.generated.ts
 var INTROSPECTOR_PROJECTION_ABI = {
-  "allowlistSha256": "01854f599f87d9e5e59877064dad5315306d18cd9e58d77c0c3b377d35a4ad66",
+  "allowlistSha256": "92f61264946373092cba13c85061b69a27ed950e9b602a0260a114f640db2554",
   "identifierRedactionProfile": "v1-conservative",
   "limits": {
     "nodes": 1e5,
@@ -24,7 +24,7 @@ var INTROSPECTOR_PROJECTION_ABI = {
   "manifestSha256": "c772369fd341ee586e13e1d080b2f4d2842bbd946c9c2f0b3b4e805b8f0a576b",
   "parser": "TSql160Parser",
   "projectionVersion": 1,
-  "resultSchemaSha256": "ffba3c8e612ea655cfe00af4b3dbad0484236891acd3b3217bc373a1f09d300d"
+  "resultSchemaSha256": "3812e728640677d2c91b85cfe27c7c74c7fadc38eb148d4f79a849d251a2569c"
 };
 var TSQL_STRUCTURAL_NODE_KINDS = [
   "AIAnalyzeSentimentFunctionCall",
@@ -970,6 +970,18 @@ var TSQL_STRUCTURAL_ATTRIBUTE_KINDS = [
   "enum",
   "identifier"
 ];
+var TSQL_STRUCTURAL_ATTRIBUTE_POLICIES = [
+  {
+    "attributeKind": "enum",
+    "nodeKind": "Identifier",
+    "propertyName": "QuoteType"
+  },
+  {
+    "attributeKind": "identifier",
+    "nodeKind": "Identifier",
+    "propertyName": "Value"
+  }
+];
 var TSQL_IDENTIFIER_STATES = [
   "present",
   "redacted"
@@ -1408,6 +1420,11 @@ var scalarAttributeKeys = /* @__PURE__ */ new Set(["name", "kind", "value"]);
 var nodeKindSet = new Set(TSQL_STRUCTURAL_NODE_KINDS);
 var attributeNameSet = new Set(TSQL_STRUCTURAL_ATTRIBUTE_NAMES);
 var attributeKindSet = new Set(TSQL_STRUCTURAL_ATTRIBUTE_KINDS);
+var attributePolicySet = new Set(
+  TSQL_STRUCTURAL_ATTRIBUTE_POLICIES.map(
+    (policy) => `${policy.propertyName}\0${policy.attributeKind}`
+  )
+);
 var identifierStateSet = new Set(TSQL_IDENTIFIER_STATES);
 var coordinateStateSet = new Set(TSQL_INSPECT_COORDINATE_STATES);
 var tokenTypeSet = new Set(TSQL_INSPECT_TOKEN_TYPES);
@@ -1661,11 +1678,16 @@ function validateNode(sql, value, index, options) {
 }
 function validateAttribute(value, fieldName) {
   assertObject(value, fieldName);
-  if (!attributeNameSet.has(String(value.name))) {
+  assertString(value.name, `${fieldName}.name`);
+  assertString(value.kind, `${fieldName}.kind`);
+  if (!attributeNameSet.has(value.name)) {
     throw new Error("Invalid ScriptDOM result: structural attribute name");
   }
-  if (!attributeKindSet.has(String(value.kind))) {
+  if (!attributeKindSet.has(value.kind)) {
     throw new Error("Invalid ScriptDOM result: structural attribute kind");
+  }
+  if (!attributePolicySet.has(`${value.name}\0${value.kind}`)) {
+    throw new Error("Invalid ScriptDOM result: structural attribute policy");
   }
   if (value.kind === "identifier") {
     if (!identifierStateSet.has(String(value.state))) {

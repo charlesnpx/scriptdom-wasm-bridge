@@ -7,6 +7,7 @@ import {
   TSQL_INSPECT_TOKEN_TYPES,
   TSQL_STRUCTURAL_ATTRIBUTE_KINDS,
   TSQL_STRUCTURAL_ATTRIBUTE_NAMES,
+  TSQL_STRUCTURAL_ATTRIBUTE_POLICIES,
   TSQL_STRUCTURAL_NODE_KINDS,
   type TsqlIdentifierState,
   type TsqlInspectCoordinateState,
@@ -164,6 +165,11 @@ const scalarAttributeKeys = new Set(['name', 'kind', 'value']);
 const nodeKindSet = new Set<string>(TSQL_STRUCTURAL_NODE_KINDS);
 const attributeNameSet = new Set<string>(TSQL_STRUCTURAL_ATTRIBUTE_NAMES);
 const attributeKindSet = new Set<string>(TSQL_STRUCTURAL_ATTRIBUTE_KINDS);
+const attributePolicySet = new Set(
+  TSQL_STRUCTURAL_ATTRIBUTE_POLICIES.map(
+    (policy) => `${policy.propertyName}\u0000${policy.attributeKind}`,
+  ),
+);
 const identifierStateSet = new Set<string>(TSQL_IDENTIFIER_STATES);
 const coordinateStateSet = new Set<string>(TSQL_INSPECT_COORDINATE_STATES);
 const tokenTypeSet = new Set<number>(TSQL_INSPECT_TOKEN_TYPES);
@@ -498,13 +504,19 @@ function validateNode(
 
 function validateAttribute(value: unknown, fieldName: string): TsqlStructuralAttribute {
   assertObject(value, fieldName);
+  assertString(value.name, `${fieldName}.name`);
+  assertString(value.kind, `${fieldName}.kind`);
 
-  if (!attributeNameSet.has(String(value.name))) {
+  if (!attributeNameSet.has(value.name)) {
     throw new Error('Invalid ScriptDOM result: structural attribute name');
   }
 
-  if (!attributeKindSet.has(String(value.kind))) {
+  if (!attributeKindSet.has(value.kind)) {
     throw new Error('Invalid ScriptDOM result: structural attribute kind');
+  }
+
+  if (!attributePolicySet.has(`${value.name}\u0000${value.kind}`)) {
+    throw new Error('Invalid ScriptDOM result: structural attribute policy');
   }
 
   if (value.kind === 'identifier') {
