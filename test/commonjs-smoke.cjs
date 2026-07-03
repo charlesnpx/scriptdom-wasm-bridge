@@ -29,8 +29,17 @@ async function main() {
     throw new Error('CommonJS sanitizer leaked a sample value');
   }
 
-  if (!inspected.objectReferences.some((reference) => reference.nameParts.includes('CommonJsTable'))) {
-    throw new Error('CommonJS introspector did not return the expected object reference');
+  if (
+    !inspected.nodes.some((node) =>
+      node.attributes.some(
+        (attribute) =>
+          attribute.kind === 'identifier' &&
+          attribute.state === 'present' &&
+          attribute.value === 'CommonJsTable',
+      ),
+    )
+  ) {
+    throw new Error('CommonJS introspector did not return the expected identifier');
   }
 
   console.log(`commonjs: ${sanitized.sql}`);

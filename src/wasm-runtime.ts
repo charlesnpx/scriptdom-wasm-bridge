@@ -22,7 +22,10 @@ type LoadWasmRuntimeOptions<TRuntime> = {
   appBundlePath: string;
   bundleKind: string;
   missingBundleMessage: (dotnetJsPath: string) => string;
-  createRuntime: (assemblyExports: unknown) => Promise<TRuntime> | TRuntime;
+  createRuntime: (
+    assemblyExports: unknown,
+    context: { poison(): void },
+  ) => Promise<TRuntime> | TRuntime;
 };
 
 const runtimeCacheSymbol = Symbol.for('scriptdom-wasm-bridge.runtimeCache.v2');
@@ -71,14 +74,14 @@ export function getFunctionProperty(
   value: Record<string, unknown>,
   propertyName: string,
   fieldName: string,
-): (...args: string[]) => string {
+): (...args: string[]) => unknown {
   const property = value[propertyName];
 
   if (typeof property !== 'function') {
     throw new Error(`Invalid ScriptDOM WASM export: ${fieldName}`);
   }
 
-  return property as (...args: string[]) => string;
+  return property as (...args: string[]) => unknown;
 }
 
 function getExpectedRuntime<TRuntime>(
@@ -98,7 +101,10 @@ function getExpectedRuntime<TRuntime>(
 async function initializeWasmRuntime<TRuntime>(
   dotnetJsPath: string,
   bundleKind: string,
-  createRuntime: (assemblyExports: unknown) => Promise<TRuntime> | TRuntime,
+  createRuntime: (
+    assemblyExports: unknown,
+    context: { poison(): void },
+  ) => Promise<TRuntime> | TRuntime,
 ): Promise<LoadedRuntime> {
   const dotnetModule = (await import(pathToFileURL(dotnetJsPath).href)) as DotnetModule;
   const runtime = await dotnetModule.dotnet.withDiagnosticTracing(false).create();
@@ -107,7 +113,11 @@ async function initializeWasmRuntime<TRuntime>(
 
   return {
     bundleKind,
-    runtime: await createRuntime(assemblyExports),
+    runtime: await createRuntime(assemblyExports, {
+      poison() {
+        runtimeCache.delete(dotnetJsPath);
+      },
+    }),
   };
 }
 

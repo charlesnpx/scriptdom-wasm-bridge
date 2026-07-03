@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+using System.Globalization;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
 using System.Text;
@@ -18,102 +18,273 @@ public static class Program
 
 public static partial class TsqlIntrospector
 {
+    private const string EmptyOptionsJson = "{}";
+    private const string IncludeSpansOptionsJson = "{\"includeSpans\":true}";
+    private const string IncludeTokensOptionsJson = "{\"includeTokens\":true}";
+    private const string IncludeSpansAndTokensOptionsJson =
+        "{\"includeSpans\":true,\"includeTokens\":true}";
+
     [JSExport]
-    public static string InspectJson(string sql)
+    public static string GetIntrospectorAbiJson()
     {
-        var parser = new TSql160Parser(initialQuotedIdentifiers: false);
+        using var output = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(output))
+        {
+            writer.WriteStartObject();
+            writer.WriteString("parser", IntrospectorProjectionManifest.Parser);
+            writer.WriteNumber("projectionVersion", IntrospectorProjectionManifest.ProjectionVersion);
+            writer.WriteString("manifestSha256", IntrospectorProjectionManifest.ManifestSha256);
+            writer.WriteString("resultSchemaSha256", IntrospectorProjectionManifest.ResultSchemaSha256);
+            writer.WriteString("allowlistSha256", IntrospectorProjectionManifest.AllowlistSha256);
+            writer.WriteEndObject();
+        }
+
+        return Encoding.UTF8.GetString(output.GetBuffer(), 0, checked((int)output.Length));
+    }
+
+    [JSExport]
+    public static string InspectJson(string sql, string optionsJson)
+    {
+        InspectOptions options;
 
         try
         {
+            options = ParseOptions(optionsJson);
+
+            if (sql.Length > IntrospectorProjectionManifest.MaxSqlUtf16CodeUnits)
+            {
+                throw new ProjectionLimitExceededException();
+            }
+
+            IReadOnlyList<ProjectedToken> tokens = options.IncludeTokens
+                ? ProjectTokens(sql)
+                : Array.Empty<ProjectedToken>();
+            var parser = new TSql160Parser(initialQuotedIdentifiers: false, SqlEngineType.All);
             var fragment = parser.Parse(new StringReader(sql), out IList<ParseError> errors);
 
             if (errors.Count > 0 || fragment is null)
             {
-                return WriteFailureResultJson(errors);
+                return WriteInspectResultJson(
+                    failed: true,
+                    nodes: Array.Empty<ProjectedNode>(),
+                    tokens,
+                    errors,
+                    options,
+                    sql.Length);
             }
 
-            var visitor = new IntrospectionVisitor(sql.Length);
-            visitor.AddStatementsFromScript(fragment);
-            fragment.Accept(visitor);
+            var nodes = ProjectNodes(fragment, options);
 
-            return WriteSuccessResultJson(visitor);
+            return WriteInspectResultJson(
+                failed: false,
+                nodes,
+                tokens,
+                Array.Empty<ParseError>(),
+                options,
+                sql.Length);
         }
         catch
         {
-            return WriteExceptionResultJson();
+            return WritePrivateFailureEnvelope(TryParseOptionsForEnvelope(optionsJson));
         }
     }
 
-    private static string WriteSuccessResultJson(IntrospectionVisitor visitor)
+    private static InspectOptions ParseOptions(string optionsJson)
     {
-        using var output = new MemoryStream();
-        using (var writer = new Utf8JsonWriter(output))
+        if (optionsJson.Length > IntrospectorProjectionManifest.MaxPrivateOptionsJsonUtf16CodeUnits)
         {
-            writer.WriteStartObject();
-            writer.WriteBoolean("failed", false);
-            WriteStatements(writer, visitor.Statements);
-            WriteObjectReferences(writer, visitor.ObjectReferences);
-            WriteNamedRanges(writer, "functionCalls", visitor.FunctionCalls);
-            WriteNamedRanges(writer, "procedureCalls", visitor.ProcedureCalls);
-            WriteConstructs(writer, visitor.Constructs);
-            writer.WriteStartArray("errors");
-            writer.WriteEndArray();
-            writer.WriteEndObject();
+            throw new ProjectionLimitExceededException();
         }
 
-        return Encoding.UTF8.GetString(output.GetBuffer(), 0, checked((int)output.Length));
+        return optionsJson switch
+        {
+            EmptyOptionsJson => new InspectOptions(false, false),
+            IncludeSpansOptionsJson => new InspectOptions(true, false),
+            IncludeTokensOptionsJson => new InspectOptions(false, true),
+            IncludeSpansAndTokensOptionsJson => new InspectOptions(true, true),
+            _ => throw new ProjectionLimitExceededException(),
+        };
     }
 
-    private static string WriteFailureResultJson(IList<ParseError> errors)
+    private static InspectOptions TryParseOptionsForEnvelope(string optionsJson)
     {
-        using var output = new MemoryStream();
-        using (var writer = new Utf8JsonWriter(output))
+        try
         {
-            writer.WriteStartObject();
-            writer.WriteBoolean("failed", true);
-            writer.WriteStartArray("statements");
-            writer.WriteEndArray();
-            writer.WriteStartArray("objectReferences");
-            writer.WriteEndArray();
-            writer.WriteStartArray("functionCalls");
-            writer.WriteEndArray();
-            writer.WriteStartArray("procedureCalls");
-            writer.WriteEndArray();
-            writer.WriteStartArray("constructs");
-            writer.WriteEndArray();
-            writer.WriteStartArray("errors");
+            return ParseOptions(optionsJson);
+        }
+        catch
+        {
+            return new InspectOptions(false, false);
+        }
+    }
 
-            foreach (var error in errors)
+    private static List<ProjectedNode> ProjectNodes(TSqlFragment fragment, InspectOptions options)
+    {
+        var nodes = new List<ProjectedNode>();
+        var stack = new Stack<TraversalFrame>();
+        var traversedFragments = 0;
+        var pathSegments = 0;
+
+        stack.Push(
+            new TraversalFrame(
+                fragment,
+                ParentId: null,
+                PathFromParent: Array.Empty<string>(),
+                Depth: 0,
+                LiteralOrigin: false));
+
+        while (stack.Count > 0)
+        {
+            var frame = stack.Pop();
+            traversedFragments += 1;
+
+            if (
+                traversedFragments > IntrospectorProjectionManifest.MaxTraversedFragments ||
+                frame.Depth > IntrospectorProjectionManifest.MaxTraversalDepth ||
+                nodes.Count >= IntrospectorProjectionManifest.MaxNodes
+            )
             {
-                WriteError(writer, error.Number, error.Offset, error.Line, error.Column);
+                throw new ProjectionLimitExceededException();
             }
 
-            writer.WriteEndArray();
+            var nodeKind = IntrospectorProjectionAccessors.GetNodeKind(frame.Node);
+            if (nodeKind.Length == 0 || IntrospectorProjectionAccessors.GetNodeKindId(frame.Node) < 0)
+            {
+                throw new ProjectionLimitExceededException();
+            }
+
+            pathSegments += frame.PathFromParent.Length;
+            if (pathSegments > IntrospectorProjectionManifest.MaxPathSegments)
+            {
+                throw new ProjectionLimitExceededException();
+            }
+
+            var node = new ProjectedNode(
+                Id: nodes.Count,
+                Kind: nodeKind,
+                ParentId: frame.ParentId,
+                PathFromParent: frame.PathFromParent,
+                Span: options.IncludeSpans ? TryGetSpan(frame.Node) : null,
+                Fragment: frame.Node,
+                LiteralOrigin: frame.LiteralOrigin);
+            nodes.Add(node);
+
+            var children = IntrospectorProjectionAccessors.GetChildren(frame.Node).ToArray();
+            for (var index = children.Length - 1; index >= 0; index -= 1)
+            {
+                var child = children[index];
+                stack.Push(
+                    new TraversalFrame(
+                        child.Child,
+                        node.Id,
+                        GetPathFromParent(child),
+                        frame.Depth + 1,
+                        frame.LiteralOrigin || IsLiteralOrigin(frame.Node, child)));
+            }
+        }
+
+        return nodes;
+    }
+
+    private static List<ProjectedToken> ProjectTokens(string sql)
+    {
+        var parser = new TSql160Parser(initialQuotedIdentifiers: false, SqlEngineType.All);
+        var tokens = parser.GetTokenStream(new StringReader(sql), out _);
+        var projectedTokens = new List<ProjectedToken>();
+
+        for (var index = 0; index < tokens.Count; index += 1)
+        {
+            var token = tokens[index];
+            if (token.TokenType == TSqlTokenType.EndOfFile)
+            {
+                continue;
+            }
+
+            if (projectedTokens.Count >= IntrospectorProjectionManifest.MaxTokens)
+            {
+                throw new ProjectionLimitExceededException();
+            }
+
+            var offset = ClampOffset(token.Offset, sql.Length);
+            var length = GetTokenLength(tokens, index, offset, sql.Length);
+
+            if (length <= 0 || token.Line <= 0 || token.Column <= 0)
+            {
+                throw new ProjectionLimitExceededException();
+            }
+
+            projectedTokens.Add(
+                new ProjectedToken(
+                    Type: (int)token.TokenType,
+                    Offset: offset,
+                    Length: length,
+                    Line: token.Line,
+                    Column: token.Column));
+        }
+
+        return projectedTokens;
+    }
+
+    private static string WriteInspectResultJson(
+        bool failed,
+        IReadOnlyList<ProjectedNode> nodes,
+        IReadOnlyList<ProjectedToken> tokens,
+        IList<ParseError> errors,
+        InspectOptions options,
+        int sqlLength)
+    {
+        using var output = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(output))
+        {
+            writer.WriteStartObject();
+            writer.WriteBoolean("failed", failed);
+            writer.WriteString("parser", IntrospectorProjectionManifest.Parser);
+            writer.WriteNumber("projectionVersion", IntrospectorProjectionManifest.ProjectionVersion);
+            WriteNodes(writer, nodes, options);
+
+            if (options.IncludeTokens)
+            {
+                WriteTokens(writer, tokens);
+            }
+
+            WriteErrors(writer, errors, sqlLength);
             writer.WriteEndObject();
         }
 
-        return Encoding.UTF8.GetString(output.GetBuffer(), 0, checked((int)output.Length));
+        if (output.Length > IntrospectorProjectionManifest.MaxSerializedEnvelopeUtf8Bytes)
+        {
+            throw new ProjectionLimitExceededException();
+        }
+
+        var result = Encoding.UTF8.GetString(output.GetBuffer(), 0, checked((int)output.Length));
+        if (result.Length > IntrospectorProjectionManifest.MaxProjectedOutputUtf16CodeUnits)
+        {
+            throw new ProjectionLimitExceededException();
+        }
+
+        return result;
     }
 
-    private static string WriteExceptionResultJson()
+    private static string WritePrivateFailureEnvelope(InspectOptions options)
     {
         using var output = new MemoryStream();
         using (var writer = new Utf8JsonWriter(output))
         {
             writer.WriteStartObject();
             writer.WriteBoolean("failed", true);
-            writer.WriteStartArray("statements");
+            writer.WriteString("parser", IntrospectorProjectionManifest.Parser);
+            writer.WriteNumber("projectionVersion", IntrospectorProjectionManifest.ProjectionVersion);
+            writer.WriteStartArray("nodes");
             writer.WriteEndArray();
-            writer.WriteStartArray("objectReferences");
-            writer.WriteEndArray();
-            writer.WriteStartArray("functionCalls");
-            writer.WriteEndArray();
-            writer.WriteStartArray("procedureCalls");
-            writer.WriteEndArray();
-            writer.WriteStartArray("constructs");
-            writer.WriteEndArray();
+
+            if (options.IncludeTokens)
+            {
+                writer.WriteStartArray("tokens");
+                writer.WriteEndArray();
+            }
+
             writer.WriteStartArray("errors");
-            WriteError(writer, 0, 0, 0, 0);
+            WriteUnavailableError(writer, 0);
             writer.WriteEndArray();
             writer.WriteEndObject();
         }
@@ -121,96 +292,89 @@ public static partial class TsqlIntrospector
         return Encoding.UTF8.GetString(output.GetBuffer(), 0, checked((int)output.Length));
     }
 
-    private static void WriteStatements(Utf8JsonWriter writer, IReadOnlyList<StatementProjection> statements)
-    {
-        writer.WriteStartArray("statements");
-
-        foreach (var statement in statements)
-        {
-            writer.WriteStartObject();
-            writer.WriteString("kind", statement.Kind);
-            writer.WriteNumber("offset", statement.Offset);
-            writer.WriteNumber("length", statement.Length);
-            writer.WriteEndObject();
-        }
-
-        writer.WriteEndArray();
-    }
-
-    private static void WriteObjectReferences(
+    private static void WriteNodes(
         Utf8JsonWriter writer,
-        IReadOnlyList<ObjectReferenceProjection> objectReferences
-    )
+        IReadOnlyList<ProjectedNode> nodes,
+        InspectOptions options)
     {
-        writer.WriteStartArray("objectReferences");
+        writer.WriteStartArray("nodes");
 
-        foreach (var objectReference in objectReferences)
+        foreach (var node in nodes)
         {
             writer.WriteStartObject();
-            writer.WriteString("context", objectReference.Context);
-            WriteNameParts(writer, objectReference.NameParts);
-            WriteOptionalSpan(writer, objectReference.Span);
+            writer.WriteNumber("id", node.Id);
+            writer.WriteString("kind", node.Kind);
+
+            if (node.ParentId is null)
+            {
+                writer.WriteNull("parentId");
+            }
+            else
+            {
+                writer.WriteNumber("parentId", node.ParentId.Value);
+            }
+
+            writer.WriteStartArray("pathFromParent");
+            foreach (var segment in node.PathFromParent)
+            {
+                writer.WriteStringValue(segment);
+            }
+            writer.WriteEndArray();
+
+            if (options.IncludeSpans && node.Span is not null)
+            {
+                writer.WritePropertyName("span");
+                WriteSpan(writer, node.Span.Value);
+            }
+
+            IntrospectorProjectionAccessors.WriteAttributes(
+                writer,
+                node.Fragment,
+                new StructuralProjectionContext(node.LiteralOrigin));
             writer.WriteEndObject();
         }
 
         writer.WriteEndArray();
     }
 
-    private static void WriteNamedRanges(
-        Utf8JsonWriter writer,
-        string propertyName,
-        IReadOnlyList<NamedRangeProjection> namedRanges
-    )
+    private static void WriteTokens(Utf8JsonWriter writer, IReadOnlyList<ProjectedToken> tokens)
     {
-        writer.WriteStartArray(propertyName);
+        writer.WriteStartArray("tokens");
 
-        foreach (var namedRange in namedRanges)
+        foreach (var token in tokens)
         {
             writer.WriteStartObject();
-            WriteNameParts(writer, namedRange.NameParts);
-            WriteOptionalSpan(writer, namedRange.Span);
+            writer.WriteNumber("type", token.Type);
+            writer.WriteNumber("offset", token.Offset);
+            writer.WriteNumber("length", token.Length);
+            writer.WriteNumber("line", token.Line);
+            writer.WriteNumber("column", token.Column);
             writer.WriteEndObject();
         }
 
         writer.WriteEndArray();
     }
 
-    private static void WriteConstructs(Utf8JsonWriter writer, IReadOnlyList<ConstructProjection> constructs)
+    private static void WriteErrors(Utf8JsonWriter writer, IList<ParseError> errors, int sqlLength)
     {
-        writer.WriteStartArray("constructs");
+        writer.WriteStartArray("errors");
 
-        foreach (var construct in constructs)
+        foreach (var error in errors.Take(IntrospectorProjectionManifest.MaxParseErrors))
         {
-            writer.WriteStartObject();
-            writer.WriteString("kind", construct.Kind);
-            WriteOptionalSpan(writer, construct.Span);
-            writer.WriteEndObject();
+            WriteError(writer, error.Number, error.Offset, error.Line, error.Column, sqlLength);
         }
 
         writer.WriteEndArray();
     }
 
-    private static void WriteNameParts(Utf8JsonWriter writer, IReadOnlyList<string> nameParts)
+    private static void WriteSpan(Utf8JsonWriter writer, FragmentSpan span)
     {
-        writer.WriteStartArray("nameParts");
-
-        foreach (var namePart in nameParts)
-        {
-            writer.WriteStringValue(namePart);
-        }
-
-        writer.WriteEndArray();
-    }
-
-    private static void WriteOptionalSpan(Utf8JsonWriter writer, FragmentSpan? span)
-    {
-        if (span is null)
-        {
-            return;
-        }
-
-        writer.WriteNumber("offset", span.Value.Offset);
-        writer.WriteNumber("length", span.Value.Length);
+        writer.WriteStartObject();
+        writer.WriteNumber("offset", span.Offset);
+        writer.WriteNumber("length", span.Length);
+        writer.WriteNumber("line", span.Line);
+        writer.WriteNumber("column", span.Column);
+        writer.WriteEndObject();
     }
 
     private static void WriteError(
@@ -218,304 +382,181 @@ public static partial class TsqlIntrospector
         int number,
         int offset,
         int line,
-        int column
-    )
+        int column,
+        int sqlLength)
+    {
+        if (offset < 0 || offset > sqlLength || line <= 0 || column <= 0)
+        {
+            WriteUnavailableError(writer, number);
+            return;
+        }
+
+        writer.WriteStartObject();
+        writer.WriteNumber("number", number);
+        writer.WriteNumber("offset", offset);
+        writer.WriteNumber("line", line);
+        writer.WriteNumber("column", column);
+        writer.WriteString("coordinateState", "available");
+        writer.WriteEndObject();
+    }
+
+    private static void WriteUnavailableError(Utf8JsonWriter writer, int number)
     {
         writer.WriteStartObject();
         writer.WriteNumber("number", number);
-        writer.WriteNumber("offset", Math.Max(0, offset));
-        writer.WriteNumber("line", Math.Max(0, line));
-        writer.WriteNumber("column", Math.Max(0, column));
+        writer.WriteNumber("offset", 0);
+        writer.WriteNumber("line", 1);
+        writer.WriteNumber("column", 1);
+        writer.WriteString("coordinateState", "unavailable");
         writer.WriteEndObject();
     }
-}
 
-internal sealed class IntrospectionVisitor : TSqlFragmentVisitor
-{
-    private readonly int _sqlLength;
-    private readonly HashSet<string> _constructKeys = new();
-    private readonly HashSet<string> _functionCallKeys = new();
-    private readonly HashSet<string> _objectReferenceKeys = new();
-    private readonly HashSet<string> _procedureCallKeys = new();
-    private readonly HashSet<string> _statementKeys = new();
-
-    public IntrospectionVisitor(int sqlLength)
+    private static FragmentSpan? TryGetSpan(TSqlFragment node)
     {
-        _sqlLength = sqlLength;
-    }
-
-    public List<StatementProjection> Statements { get; } = new();
-    public List<ObjectReferenceProjection> ObjectReferences { get; } = new();
-    public List<NamedRangeProjection> FunctionCalls { get; } = new();
-    public List<NamedRangeProjection> ProcedureCalls { get; } = new();
-    public List<ConstructProjection> Constructs { get; } = new();
-
-    public void AddStatementsFromScript(TSqlFragment fragment)
-    {
-        if (fragment is not TSqlScript script)
-        {
-            if (fragment is TSqlStatement statement)
-            {
-                AddStatement(statement);
-            }
-
-            return;
-        }
-
-        foreach (var batch in script.Batches)
-        {
-            foreach (var statement in batch.Statements)
-            {
-                AddStatement(statement);
-            }
-        }
-    }
-
-    public override void ExplicitVisit(TSqlStatement node)
-    {
-        AddStatement(node);
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(NamedTableReference node)
-    {
-        AddObjectReference("table", GetNameParts(node.SchemaObject), TryGetSpan(node));
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(CreateTableStatement node)
-    {
-        AddObjectReference("create-table", GetNameParts(node.SchemaObjectName), TryGetSpan(node.SchemaObjectName));
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(FunctionCall node)
-    {
-        AddNamedRange(FunctionCalls, _functionCallKeys, GetNameParts(node.FunctionName), TryGetSpan(node));
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(BuiltInFunctionTableReference node)
-    {
-        AddNamedRange(FunctionCalls, _functionCallKeys, GetNameParts(node.Name), TryGetSpan(node));
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(ExecutableProcedureReference node)
-    {
-        var procedureReference = node.ProcedureReference?.ProcedureReference;
-
-        if (procedureReference is not null)
-        {
-            AddNamedRange(
-                ProcedureCalls,
-                _procedureCallKeys,
-                GetNameParts(procedureReference.Name),
-                TryGetSpan(node)
-            );
-        }
-
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(ExecuteStatement node)
-    {
-        AddConstruct("execute", node);
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(ExecutableStringList node)
-    {
-        AddConstruct("dynamic-execute", node);
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(OpenRowsetTableReference node)
-    {
-        AddConstruct("open-rowset", node);
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(BulkOpenRowset node)
-    {
-        AddConstruct("open-rowset", node);
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(InternalOpenRowset node)
-    {
-        AddConstruct("open-rowset", node);
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(OpenRowsetCosmos node)
-    {
-        AddConstruct("open-rowset", node);
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(OpenQueryTableReference node)
-    {
-        AddConstruct("open-query", node);
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(OpenJsonTableReference node)
-    {
-        AddConstruct("open-json", node);
-        base.ExplicitVisit(node);
-    }
-
-    public override void ExplicitVisit(OpenXmlTableReference node)
-    {
-        AddConstruct("open-xml", node);
-        base.ExplicitVisit(node);
-    }
-
-    private void AddStatement(TSqlStatement node)
-    {
-        var span = GetSpan(node);
-        var key = GetProjectionKey(node.GetType().Name, span);
-
-        if (!_statementKeys.Add(key))
-        {
-            return;
-        }
-
-        Statements.Add(new StatementProjection(node.GetType().Name, span.Offset, span.Length));
-    }
-
-    private void AddObjectReference(
-        string context,
-        IReadOnlyList<string> nameParts,
-        FragmentSpan? span
-    )
-    {
-        if (nameParts.Count == 0)
-        {
-            return;
-        }
-
-        var key = GetProjectionKey(context, nameParts, span);
-
-        if (!_objectReferenceKeys.Add(key))
-        {
-            return;
-        }
-
-        ObjectReferences.Add(new ObjectReferenceProjection(context, nameParts, span));
-    }
-
-    private void AddNamedRange(
-        List<NamedRangeProjection> projections,
-        HashSet<string> keys,
-        IReadOnlyList<string> nameParts,
-        FragmentSpan? span
-    )
-    {
-        if (nameParts.Count == 0)
-        {
-            return;
-        }
-
-        var key = GetProjectionKey("named-range", nameParts, span);
-
-        if (!keys.Add(key))
-        {
-            return;
-        }
-
-        projections.Add(new NamedRangeProjection(nameParts, span));
-    }
-
-    private void AddConstruct(string kind, TSqlFragment node)
-    {
-        var span = TryGetSpan(node);
-        var key = GetProjectionKey(kind, span);
-
-        if (!_constructKeys.Add(key))
-        {
-            return;
-        }
-
-        Constructs.Add(new ConstructProjection(kind, span));
-    }
-
-    private FragmentSpan GetSpan(TSqlFragment node)
-    {
-        return TryGetSpan(node) ?? new FragmentSpan(0, 0);
-    }
-
-    private FragmentSpan? TryGetSpan(TSqlFragment? node)
-    {
-        if (node is null || node.StartOffset < 0 || node.FragmentLength < 0)
+        if (
+            node.StartOffset < 0 ||
+            node.FragmentLength <= 0 ||
+            node.StartLine <= 0 ||
+            node.StartColumn <= 0
+        )
         {
             return null;
         }
 
-        var offset = ClampOffset(node.StartOffset);
-        var end = ClampOffset(node.StartOffset + node.FragmentLength);
-
-        return new FragmentSpan(offset, Math.Max(0, end - offset));
+        return new FragmentSpan(node.StartOffset, node.FragmentLength, node.StartLine, node.StartColumn);
     }
 
-    private int ClampOffset(int offset)
+    private static string[] GetPathFromParent(StructuralChildEdge edge)
     {
-        return Math.Min(Math.Max(offset, 0), _sqlLength);
+        return edge.Index < 0
+            ? new[] { edge.Name }
+            : new[] { edge.Name, edge.Index.ToString(CultureInfo.InvariantCulture) };
     }
 
-    private static IReadOnlyList<string> GetNameParts(SchemaObjectName? name)
+    private static bool IsLiteralOrigin(TSqlFragment parent, StructuralChildEdge edge)
     {
-        var nameParts = new List<string>();
-
-        AddIdentifier(nameParts, name?.ServerIdentifier);
-        AddIdentifier(nameParts, name?.DatabaseIdentifier);
-        AddIdentifier(nameParts, name?.SchemaIdentifier);
-        AddIdentifier(nameParts, name?.BaseIdentifier);
-
-        return nameParts;
+        return parent.GetType().Name.Contains("Literal", StringComparison.Ordinal) ||
+            edge.Name.Contains("Literal", StringComparison.Ordinal);
     }
 
-    private static IReadOnlyList<string> GetNameParts(Identifier? identifier)
+    private static int GetTokenLength(
+        IList<TSqlParserToken> tokens,
+        int tokenIndex,
+        int offset,
+        int sqlLength)
     {
-        var nameParts = new List<string>();
-        AddIdentifier(nameParts, identifier);
-        return nameParts;
-    }
-
-    private static void AddIdentifier(List<string> nameParts, Identifier? identifier)
-    {
-        if (!string.IsNullOrEmpty(identifier?.Value))
+        if (tokenIndex + 1 >= tokens.Count)
         {
-            nameParts.Add(identifier.Value);
+            return Math.Max(0, sqlLength - offset);
         }
+
+        var nextOffset = ClampOffset(tokens[tokenIndex + 1].Offset, sqlLength);
+        if (nextOffset < offset)
+        {
+            nextOffset = sqlLength;
+        }
+
+        return Math.Max(0, nextOffset - offset);
     }
 
-    private static string GetProjectionKey(string kind, FragmentSpan? span)
+    private static int ClampOffset(int offset, int sqlLength)
     {
-        return $"{kind}:{span?.Offset ?? -1}:{span?.Length ?? -1}";
-    }
-
-    private static string GetProjectionKey(
-        string kind,
-        IReadOnlyList<string> nameParts,
-        FragmentSpan? span
-    )
-    {
-        return $"{kind}:{string.Join(".", nameParts)}:{span?.Offset ?? -1}:{span?.Length ?? -1}";
+        return Math.Min(Math.Max(offset, 0), sqlLength);
     }
 }
 
-internal readonly record struct FragmentSpan(int Offset, int Length);
+internal static class StructuralJsonWriter
+{
+    public static void WriteIdentifierAttribute(
+        Utf8JsonWriter writer,
+        string name,
+        string? value,
+        StructuralProjectionContext context)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return;
+        }
 
-internal sealed record StatementProjection(string Kind, int Offset, int Length);
+        writer.WriteStartObject();
+        writer.WriteString("name", name);
+        writer.WriteString("kind", "identifier");
 
-internal sealed record ObjectReferenceProjection(
-    string Context,
-    IReadOnlyList<string> NameParts,
-    FragmentSpan? Span
-);
+        if (context.LiteralOrigin)
+        {
+            writer.WriteString("state", "redacted");
+            writer.WriteString("profile", IntrospectorProjectionManifest.IdentifierRedactionProfile);
+            writer.WriteString("reason", "literal-origin");
+        }
+        else if (IsSensitiveIdentifier(value))
+        {
+            writer.WriteString("state", "redacted");
+            writer.WriteString("profile", IntrospectorProjectionManifest.IdentifierRedactionProfile);
+            writer.WriteString("reason", "secret-pattern");
+        }
+        else
+        {
+            writer.WriteString("state", "present");
+            writer.WriteString("value", value);
+        }
 
-internal sealed record NamedRangeProjection(IReadOnlyList<string> NameParts, FragmentSpan? Span);
+        writer.WriteEndObject();
+    }
 
-internal sealed record ConstructProjection(string Kind, FragmentSpan? Span);
+    public static void WriteScalarAttribute(
+        Utf8JsonWriter writer,
+        string name,
+        string kind,
+        string value)
+    {
+        writer.WriteStartObject();
+        writer.WriteString("name", name);
+        writer.WriteString("kind", kind);
+        writer.WriteString("value", value);
+        writer.WriteEndObject();
+    }
+
+    private static bool IsSensitiveIdentifier(string value)
+    {
+        foreach (var fragment in IntrospectorProjectionManifest.SensitiveIdentifierFragments)
+        {
+            if (value.Contains(fragment, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+internal readonly record struct InspectOptions(bool IncludeSpans, bool IncludeTokens);
+
+internal readonly record struct StructuralProjectionContext(bool LiteralOrigin);
+
+internal readonly record struct TraversalFrame(
+    TSqlFragment Node,
+    int? ParentId,
+    string[] PathFromParent,
+    int Depth,
+    bool LiteralOrigin);
+
+internal readonly record struct FragmentSpan(int Offset, int Length, int Line, int Column);
+
+internal readonly record struct ProjectedNode(
+    int Id,
+    string Kind,
+    int? ParentId,
+    string[] PathFromParent,
+    FragmentSpan? Span,
+    TSqlFragment Fragment,
+    bool LiteralOrigin);
+
+internal readonly record struct ProjectedToken(
+    int Type,
+    int Offset,
+    int Length,
+    int Line,
+    int Column);
+
+internal sealed class ProjectionLimitExceededException : Exception;

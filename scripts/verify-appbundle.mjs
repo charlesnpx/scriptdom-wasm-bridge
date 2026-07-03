@@ -49,7 +49,16 @@ function verifyAppBundle(appBundle) {
   }
 
   const unreadablePaths = [];
-  verifyModes(appBundle.path, unreadablePaths);
+  const unsafePaths = [];
+  verifyModes(appBundle.path, unreadablePaths, unsafePaths);
+
+  if (unsafePaths.length > 0) {
+    throw new Error(
+      `Vendored ${appBundle.name} AppBundle contains unsafe filesystem entries: ${unsafePaths
+        .slice(0, 10)
+        .join(', ')}`,
+    );
+  }
 
   if (unreadablePaths.length > 0) {
     throw new Error(
@@ -60,9 +69,19 @@ function verifyAppBundle(appBundle) {
   }
 }
 
-function verifyModes(currentPath, unreadablePaths) {
-  const stat = fs.statSync(currentPath);
+function verifyModes(currentPath, unreadablePaths, unsafePaths) {
+  const stat = fs.lstatSync(currentPath);
   const mode = stat.mode & 0o777;
+
+  if (stat.isSymbolicLink() || (!stat.isDirectory() && !stat.isFile())) {
+    unsafePaths.push(currentPath);
+    return;
+  }
+
+  if (stat.isFile() && stat.nlink > 1) {
+    unsafePaths.push(currentPath);
+    return;
+  }
 
   if (!stat.isDirectory()) {
     if (stat.isFile() && (mode & 0o444) !== 0o444) {
@@ -81,6 +100,6 @@ function verifyModes(currentPath, unreadablePaths) {
       continue;
     }
 
-    verifyModes(path.join(currentPath, entry.name), unreadablePaths);
+    verifyModes(path.join(currentPath, entry.name), unreadablePaths, unsafePaths);
   }
 }

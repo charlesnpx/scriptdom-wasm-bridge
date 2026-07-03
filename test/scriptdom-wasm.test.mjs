@@ -282,6 +282,8 @@ if (!rawPlaceholderInspectResult.failed) {
   throw new Error('introspector accepted raw question-mark placeholder SQL');
 }
 
+assertInspectResultShape(rawPlaceholderInspectResult, { includeTokens: false });
+
 const normalizedPlaceholderInspectResult = introspector.inspect(normalizedPlaceholderSql);
 
 if (normalizedPlaceholderInspectResult.failed) {
@@ -296,27 +298,35 @@ const inspectSql = [
   "select * from openjson(N'{\"openJsonSecret\":1}') with (id int '$.id')",
   "select * from openrowset(BULK 'openRowsetSecret.csv', SINGLE_CLOB) as payload",
 ].join(';\n');
-const inspectResult = introspector.inspect(inspectSql);
+const inspectResult = introspector.inspect(inspectSql, { includeSpans: true, includeTokens: true });
 const inspectJson = JSON.stringify(inspectResult);
 
-assertInspectResultShape(inspectResult);
+assertInspectResultShape(inspectResult, { includeTokens: true });
 
 if (inspectResult.failed) {
   throw new Error(`Introspection failed: ${JSON.stringify(inspectResult.errors)}`);
 }
 
-assertHasKind(inspectResult.statements, 'SelectStatement', 'statement');
-assertHasKind(inspectResult.statements, 'ExecuteStatement', 'statement');
-assertHasKind(inspectResult.statements, 'CreateTableStatement', 'statement');
-assertHasNamePart(inspectResult.objectReferences, 'Users', 'object reference');
-assertHasNamePart(inspectResult.objectReferences, 'Logs', 'object reference');
-assertHasNamePart(inspectResult.objectReferences, 'CreatedThing', 'object reference');
-assertHasNamePart(inspectResult.functionCalls, 'MaskEmail', 'function call');
-assertHasNamePart(inspectResult.procedureCalls, 'RunJob', 'procedure call');
-assertHasKind(inspectResult.constructs, 'execute', 'construct');
-assertHasKind(inspectResult.constructs, 'dynamic-execute', 'construct');
-assertHasKind(inspectResult.constructs, 'open-json', 'construct');
-assertHasKind(inspectResult.constructs, 'open-rowset', 'construct');
+assertHasKind(inspectResult.nodes, 'SelectStatement', 'node');
+assertHasKind(inspectResult.nodes, 'ExecuteStatement', 'node');
+assertHasKind(inspectResult.nodes, 'CreateTableStatement', 'node');
+assertHasKind(inspectResult.nodes, 'FunctionCall', 'node');
+assertHasKind(inspectResult.nodes, 'ExecutableStringList', 'node');
+assertHasKind(inspectResult.nodes, 'OpenJsonTableReference', 'node');
+assertHasKind(inspectResult.nodes, 'BulkOpenRowset', 'node');
+assertHasIdentifierValue(inspectResult.nodes, 'Users', 'identifier');
+assertHasIdentifierValue(inspectResult.nodes, 'Logs', 'identifier');
+assertHasIdentifierValue(inspectResult.nodes, 'CreatedThing', 'identifier');
+assertHasIdentifierValue(inspectResult.nodes, 'MaskEmail', 'identifier');
+assertHasIdentifierValue(inspectResult.nodes, 'RunJob', 'identifier');
+
+if (!inspectResult.tokens || inspectResult.tokens.length === 0) {
+  throw new Error('introspector did not return requested tokens');
+}
+
+if (!inspectResult.nodes.some((node) => node.kind === 'SelectStatement' && node.span)) {
+  throw new Error('introspector did not return requested spans');
+}
 
 assertDoesNotContain(
   inspectJson,
@@ -331,6 +341,15 @@ assertDoesNotContain(
   'introspection JSON',
 );
 
+const redactedIdentifierResult = introspector.inspect('select * from dbo.SecretTokenTable');
+assertInspectResultShape(redactedIdentifierResult, { includeTokens: false });
+assertHasRedactedIdentifier(redactedIdentifierResult.nodes, 'secret-pattern');
+assertDoesNotContain(
+  JSON.stringify(redactedIdentifierResult),
+  ['SecretTokenTable'],
+  'redacted identifier introspection JSON',
+);
+
 const invalidInspectResult = introspector.inspect("select 'inspect_error_secret");
 const invalidInspectJson = JSON.stringify(invalidInspectResult);
 
@@ -338,13 +357,7 @@ if (!invalidInspectResult.failed) {
   throw new Error('Introspector accepted a failed parse');
 }
 
-if (
-  invalidInspectResult.statements.length !== 0 ||
-  invalidInspectResult.objectReferences.length !== 0 ||
-  invalidInspectResult.functionCalls.length !== 0 ||
-  invalidInspectResult.procedureCalls.length !== 0 ||
-  invalidInspectResult.constructs.length !== 0
-) {
+if (invalidInspectResult.nodes.length !== 0) {
   throw new Error('Introspector returned structural results for a failed parse');
 }
 
@@ -371,7 +384,7 @@ const stillUsableIntrospector = await introspectorModule.createTsqlIntrospector(
   appBundlePath: introspectorBundlePath,
 });
 const stillUsableResult = stillUsableIntrospector.inspect('select * from dbo.AfterWrongBundle');
-assertHasNamePart(stillUsableResult.objectReferences, 'AfterWrongBundle', 'post-error introspector');
+assertHasIdentifierValue(stillUsableResult.nodes, 'AfterWrongBundle', 'post-error introspector');
 
 const malformedBundleRoot = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -793,48 +806,66 @@ function assertTokenizeResultShape(tokenizeResult) {
   }
 }
 
-function assertInspectResultShape(inspectResult) {
+function assertInspectResultShape(inspectResult, options) {
   assertOnlyKeys(
     inspectResult,
-    [
-      'failed',
-      'statements',
-      'objectReferences',
-      'functionCalls',
-      'procedureCalls',
-      'constructs',
-      'errors',
-    ],
+    options.includeTokens
+      ? ['failed', 'parser', 'projectionVersion', 'nodes', 'tokens', 'errors']
+      : ['failed', 'parser', 'projectionVersion', 'nodes', 'errors'],
     'inspect result',
   );
 
-  for (const statement of inspectResult.statements) {
-    assertOnlyKeys(statement, ['kind', 'offset', 'length'], 'statement');
+  if (inspectResult.parser !== 'TSql160Parser' || inspectResult.projectionVersion !== 1) {
+    throw new Error('inspect result returned unexpected projection ABI');
   }
 
-  for (const objectReference of inspectResult.objectReferences) {
+  for (const node of inspectResult.nodes) {
     assertAllowedKeys(
-      objectReference,
-      ['context', 'nameParts'],
-      ['context', 'nameParts', 'offset', 'length'],
-      'object reference',
+      node,
+      ['id', 'kind', 'parentId', 'pathFromParent', 'attributes'],
+      ['id', 'kind', 'parentId', 'pathFromParent', 'span', 'attributes'],
+      'structural node',
     );
+
+    if (!Array.isArray(node.pathFromParent)) {
+      throw new Error('structural node path is not an array');
+    }
+
+    for (const attribute of node.attributes) {
+      if (attribute.kind === 'identifier' && attribute.state === 'present') {
+        assertOnlyKeys(attribute, ['name', 'kind', 'state', 'value'], 'identifier attribute');
+      } else if (attribute.kind === 'identifier') {
+        assertOnlyKeys(
+          attribute,
+          ['name', 'kind', 'state', 'profile', 'reason'],
+          'redacted identifier attribute',
+        );
+      } else {
+        assertOnlyKeys(attribute, ['name', 'kind', 'value'], 'scalar attribute');
+      }
+    }
+
+    if (node.span) {
+      assertOnlyKeys(node.span, ['offset', 'length', 'line', 'column'], 'node span');
+    }
   }
 
-  for (const functionCall of inspectResult.functionCalls) {
-    assertAllowedKeys(functionCall, ['nameParts'], ['nameParts', 'offset', 'length'], 'function');
-  }
+  if (options.includeTokens) {
+    for (const token of inspectResult.tokens) {
+      assertOnlyKeys(token, ['type', 'offset', 'length', 'line', 'column'], 'introspection token');
 
-  for (const procedureCall of inspectResult.procedureCalls) {
-    assertAllowedKeys(procedureCall, ['nameParts'], ['nameParts', 'offset', 'length'], 'procedure');
-  }
-
-  for (const construct of inspectResult.constructs) {
-    assertAllowedKeys(construct, ['kind'], ['kind', 'offset', 'length'], 'construct');
+      if (token.length <= 0) {
+        throw new Error('introspection token returned non-positive length');
+      }
+    }
   }
 
   for (const error of inspectResult.errors) {
-    assertOnlyKeys(error, ['number', 'offset', 'line', 'column'], 'introspection error');
+    assertOnlyKeys(
+      error,
+      ['number', 'offset', 'line', 'column', 'coordinateState'],
+      'introspection error',
+    );
   }
 }
 
@@ -854,7 +885,7 @@ function assertAllowedKeys(value, requiredKeys, allowedKeys, context) {
       throw new Error(`${context} returned unexpected key ${key}`);
     }
 
-    if (['text', 'message', 'sql', 'value'].includes(key)) {
+    if (['text', 'message', 'sql'].includes(key)) {
       throw new Error(`${context} returned forbidden key ${key}`);
     }
   }
@@ -866,9 +897,33 @@ function assertHasKind(items, kind, context) {
   }
 }
 
-function assertHasNamePart(items, namePart, context) {
-  if (!items.some((item) => item.nameParts.includes(namePart))) {
-    throw new Error(`Missing ${context} name part ${namePart}: ${JSON.stringify(items)}`);
+function assertHasIdentifierValue(nodes, value, context) {
+  if (
+    !nodes.some((node) =>
+      node.attributes.some(
+        (attribute) =>
+          attribute.kind === 'identifier' &&
+          attribute.state === 'present' &&
+          attribute.value === value,
+      ),
+    )
+  ) {
+    throw new Error(`Missing ${context} identifier ${value}: ${JSON.stringify(nodes)}`);
+  }
+}
+
+function assertHasRedactedIdentifier(nodes, reason) {
+  if (
+    !nodes.some((node) =>
+      node.attributes.some(
+        (attribute) =>
+          attribute.kind === 'identifier' &&
+          attribute.state === 'redacted' &&
+          attribute.reason === reason,
+      ),
+    )
+  ) {
+    throw new Error(`Missing redacted identifier with reason ${reason}: ${JSON.stringify(nodes)}`);
   }
 }
 
@@ -919,6 +974,7 @@ export const dotnet = {
 async function writeMalformedIntrospectorBundle(rootDirectory) {
   const appBundlePath = path.join(rootDirectory, 'introspector', 'AppBundle');
   const frameworkPath = path.join(appBundlePath, '_framework');
+  const abi = await readGeneratedIntrospectorAbi();
 
   await fs.mkdir(frameworkPath, { recursive: true });
   await fs.writeFile(
@@ -934,21 +990,30 @@ export const dotnet = {
           },
           async getAssemblyExports() {
             return {
-              ScriptDom: {
-                WasmBridge: {
-                  TsqlIntrospector: {
-                    InspectJson(sql) {
-                      return JSON.stringify({
-                        failed: true,
-                        statements: [],
-                        objectReferences: [],
-                        functionCalls: [],
-                        procedureCalls: [],
-                        constructs: [],
-                        errors: [{ number: 1, offset: sql.length + 1, line: 1, column: 1 }],
-                      });
-                    },
-                  },
+	              ScriptDom: {
+	                WasmBridge: {
+	                  TsqlIntrospector: {
+	                    GetIntrospectorAbiJson() {
+	                      return ${JSON.stringify(JSON.stringify(abi))};
+	                    },
+	                    InspectJson(sql) {
+	                      return JSON.stringify({
+	                        failed: true,
+	                        parser: 'TSql160Parser',
+	                        projectionVersion: 1,
+	                        nodes: [],
+	                        errors: [
+	                          {
+	                            number: 1,
+	                            offset: sql.length + 1,
+	                            line: 1,
+	                            column: 1,
+	                            coordinateState: 'available',
+	                          },
+	                        ],
+	                      });
+	                    },
+	                  },
                 },
               },
             };
@@ -962,4 +1027,29 @@ export const dotnet = {
   );
 
   return appBundlePath;
+}
+
+async function readGeneratedIntrospectorAbi() {
+  const generatedSource = await fs.readFile(
+    fileURLToPath(new URL('../src/introspector-projection.v1.generated.ts', import.meta.url)),
+    'utf8',
+  );
+
+  return {
+    parser: 'TSql160Parser',
+    projectionVersion: 1,
+    manifestSha256: readGeneratedString(generatedSource, 'manifestSha256'),
+    resultSchemaSha256: readGeneratedString(generatedSource, 'resultSchemaSha256'),
+    allowlistSha256: readGeneratedString(generatedSource, 'allowlistSha256'),
+  };
+}
+
+function readGeneratedString(source, key) {
+  const match = source.match(new RegExp(`"${key}": "([^"]+)"`));
+
+  if (!match) {
+    throw new Error(`Missing generated introspector ABI key ${key}`);
+  }
+
+  return match[1];
 }
