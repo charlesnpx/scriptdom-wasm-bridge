@@ -1,0 +1,46 @@
+{
+  "projectionVersion": 1,
+  "parser": "TSql160Parser",
+  "scriptDomPackageVersion": "180.37.3",
+  "limits": {
+    "sqlUtf16CodeUnits": 2097152,
+    "privateOptionsJsonUtf16CodeUnits": 80,
+    "nodes": 100000,
+    "traversedFragments": 250000,
+    "traversalDepth": 1000,
+    "pathSegments": 250000,
+    "parseErrors": 1000,
+    "tokens": 250000,
+    "projectedOutputUtf16CodeUnits": 4194304,
+    "serializedEnvelopeUtf8Bytes": 16777216
+  },
+  "coordinateStates": ["available", "unavailable"],
+  "identifierStates": ["present", "redacted"],
+  "identifierRedactionProfile": {
+    "name": "v1-conservative",
+    "containsAnyCaseInsensitive": [
+      "secret",
+      "password",
+      "passwd",
+      "pwd",
+      "token",
+      "apikey",
+      "api_key",
+      "credential",
+      "privatekey",
+      "private_key"
+    ]
+  },
+  "attributePolicies": [
+    {
+      "nodeKind": "Identifier",
+      "propertyName": "Value",
+      "attributeKind": "identifier"
+    },
+    {
+      "nodeKind": "Identifier",
+      "propertyName": "QuoteType",
+      "attributeKind": "enum"
+    }
+  ]
+}

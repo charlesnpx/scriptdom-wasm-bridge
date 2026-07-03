@@ -195,7 +195,11 @@ async function initializeWasmRuntime(dotnetJsPath, bundleKind, createRuntime) {
   const assemblyExports = await runtime.getAssemblyExports(config.mainAssemblyName);
   return {
     bundleKind,
-    runtime: await createRuntime(assemblyExports)
+    runtime: await createRuntime(assemblyExports, {
+      poison() {
+        runtimeCache.delete(dotnetJsPath);
+      }
+    })
   };
 }
 function getRuntimeCache() {
@@ -245,7 +249,11 @@ async function loadTsqlTokenizerRuntime(options = {}) {
           if (typeof sql !== "string") {
             throw new TypeError("SQL input must be a string");
           }
-          return parseAndValidateTokenizeResult(sql, tokenizeJson(sql));
+          const rawJson = tokenizeJson(sql);
+          if (typeof rawJson !== "string") {
+            throw new Error("Invalid ScriptDOM WASM export: tokenizer JSON result");
+          }
+          return parseAndValidateTokenizeResult(sql, rawJson);
         }
       };
     }

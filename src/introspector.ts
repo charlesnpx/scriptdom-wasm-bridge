@@ -1,71 +1,141 @@
 import path from 'node:path';
 
 import {
-  assertExactKeys,
+  INTROSPECTOR_PROJECTION_ABI,
+  TSQL_IDENTIFIER_STATES,
+  TSQL_INSPECT_COORDINATE_STATES,
+  TSQL_INSPECT_TOKEN_TYPES,
+  TSQL_STRUCTURAL_EDGE_NAMES,
+  TSQL_STRUCTURAL_EDGE_POLICIES,
+  TSQL_STRUCTURAL_ATTRIBUTE_KINDS,
+  TSQL_STRUCTURAL_ATTRIBUTE_NAMES,
+  TSQL_STRUCTURAL_ATTRIBUTE_POLICIES,
+  TSQL_STRUCTURAL_NODE_KINDS,
+  type TsqlIdentifierState,
+  type TsqlInspectCoordinateState,
+  type TsqlInspectTokenType,
+  type TsqlStructuralEdgeName,
+  type TsqlStructuralAttributeKind,
+  type TsqlStructuralAttributeName,
+  type TsqlStructuralNodeKind,
+} from './introspector-projection.v1.generated.js';
+import {
+  assertInteger,
   assertNonNegativeInteger,
   assertObject,
-  assertOptionalKeys,
   assertString,
-  assertStringArray,
-  validateLocationError,
-  validateOptionalRange,
-  type TsqlLocationError,
 } from './result-validation.js';
 import { getBridgeNamespace, getFunctionProperty, loadWasmRuntime } from './wasm-runtime.js';
 
 declare const __scriptdomBridgeModuleDirectory: string;
 
+export type {
+  TsqlIdentifierState,
+  TsqlInspectCoordinateState,
+  TsqlInspectTokenType,
+  TsqlStructuralEdgeName,
+  TsqlStructuralAttributeKind,
+  TsqlStructuralAttributeName,
+  TsqlStructuralNodeKind,
+};
+
 export type CreateTsqlIntrospectorOptions = {
   appBundlePath?: string;
 };
 
-export type TsqlStatement = {
-  kind: string;
+export type TsqlInspectOptions = {
+  includeSpans?: boolean;
+  includeTokens?: boolean;
+};
+
+export type TsqlInspectSpan = {
   offset: number;
   length: number;
+  line: number;
+  column: number;
 };
 
-export type TsqlObjectReference = {
-  context: string;
-  nameParts: string[];
-  offset?: number;
-  length?: number;
+export type TsqlStructuralIdentifierAttribute =
+  | {
+      name: TsqlStructuralAttributeName;
+      kind: 'identifier';
+      state: 'present';
+      value: string;
+    }
+  | {
+      name: TsqlStructuralAttributeName;
+      kind: 'identifier';
+      state: 'redacted';
+      profile: typeof INTROSPECTOR_PROJECTION_ABI.identifierRedactionProfile;
+      reason: 'literal-origin' | 'secret-pattern';
+    };
+
+export type TsqlStructuralScalarAttribute = {
+  name: TsqlStructuralAttributeName;
+  kind: Exclude<TsqlStructuralAttributeKind, 'identifier'>;
+  value: string | boolean;
 };
 
-export type TsqlFunctionCall = {
-  nameParts: string[];
-  offset?: number;
-  length?: number;
+export type TsqlStructuralAttribute =
+  | TsqlStructuralIdentifierAttribute
+  | TsqlStructuralScalarAttribute;
+
+export type TsqlStructuralPathFromParent =
+  | []
+  | [TsqlStructuralEdgeName]
+  | [TsqlStructuralEdgeName, string];
+
+export type TsqlStructuralNode = {
+  id: number;
+  kind: TsqlStructuralNodeKind;
+  parentId: number | null;
+  pathFromParent: TsqlStructuralPathFromParent;
+  span?: TsqlInspectSpan;
+  attributes: TsqlStructuralAttribute[];
 };
 
-export type TsqlProcedureCall = {
-  nameParts: string[];
-  offset?: number;
-  length?: number;
+export type TsqlInspectToken = {
+  type: TsqlInspectTokenType;
+  offset: number;
+  length: number;
+  line: number;
+  column: number;
 };
 
-export type TsqlConstruct = {
-  kind: string;
-  offset?: number;
-  length?: number;
+export type TsqlInspectLocationError = {
+  number: number;
+  offset: number;
+  line: number;
+  column: number;
+  coordinateState: TsqlInspectCoordinateState;
 };
 
 export type TsqlInspectResult = {
   failed: boolean;
-  statements: TsqlStatement[];
-  objectReferences: TsqlObjectReference[];
-  functionCalls: TsqlFunctionCall[];
-  procedureCalls: TsqlProcedureCall[];
-  constructs: TsqlConstruct[];
-  errors: TsqlLocationError[];
+  parser: typeof INTROSPECTOR_PROJECTION_ABI.parser;
+  projectionVersion: typeof INTROSPECTOR_PROJECTION_ABI.projectionVersion;
+  nodes: TsqlStructuralNode[];
+  tokens?: TsqlInspectToken[];
+  errors: TsqlInspectLocationError[];
 };
 
 export type TsqlIntrospector = {
-  inspect(sql: string): TsqlInspectResult;
+  inspect(sql: string, options?: TsqlInspectOptions): TsqlInspectResult;
 };
 
 type LoadedTsqlIntrospectorRuntime = {
-  inspect(sql: string): TsqlInspectResult;
+  inspect(sql: string, options?: TsqlInspectOptions): TsqlInspectResult;
+};
+
+type NormalizedInspectOptions = {
+  includeSpans: boolean;
+  includeTokens: boolean;
+  privateOptionsJson: '{}' | '{"includeSpans":true}' | '{"includeTokens":true}' | '{"includeSpans":true,"includeTokens":true}';
+};
+
+type StructuralEdgePolicy = {
+  edgeKind: 'single' | 'array';
+  childKinds: ReadonlySet<string>;
 };
 
 const defaultIntrospectorAppBundlePath = path.resolve(
@@ -73,27 +143,76 @@ const defaultIntrospectorAppBundlePath = path.resolve(
   '../vendor/scriptdom-introspector-wasm/AppBundle',
 );
 
-const inspectResultKeys = new Set([
+const createOptionKeys = new Set<PropertyKey>(['appBundlePath']);
+const inspectOptionKeys = new Set<PropertyKey>(['includeSpans', 'includeTokens']);
+const abiKeys = new Set([
+  'parser',
+  'projectionVersion',
+  'manifestSha256',
+  'resultSchemaSha256',
+  'allowlistSha256',
+]);
+const resultKeysWithoutTokens = new Set(['failed', 'parser', 'projectionVersion', 'nodes', 'errors']);
+const resultKeysWithTokens = new Set([
   'failed',
-  'statements',
-  'objectReferences',
-  'functionCalls',
-  'procedureCalls',
-  'constructs',
+  'parser',
+  'projectionVersion',
+  'nodes',
+  'tokens',
   'errors',
 ]);
-const statementKeys = new Set(['kind', 'offset', 'length']);
-const objectReferenceRequiredKeys = new Set(['context', 'nameParts']);
-const objectReferenceAllowedKeys = new Set(['context', 'nameParts', 'offset', 'length']);
-const namedRangeRequiredKeys = new Set(['nameParts']);
-const namedRangeAllowedKeys = new Set(['nameParts', 'offset', 'length']);
-const constructRequiredKeys = new Set(['kind']);
-const constructAllowedKeys = new Set(['kind', 'offset', 'length']);
+const nodeRequiredKeys = new Set(['id', 'kind', 'parentId', 'pathFromParent', 'attributes']);
+const nodeAllowedKeys = new Set([
+  'id',
+  'kind',
+  'parentId',
+  'pathFromParent',
+  'span',
+  'attributes',
+]);
+const spanKeys = new Set(['offset', 'length', 'line', 'column']);
+const tokenKeys = new Set(['type', 'offset', 'length', 'line', 'column']);
+const errorKeys = new Set(['number', 'offset', 'line', 'column', 'coordinateState']);
+const identifierPresentAttributeKeys = new Set(['name', 'kind', 'state', 'value']);
+const identifierRedactedAttributeKeys = new Set(['name', 'kind', 'state', 'profile', 'reason']);
+const scalarAttributeKeys = new Set(['name', 'kind', 'value']);
+const nodeKindSet = new Set<string>(TSQL_STRUCTURAL_NODE_KINDS);
+const edgeNameSet = new Set<string>(TSQL_STRUCTURAL_EDGE_NAMES);
+const edgePoliciesByPath: Map<string, StructuralEdgePolicy> = new Map(
+  TSQL_STRUCTURAL_EDGE_POLICIES.map((policy) => [
+    edgePolicyKey(policy.parentKind, policy.edgeName),
+    {
+      edgeKind: policy.edgeKind,
+      childKinds: new Set<string>(policy.childKinds),
+    },
+  ]),
+);
+const attributeNameSet = new Set<string>(TSQL_STRUCTURAL_ATTRIBUTE_NAMES);
+const attributeKindSet = new Set<string>(TSQL_STRUCTURAL_ATTRIBUTE_KINDS);
+const attributePolicySet = new Set(
+  TSQL_STRUCTURAL_ATTRIBUTE_POLICIES.map(
+    (policy) => attributePolicyKey(policy.nodeKind, policy.propertyName, policy.attributeKind),
+  ),
+);
+const scalarAttributeValueSets: Map<string, ReadonlySet<unknown>> = new Map(
+  TSQL_STRUCTURAL_ATTRIBUTE_POLICIES.filter((policy) => 'allowedValues' in policy).map(
+    (policy) => [
+      attributePolicyKey(policy.nodeKind, policy.propertyName, policy.attributeKind),
+      new Set<unknown>(policy.allowedValues),
+    ],
+  ),
+);
+const identifierStateSet = new Set<string>(TSQL_IDENTIFIER_STATES);
+const coordinateStateSet = new Set<string>(TSQL_INSPECT_COORDINATE_STATES);
+const tokenTypeSet = new Set<number>(TSQL_INSPECT_TOKEN_TYPES);
+const redactedReasons = new Set(['literal-origin', 'secret-pattern']);
+const pathIndexPattern = /^(0|[1-9]\d*)$/;
 
 export async function createTsqlIntrospector(
   options: CreateTsqlIntrospectorOptions = {},
 ): Promise<TsqlIntrospector> {
-  const runtime = await loadTsqlIntrospectorRuntime(options);
+  const normalizedOptions = normalizeCreateOptions(options);
+  const runtime = await loadTsqlIntrospectorRuntime(normalizedOptions);
 
   return {
     inspect: runtime.inspect,
@@ -108,7 +227,7 @@ async function loadTsqlIntrospectorRuntime(
     bundleKind: 'introspector',
     missingBundleMessage: (dotnetJsPath) =>
       `Published introspector dotnet.js was not found at ${dotnetJsPath}. Run "npm run build:wasm" before using the package from source.`,
-    createRuntime(assemblyExports) {
+    createRuntime(assemblyExports, { poison }) {
       const bridgeNamespace = getBridgeNamespace(assemblyExports);
       const introspector = bridgeNamespace.TsqlIntrospector;
 
@@ -116,181 +235,700 @@ async function loadTsqlIntrospectorRuntime(
         throw new Error('Invalid ScriptDOM WASM export: TsqlIntrospector');
       }
 
+      const getAbiJson = getFunctionProperty(
+        introspector as Record<string, unknown>,
+        'GetIntrospectorAbiJson',
+        'TsqlIntrospector.GetIntrospectorAbiJson',
+      );
       const inspectJson = getFunctionProperty(
         introspector as Record<string, unknown>,
         'InspectJson',
         'TsqlIntrospector.InspectJson',
       );
 
+      validateIntrospectorAbi(parseJsonExport(callStringExport(getAbiJson, [], poison)));
+      let poisoned = false;
+      const poisonRuntime = () => {
+        poisoned = true;
+        poison();
+      };
+
       return {
-        inspect(sql: string) {
-          if (typeof sql !== 'string') {
-            throw new TypeError('SQL input must be a string');
+        inspect(sql: string, options?: TsqlInspectOptions) {
+          if (poisoned) {
+            throw new Error('ScriptDOM introspector runtime failed');
           }
 
-          return parseAndValidateInspectResult(sql, inspectJson(sql));
+          validateSqlInput(sql);
+          const normalizedInspectOptions = normalizeInspectOptions(options);
+          const rawJson = callStringExport(
+            inspectJson,
+            [sql, normalizedInspectOptions.privateOptionsJson],
+            poisonRuntime,
+          );
+
+          try {
+            return validateInspectResult(
+              sql,
+              parseJsonExport(rawJson),
+              normalizedInspectOptions,
+            );
+          } catch (error) {
+            poisonRuntime();
+            throw error;
+          }
         },
       };
     },
   });
 }
 
-function parseAndValidateInspectResult(sql: string, rawJson: string): TsqlInspectResult {
-  return validateInspectResult(sql, JSON.parse(rawJson) as unknown);
+function callStringExport(
+  callback: (...args: string[]) => unknown,
+  args: string[],
+  poison: () => void,
+): string {
+  let value: unknown;
+
+  try {
+    value = callback(...args);
+  } catch {
+    poison();
+    throw new Error('ScriptDOM introspector runtime failed');
+  }
+
+  if (typeof value !== 'string') {
+    poison();
+    throw new Error('Invalid ScriptDOM WASM export: introspector JSON result');
+  }
+
+  if (
+    Buffer.byteLength(value, 'utf8') >
+      INTROSPECTOR_PROJECTION_ABI.limits.serializedEnvelopeUtf8Bytes ||
+    value.length > INTROSPECTOR_PROJECTION_ABI.limits.projectedOutputUtf16CodeUnits
+  ) {
+    poison();
+    throw new Error('Invalid ScriptDOM result: introspector JSON envelope');
+  }
+
+  return value;
 }
 
-function validateInspectResult(sql: string, inspectResult: unknown): TsqlInspectResult {
-  assertObject(inspectResult, 'inspect result');
-  assertExactKeys(inspectResult, inspectResultKeys, 'inspect result keys');
+function parseJsonExport(rawJson: string): unknown {
+  try {
+    return JSON.parse(rawJson) as unknown;
+  } catch {
+    throw new Error('Invalid ScriptDOM result: introspector JSON');
+  }
+}
 
-  if (typeof inspectResult.failed !== 'boolean') {
+function validateIntrospectorAbi(value: unknown) {
+  assertObject(value, 'introspector ABI');
+  assertExactKeysLocal(value, abiKeys, 'introspector ABI keys');
+
+  if (
+    value.parser !== INTROSPECTOR_PROJECTION_ABI.parser ||
+    value.projectionVersion !== INTROSPECTOR_PROJECTION_ABI.projectionVersion ||
+    value.manifestSha256 !== INTROSPECTOR_PROJECTION_ABI.manifestSha256 ||
+    value.resultSchemaSha256 !== INTROSPECTOR_PROJECTION_ABI.resultSchemaSha256 ||
+    value.allowlistSha256 !== INTROSPECTOR_PROJECTION_ABI.allowlistSha256
+  ) {
+    throw new Error('Incompatible ScriptDOM introspector ABI');
+  }
+}
+
+function validateSqlInput(sql: string) {
+  if (typeof sql !== 'string') {
+    throw new TypeError('SQL input must be a string');
+  }
+
+  if (sql.length > INTROSPECTOR_PROJECTION_ABI.limits.sqlUtf16CodeUnits) {
+    throw new RangeError('SQL input exceeds the ScriptDOM introspector size limit');
+  }
+
+  if (!isWellFormedUtf16(sql)) {
+    throw new TypeError('SQL input must be well-formed UTF-16');
+  }
+}
+
+function normalizeCreateOptions(
+  options: CreateTsqlIntrospectorOptions,
+): CreateTsqlIntrospectorOptions {
+  if (options === null || typeof options !== 'object' || Array.isArray(options)) {
+    throw new TypeError('createTsqlIntrospector options must be an object');
+  }
+
+  assertAllowedOwnKeys(options, createOptionKeys, 'createTsqlIntrospector options');
+  const appBundlePath = readOwnDataProperty(options, 'appBundlePath', 'createTsqlIntrospector');
+
+  if (appBundlePath !== undefined && typeof appBundlePath !== 'string') {
+    throw new TypeError('createTsqlIntrospector appBundlePath must be a string');
+  }
+
+  return { appBundlePath };
+}
+
+function normalizeInspectOptions(options: TsqlInspectOptions | undefined): NormalizedInspectOptions {
+  if (options === undefined) {
+    return {
+      includeSpans: false,
+      includeTokens: false,
+      privateOptionsJson: '{}',
+    };
+  }
+
+  if (options === null || typeof options !== 'object' || Array.isArray(options)) {
+    throw new TypeError('T-SQL inspect options must be an object');
+  }
+
+  assertAllowedOwnKeys(options, inspectOptionKeys, 'T-SQL inspect options');
+  const includeSpans = readOwnDataProperty(options, 'includeSpans', 'T-SQL inspect');
+  const includeTokens = readOwnDataProperty(options, 'includeTokens', 'T-SQL inspect');
+
+  if (includeSpans !== undefined && typeof includeSpans !== 'boolean') {
+    throw new TypeError('T-SQL inspect includeSpans must be a boolean');
+  }
+
+  if (includeTokens !== undefined && typeof includeTokens !== 'boolean') {
+    throw new TypeError('T-SQL inspect includeTokens must be a boolean');
+  }
+
+  const normalizedIncludeSpans = includeSpans ?? false;
+  const normalizedIncludeTokens = includeTokens ?? false;
+
+  if (normalizedIncludeSpans && normalizedIncludeTokens) {
+    return {
+      includeSpans: true,
+      includeTokens: true,
+      privateOptionsJson: '{"includeSpans":true,"includeTokens":true}',
+    };
+  }
+
+  if (normalizedIncludeSpans) {
+    return {
+      includeSpans: true,
+      includeTokens: false,
+      privateOptionsJson: '{"includeSpans":true}',
+    };
+  }
+
+  if (normalizedIncludeTokens) {
+    return {
+      includeSpans: false,
+      includeTokens: true,
+      privateOptionsJson: '{"includeTokens":true}',
+    };
+  }
+
+  return {
+    includeSpans: false,
+    includeTokens: false,
+    privateOptionsJson: '{}',
+  };
+}
+
+function validateInspectResult(
+  sql: string,
+  value: unknown,
+  options: NormalizedInspectOptions,
+): TsqlInspectResult {
+  assertObject(value, 'inspect result');
+  assertExactKeysLocal(
+    value,
+    options.includeTokens ? resultKeysWithTokens : resultKeysWithoutTokens,
+    'inspect result keys',
+  );
+
+  if (typeof value.failed !== 'boolean') {
     throw new Error('Invalid ScriptDOM result: inspect result failed');
   }
 
-  const statements = validateArray(
-    inspectResult.statements,
-    'statements',
-    (value, fieldName) => validateStatement(sql, value, fieldName),
-  );
-  const objectReferences = validateArray(
-    inspectResult.objectReferences,
-    'objectReferences',
-    (value, fieldName) => validateObjectReference(sql, value, fieldName),
-  );
-  const functionCalls = validateArray(
-    inspectResult.functionCalls,
-    'functionCalls',
-    (value, fieldName) => validateNamedRange(sql, value, fieldName),
-  );
-  const procedureCalls = validateArray(
-    inspectResult.procedureCalls,
-    'procedureCalls',
-    (value, fieldName) => validateNamedRange(sql, value, fieldName),
-  );
-  const constructs = validateArray(
-    inspectResult.constructs,
-    'constructs',
-    (value, fieldName) => validateConstruct(sql, value, fieldName),
-  );
-  const errors = validateArray(inspectResult.errors, 'errors', (value, fieldName) =>
-    validateLocationError(value, fieldName, sql.length),
-  );
+  if (
+    value.parser !== INTROSPECTOR_PROJECTION_ABI.parser ||
+    value.projectionVersion !== INTROSPECTOR_PROJECTION_ABI.projectionVersion
+  ) {
+    throw new Error('Invalid ScriptDOM result: inspect result ABI');
+  }
 
-  return {
-    failed: inspectResult.failed,
-    statements,
-    objectReferences,
-    functionCalls,
-    procedureCalls,
-    constructs,
+  const validatedNodes: TsqlStructuralNode[] = [];
+  const nodes = validateArray(
+    value.nodes,
+    'nodes',
+    INTROSPECTOR_PROJECTION_ABI.limits.nodes,
+    (item, index) => {
+      const node = validateNode(sql, item, index, options, validatedNodes);
+      validatedNodes.push(node);
+      return node;
+    },
+  );
+  const errors = validateArray(
+    value.errors,
+    'errors',
+    INTROSPECTOR_PROJECTION_ABI.limits.parseErrors,
+    (item, index) => validateInspectError(sql, item, `errors[${index}]`),
+  );
+  const result: TsqlInspectResult = {
+    failed: value.failed,
+    parser: INTROSPECTOR_PROJECTION_ABI.parser,
+    projectionVersion: INTROSPECTOR_PROJECTION_ABI.projectionVersion,
+    nodes,
     errors,
   };
+
+  const tokens = options.includeTokens
+    ? validateArray(
+        value.tokens,
+        'tokens',
+        INTROSPECTOR_PROJECTION_ABI.limits.tokens,
+        (item, index) => validateToken(sql, item, `tokens[${index}]`),
+      )
+    : undefined;
+
+  if (value.failed) {
+    if (nodes.length !== 0 || (tokens?.length ?? 0) !== 0) {
+      throw new Error('Invalid ScriptDOM result: failed result payload');
+    }
+  } else if (nodes.length === 0) {
+    throw new Error('Invalid ScriptDOM result: node root');
+  }
+
+  if (options.includeTokens) {
+    result.tokens = tokens;
+  }
+
+  return result;
 }
 
-function validateStatement(sql: string, value: unknown, fieldName: string): TsqlStatement {
-  assertObject(value, fieldName);
-  assertExactKeys(value, statementKeys, `${fieldName} keys`);
-  assertString(value.kind, `${fieldName}.kind`);
-  assertNonNegativeInteger(value.offset, `${fieldName}.offset`);
-  assertNonNegativeInteger(value.length, `${fieldName}.length`);
+function validateNode(
+  sql: string,
+  value: unknown,
+  index: number,
+  options: NormalizedInspectOptions,
+  validatedNodes: readonly TsqlStructuralNode[],
+): TsqlStructuralNode {
+  assertObject(value, `nodes[${index}]`);
+  assertRequiredAllowedKeysLocal(
+    value,
+    nodeRequiredKeys,
+    nodeAllowedKeys,
+    `nodes[${index}] keys`,
+  );
+  assertNonNegativeInteger(value.id, `nodes[${index}].id`);
 
-  if (value.offset > sql.length || value.offset + value.length > sql.length) {
-    throw new Error('Invalid ScriptDOM result: statement range');
+  if (value.id !== index) {
+    throw new Error('Invalid ScriptDOM result: node id order');
+  }
+
+  assertString(value.kind, `nodes[${index}].kind`);
+  if (!nodeKindSet.has(value.kind)) {
+    throw new Error('Invalid ScriptDOM result: node kind');
+  }
+  const nodeKind = value.kind as TsqlStructuralNodeKind;
+
+  let parentKind: TsqlStructuralNodeKind | undefined;
+  if (index === 0) {
+    if (value.parentId !== null) {
+      throw new Error('Invalid ScriptDOM result: node parent');
+    }
+  } else {
+    if (value.parentId === null) {
+      throw new Error('Invalid ScriptDOM result: node parent');
+    }
+
+    assertNonNegativeInteger(value.parentId, `nodes[${index}].parentId`);
+    if (value.parentId >= index) {
+      throw new Error('Invalid ScriptDOM result: node parent');
+    }
+
+    parentKind = validatedNodes[value.parentId]?.kind;
+    if (parentKind === undefined) {
+      throw new Error('Invalid ScriptDOM result: node parent');
+    }
+  }
+
+  const pathFromParent = validatePathFromParent(
+    value.pathFromParent,
+    index,
+    parentKind,
+    nodeKind,
+  );
+
+  const attributes = validateArray(
+    value.attributes,
+    `nodes[${index}].attributes`,
+    Number.MAX_SAFE_INTEGER,
+    (item, attributeIndex) =>
+      validateAttribute(item, `nodes[${index}].attributes[${attributeIndex}]`, nodeKind),
+  );
+  const node: TsqlStructuralNode = {
+    id: value.id,
+    kind: nodeKind,
+    parentId: value.parentId,
+    pathFromParent,
+    attributes,
+  };
+
+  if (Object.hasOwn(value, 'span')) {
+    if (!options.includeSpans) {
+      throw new Error('Invalid ScriptDOM result: unexpected node span');
+    }
+
+    node.span = validateSpan(sql, value.span, `nodes[${index}].span`);
+  }
+
+  return node;
+}
+
+function validatePathFromParent(
+  value: unknown,
+  nodeIndex: number,
+  parentKind: TsqlStructuralNodeKind | undefined,
+  nodeKind: TsqlStructuralNodeKind,
+): TsqlStructuralPathFromParent {
+  if (!Array.isArray(value)) {
+    throw new Error('Invalid ScriptDOM result: node path');
+  }
+
+  if (parentKind === undefined) {
+    if (value.length !== 0) {
+      throw new Error('Invalid ScriptDOM result: node path');
+    }
+
+    return [];
+  }
+
+  if (value.length !== 1 && value.length !== 2) {
+    throw new Error('Invalid ScriptDOM result: node path');
+  }
+
+  assertString(value[0], `nodes[${nodeIndex}].pathFromParent[0]`);
+  if (!edgeNameSet.has(value[0])) {
+    throw new Error('Invalid ScriptDOM result: node path');
+  }
+  const edgePolicy = edgePoliciesByPath.get(edgePolicyKey(parentKind, value[0]));
+
+  if (edgePolicy === undefined || !edgePolicy.childKinds.has(nodeKind)) {
+    throw new Error('Invalid ScriptDOM result: node path');
+  }
+
+  if (value.length === 1) {
+    if (edgePolicy.edgeKind !== 'single') {
+      throw new Error('Invalid ScriptDOM result: node path');
+    }
+
+    return [value[0] as TsqlStructuralEdgeName];
+  }
+
+  if (edgePolicy.edgeKind !== 'array') {
+    throw new Error('Invalid ScriptDOM result: node path');
+  }
+
+  assertString(value[1], `nodes[${nodeIndex}].pathFromParent[1]`);
+  if (!pathIndexPattern.test(value[1])) {
+    throw new Error('Invalid ScriptDOM result: node path');
+  }
+
+  return [value[0] as TsqlStructuralEdgeName, value[1]];
+}
+
+function validateAttribute(
+  value: unknown,
+  fieldName: string,
+  nodeKind: TsqlStructuralNodeKind,
+): TsqlStructuralAttribute {
+  assertObject(value, fieldName);
+  assertString(value.name, `${fieldName}.name`);
+  assertString(value.kind, `${fieldName}.kind`);
+
+  if (!attributeNameSet.has(value.name)) {
+    throw new Error('Invalid ScriptDOM result: structural attribute name');
+  }
+
+  if (!attributeKindSet.has(value.kind)) {
+    throw new Error('Invalid ScriptDOM result: structural attribute kind');
+  }
+
+  const policyKey = attributePolicyKey(nodeKind, value.name, value.kind);
+  if (!attributePolicySet.has(policyKey)) {
+    throw new Error('Invalid ScriptDOM result: structural attribute policy');
+  }
+
+  if (value.kind === 'identifier') {
+    if (!identifierStateSet.has(String(value.state))) {
+      throw new Error('Invalid ScriptDOM result: structural identifier state');
+    }
+
+    if (value.state === 'present') {
+      assertExactKeysLocal(value, identifierPresentAttributeKeys, `${fieldName} keys`);
+      assertString(value.value, `${fieldName}.value`);
+
+      if (isSensitiveIdentifier(value.value)) {
+        throw new Error('Invalid ScriptDOM result: unredacted sensitive identifier');
+      }
+
+      return {
+        name: value.name as TsqlStructuralAttributeName,
+        kind: 'identifier',
+        state: 'present',
+        value: value.value,
+      };
+    }
+
+    assertExactKeysLocal(value, identifierRedactedAttributeKeys, `${fieldName} keys`);
+    if (
+      value.profile !== INTROSPECTOR_PROJECTION_ABI.identifierRedactionProfile ||
+      !redactedReasons.has(String(value.reason))
+    ) {
+      throw new Error('Invalid ScriptDOM result: structural identifier redaction');
+    }
+
+    return {
+      name: value.name as TsqlStructuralAttributeName,
+      kind: 'identifier',
+      state: 'redacted',
+      profile: INTROSPECTOR_PROJECTION_ABI.identifierRedactionProfile,
+      reason: value.reason as 'literal-origin' | 'secret-pattern',
+    };
+  }
+
+  assertExactKeysLocal(value, scalarAttributeKeys, `${fieldName} keys`);
+  if (typeof value.value !== 'string' && typeof value.value !== 'boolean') {
+    throw new Error('Invalid ScriptDOM result: structural scalar attribute value');
+  }
+
+  const allowedValues = scalarAttributeValueSets.get(policyKey);
+  if (!allowedValues?.has(value.value)) {
+    throw new Error('Invalid ScriptDOM result: structural scalar attribute value');
   }
 
   return {
-    kind: value.kind,
+    name: value.name as TsqlStructuralAttributeName,
+    kind: value.kind as Exclude<TsqlStructuralAttributeKind, 'identifier'>,
+    value: value.value,
+  };
+}
+
+function attributePolicyKey(nodeKind: string, attributeName: string, attributeKind: string) {
+  return `${nodeKind}\u0000${attributeName}\u0000${attributeKind}`;
+}
+
+function edgePolicyKey(parentKind: string, edgeName: string) {
+  return `${parentKind}\u0000${edgeName}`;
+}
+
+function validateSpan(sql: string, value: unknown, fieldName: string): TsqlInspectSpan {
+  assertObject(value, fieldName);
+  assertExactKeysLocal(value, spanKeys, `${fieldName} keys`);
+  assertNonNegativeInteger(value.offset, `${fieldName}.offset`);
+  assertPositiveInteger(value.length, `${fieldName}.length`);
+  assertPositiveInteger(value.line, `${fieldName}.line`);
+  assertPositiveInteger(value.column, `${fieldName}.column`);
+
+  if (value.offset + value.length > sql.length) {
+    throw new Error('Invalid ScriptDOM result: span range');
+  }
+
+  return {
     offset: value.offset,
     length: value.length,
+    line: value.line,
+    column: value.column,
   };
 }
 
-function validateObjectReference(
+function validateToken(sql: string, value: unknown, fieldName: string): TsqlInspectToken {
+  assertObject(value, fieldName);
+  assertExactKeysLocal(value, tokenKeys, `${fieldName} keys`);
+  assertNonNegativeInteger(value.type, `${fieldName}.type`);
+  assertNonNegativeInteger(value.offset, `${fieldName}.offset`);
+  assertPositiveInteger(value.length, `${fieldName}.length`);
+  assertPositiveInteger(value.line, `${fieldName}.line`);
+  assertPositiveInteger(value.column, `${fieldName}.column`);
+
+  if (!tokenTypeSet.has(value.type)) {
+    throw new Error('Invalid ScriptDOM result: token type');
+  }
+
+  if (value.offset + value.length > sql.length) {
+    throw new Error('Invalid ScriptDOM result: token range');
+  }
+
+  return {
+    type: value.type as TsqlInspectTokenType,
+    offset: value.offset,
+    length: value.length,
+    line: value.line,
+    column: value.column,
+  };
+}
+
+function validateInspectError(
   sql: string,
   value: unknown,
   fieldName: string,
-): TsqlObjectReference {
+): TsqlInspectLocationError {
   assertObject(value, fieldName);
-  assertOptionalKeys(
-    value,
-    objectReferenceRequiredKeys,
-    objectReferenceAllowedKeys,
-    `${fieldName} keys`,
-  );
-  assertString(value.context, `${fieldName}.context`);
-  assertStringArray(value.nameParts, `${fieldName}.nameParts`);
-  validateOptionalRange(value, fieldName, sql.length);
+  assertExactKeysLocal(value, errorKeys, `${fieldName} keys`);
+  assertInteger(value.number, `${fieldName}.number`);
+  assertNonNegativeInteger(value.offset, `${fieldName}.offset`);
+  assertPositiveInteger(value.line, `${fieldName}.line`);
+  assertPositiveInteger(value.column, `${fieldName}.column`);
 
-  const result: TsqlObjectReference = {
-    context: value.context,
-    nameParts: value.nameParts,
+  if (!coordinateStateSet.has(String(value.coordinateState))) {
+    throw new Error('Invalid ScriptDOM result: error coordinate state');
+  }
+
+  if (value.coordinateState === 'available' && value.offset > sql.length) {
+    throw new Error('Invalid ScriptDOM result: location error range');
+  }
+
+  if (
+    value.coordinateState === 'unavailable' &&
+    (value.offset !== 0 || value.line !== 1 || value.column !== 1)
+  ) {
+    throw new Error('Invalid ScriptDOM result: unavailable location error');
+  }
+
+  return {
+    number: value.number,
+    offset: value.offset,
+    line: value.line,
+    column: value.column,
+    coordinateState: value.coordinateState as TsqlInspectCoordinateState,
   };
-
-  if (Object.hasOwn(value, 'offset')) {
-    result.offset = value.offset as number;
-  }
-
-  if (Object.hasOwn(value, 'length')) {
-    result.length = value.length as number;
-  }
-
-  return result;
-}
-
-function validateNamedRange(
-  sql: string,
-  value: unknown,
-  fieldName: string,
-): TsqlFunctionCall | TsqlProcedureCall {
-  assertObject(value, fieldName);
-  assertOptionalKeys(value, namedRangeRequiredKeys, namedRangeAllowedKeys, `${fieldName} keys`);
-  assertStringArray(value.nameParts, `${fieldName}.nameParts`);
-  validateOptionalRange(value, fieldName, sql.length);
-
-  const result: TsqlFunctionCall = {
-    nameParts: value.nameParts,
-  };
-
-  if (Object.hasOwn(value, 'offset')) {
-    result.offset = value.offset as number;
-  }
-
-  if (Object.hasOwn(value, 'length')) {
-    result.length = value.length as number;
-  }
-
-  return result;
-}
-
-function validateConstruct(sql: string, value: unknown, fieldName: string): TsqlConstruct {
-  assertObject(value, fieldName);
-  assertOptionalKeys(value, constructRequiredKeys, constructAllowedKeys, `${fieldName} keys`);
-  assertString(value.kind, `${fieldName}.kind`);
-  validateOptionalRange(value, fieldName, sql.length);
-
-  const result: TsqlConstruct = {
-    kind: value.kind,
-  };
-
-  if (Object.hasOwn(value, 'offset')) {
-    result.offset = value.offset as number;
-  }
-
-  if (Object.hasOwn(value, 'length')) {
-    result.length = value.length as number;
-  }
-
-  return result;
 }
 
 function validateArray<T>(
   value: unknown,
   fieldName: string,
-  validateItem: (value: unknown, fieldName: string) => T,
-) {
+  maxItems: number,
+  validateItem: (value: unknown, index: number) => T,
+): T[] {
   if (!Array.isArray(value)) {
     throw new Error(`Invalid ScriptDOM result: ${fieldName}`);
   }
 
-  return value.map((item, index) => validateItem(item, `${fieldName}[${index}]`));
+  if (value.length > maxItems) {
+    throw new Error(`Invalid ScriptDOM result: ${fieldName} limit`);
+  }
+
+  return value.map((item, index) => validateItem(item, index));
+}
+
+function assertPositiveInteger(value: unknown, fieldName: string): asserts value is number {
+  assertInteger(value, fieldName);
+
+  if (value <= 0) {
+    throw new Error(`Invalid ScriptDOM result: ${fieldName}`);
+  }
+}
+
+function assertExactKeysLocal(
+  value: Record<string, unknown>,
+  expectedKeys: Set<string>,
+  fieldName: string,
+) {
+  const actualKeys = Object.keys(value);
+  if (
+    actualKeys.length !== expectedKeys.size ||
+    actualKeys.some((key) => !expectedKeys.has(key))
+  ) {
+    throw new Error(`Invalid ScriptDOM result: ${fieldName}`);
+  }
+}
+
+function assertRequiredAllowedKeysLocal(
+  value: Record<string, unknown>,
+  requiredKeys: Set<string>,
+  allowedKeys: Set<string>,
+  fieldName: string,
+) {
+  const actualKeys = Object.keys(value);
+  if (
+    [...requiredKeys].some((key) => !Object.hasOwn(value, key)) ||
+    actualKeys.some((key) => !allowedKeys.has(key))
+  ) {
+    throw new Error(`Invalid ScriptDOM result: ${fieldName}`);
+  }
+}
+
+function assertAllowedOwnKeys(
+  options: object,
+  allowedKeys: Set<PropertyKey>,
+  fieldName: string,
+) {
+  let ownKeys: PropertyKey[];
+
+  try {
+    ownKeys = Reflect.ownKeys(options);
+  } catch {
+    throw new TypeError(`${fieldName} could not be validated`);
+  }
+
+  if (ownKeys.some((key) => !allowedKeys.has(key))) {
+    throw new TypeError(`${fieldName} contain an unsupported key`);
+  }
+}
+
+function readOwnDataProperty<T extends object>(
+  options: T,
+  key: keyof T & string,
+  fieldName: string,
+): unknown {
+  let descriptor: PropertyDescriptor | undefined;
+
+  try {
+    descriptor = Object.getOwnPropertyDescriptor(options, key);
+  } catch {
+    throw new TypeError(`${fieldName} options could not be validated`);
+  }
+
+  if (!descriptor) {
+    return undefined;
+  }
+
+  if (!Object.hasOwn(descriptor, 'value')) {
+    throw new TypeError(`${fieldName} options must use data properties`);
+  }
+
+  return descriptor.value;
+}
+
+function isWellFormedUtf16(value: string) {
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+
+    if (code >= 0xd800 && code <= 0xdbff) {
+      const next = value.charCodeAt(index + 1);
+      if (index + 1 >= value.length || next < 0xdc00 || next > 0xdfff) {
+        return false;
+      }
+
+      index += 1;
+      continue;
+    }
+
+    if (code >= 0xdc00 && code <= 0xdfff) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function isSensitiveIdentifier(value: string) {
+  const lowerValue = value.toLocaleLowerCase('en-US');
+
+  return [
+    'secret',
+    'password',
+    'passwd',
+    'pwd',
+    'token',
+    'apikey',
+    'api_key',
+    'credential',
+    'privatekey',
+    'private_key',
+  ].some((fragment) => lowerValue.includes(fragment));
 }

@@ -21,7 +21,7 @@ In practice:
 - Node.js owns sanitization and redaction.
 - Node.js owns JSON/output records for the consuming application.
 
-Identifier `nameParts` returned by the introspector are SQL-derived metadata. Treat them as potentially sensitive, even though raw SQL text, literals, comments, parser messages, and generated SQL are not returned.
+Identifiers returned by the introspector are SQL-derived metadata. Treat them as potentially sensitive, even though raw SQL text, literals, comments, parser messages, and generated SQL are not returned.
 
 ## Install
 
@@ -219,30 +219,95 @@ type CreateTsqlSanitizerOptions = {
 import { createTsqlIntrospector } from 'scriptdom-wasm-bridge/introspector';
 
 const introspector = await createTsqlIntrospector();
-const result = introspector.inspect('select * from dbo.Users; exec dbo.RunJob');
+const result = introspector.inspect('select * from dbo.Users; exec dbo.RunJob', {
+  includeSpans: true,
+  includeTokens: true,
+});
 
-console.log(result.objectReferences);
-console.log(result.procedureCalls);
+console.log(result.nodes);
 ```
 
 ```ts
+type TsqlInspectOptions = {
+  includeSpans?: boolean;
+  includeTokens?: boolean;
+};
+
+type TsqlInspectSpan = {
+  offset: number;
+  length: number;
+  line: number;
+  column: number;
+};
+
+type TsqlStructuralAttribute =
+  | { name: string; kind: 'identifier'; state: 'present'; value: string }
+  | {
+      name: string;
+      kind: 'identifier';
+      state: 'redacted';
+      profile: 'v1-conservative';
+      reason: 'literal-origin' | 'secret-pattern';
+    }
+  | { name: string; kind: 'enum'; value: string };
+
+type TsqlStructuralNode = {
+  id: number;
+  kind: string;
+  parentId: number | null;
+  pathFromParent: string[];
+  span?: TsqlInspectSpan;
+  attributes: TsqlStructuralAttribute[];
+};
+
+type TsqlInspectToken = {
+  type: number;
+  offset: number;
+  length: number;
+  line: number;
+  column: number;
+};
+
+type TsqlInspectLocationError = {
+  number: number;
+  offset: number;
+  line: number;
+  column: number;
+  coordinateState: 'available' | 'unavailable';
+};
+
 type TsqlInspectResult = {
   failed: boolean;
-  statements: Array<{ kind: string; offset: number; length: number }>;
-  objectReferences: Array<{
-    context: string;
-    nameParts: string[];
-    offset?: number;
-    length?: number;
-  }>;
-  functionCalls: Array<{ nameParts: string[]; offset?: number; length?: number }>;
-  procedureCalls: Array<{ nameParts: string[]; offset?: number; length?: number }>;
-  constructs: Array<{ kind: string; offset?: number; length?: number }>;
-  errors: TsqlLocationError[];
+  parser: 'TSql160Parser';
+  projectionVersion: 1;
+  nodes: TsqlStructuralNode[];
+  tokens?: TsqlInspectToken[];
+  errors: TsqlInspectLocationError[];
 };
 ```
 
-On parse errors, the introspector returns `failed: true`, empty structural arrays, and location-only errors. Wrapper exceptions return the same shape with one synthetic location-only error.
+The introspector returns a low-policy structural ScriptDOM projection. It does not classify reads versus writes, migration evidence, dynamic SQL risk, procedure-call semantics, or other audit concepts. Consumers own that interpretation.
+
+`includeSpans` defaults to `false`. When enabled, nodes with valid ScriptDOM spans include UTF-16 code-unit `offset` and `length` plus one-based ScriptDOM `line` and `column`. `includeTokens` defaults to `false`; when enabled, tokens include numeric `TSqlTokenType` values and coordinates but never token text.
+
+Identifier attributes may be returned as `state: 'present'`. Secret-pattern identifiers and literal-origin identifiers are returned as `state: 'redacted'` under the deterministic `v1-conservative` profile. Raw SQL, literal values, comments, token text, parser messages, exception details, stack traces, internal paths, and serializer details are not returned.
+
+On parse errors, the introspector returns `failed: true`, an empty `nodes` array, optional empty `tokens`, and location-only errors. Invalid parser coordinates normalize to `{ offset: 0, line: 1, column: 1, coordinateState: 'unavailable' }`.
+
+The wrapper enforces these public resource limits:
+
+- SQL input: 2,097,152 UTF-16 code units
+- private options JSON: 80 UTF-16 code units
+- emitted nodes: 100,000
+- traversed fragments: 250,000
+- traversal depth: 1,000
+- total serialized `pathFromParent` segments: 250,000
+- parse errors: 1,000
+- emitted tokens: 250,000
+- projected variable public output: 4 MiB UTF-16 code units
+- serialized JSON envelope: 16 MiB UTF-8 bytes
+
+These limits do not fully bound ScriptDOM parser-internal CPU or heap use. Services that accept untrusted SQL should run the bridge behind caller-owned isolation and timeout controls.
 
 ## CommonJS
 
@@ -277,6 +342,7 @@ npm run build:wasm
 Build JavaScript and TypeScript declaration outputs:
 
 ```sh
+npm run generate:introspector-projection
 npm run build
 ```
 
@@ -292,6 +358,7 @@ scriptdom-wasm-bridge/introspector
 Run checks:
 
 ```sh
+npm run check:introspector-projection
 npm run check
 npm test
 ```

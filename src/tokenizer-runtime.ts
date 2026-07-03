@@ -46,7 +46,13 @@ export async function loadTsqlTokenizerRuntime(
             throw new TypeError('SQL input must be a string');
           }
 
-          return parseAndValidateTokenizeResult(sql, tokenizeJson(sql));
+          const rawJson = tokenizeJson(sql);
+
+          if (typeof rawJson !== 'string') {
+            throw new Error('Invalid ScriptDOM WASM export: tokenizer JSON result');
+          }
+
+          return parseAndValidateTokenizeResult(sql, rawJson);
         },
       };
     },
