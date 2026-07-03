@@ -276,6 +276,14 @@ const introspector = await introspectorModule.createTsqlIntrospector();
 
 assertRuntimeCacheSize(2, 'introspector did not load exactly one additional WASM bundle');
 
+assertThrowsWithoutLeak(
+  () => introspector.inspect('\uD800'),
+  TypeError,
+  'well-formed UTF-16',
+  [],
+  'introspector trailing high surrogate SQL',
+);
+
 const rawPlaceholderInspectResult = introspector.inspect('select ?');
 
 if (!rawPlaceholderInspectResult.failed) {
@@ -431,6 +439,13 @@ try {
   await assertRuntimeCacheMissing(
     malformedIntrospectorBundlePath,
     'malformed introspector invalid result',
+  );
+  assertThrowsWithoutLeak(
+    () => malformedIntrospector.inspect('select 2'),
+    Error,
+    'runtime failed',
+    ['select 2'],
+    'poisoned malformed introspector instance',
   );
 
   const malformedAttributeBundlePath = await writeMalformedIntrospectorBundle(

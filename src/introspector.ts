@@ -247,15 +247,24 @@ async function loadTsqlIntrospectorRuntime(
       );
 
       validateIntrospectorAbi(parseJsonExport(callStringExport(getAbiJson, [], poison)));
+      let poisoned = false;
+      const poisonRuntime = () => {
+        poisoned = true;
+        poison();
+      };
 
       return {
         inspect(sql: string, options?: TsqlInspectOptions) {
+          if (poisoned) {
+            throw new Error('ScriptDOM introspector runtime failed');
+          }
+
           validateSqlInput(sql);
           const normalizedInspectOptions = normalizeInspectOptions(options);
           const rawJson = callStringExport(
             inspectJson,
             [sql, normalizedInspectOptions.privateOptionsJson],
-            poison,
+            poisonRuntime,
           );
 
           try {
@@ -265,7 +274,7 @@ async function loadTsqlIntrospectorRuntime(
               normalizedInspectOptions,
             );
           } catch (error) {
-            poison();
+            poisonRuntime();
             throw error;
           }
         },
@@ -891,7 +900,7 @@ function isWellFormedUtf16(value: string) {
 
     if (code >= 0xd800 && code <= 0xdbff) {
       const next = value.charCodeAt(index + 1);
-      if (next < 0xdc00 || next > 0xdfff) {
+      if (index + 1 >= value.length || next < 0xdc00 || next > 0xdfff) {
         return false;
       }
 

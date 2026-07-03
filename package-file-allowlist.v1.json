@@ -35,11 +35,11 @@
     },
     {
       "path": "dist/index.cjs",
-      "sha256": "fc2a90187c5b9511c86b6a61e85674c5861f7a2a3fcf3087adefb1d5df1d4bd0"
+      "sha256": "bf07aeb2457cc8f75ff1a245cb9c329ca007651bfacd0e3f739a2c10eac7ad55"
     },
     {
       "path": "dist/index.cjs.map",
-      "sha256": "d77cf933e6a256f446c9654e7faa732476786a31e50330e4ad963c068cb17f38"
+      "sha256": "75d51c36a4bc95224a0be564e92fda84d6aaafe5ed57f49cafd8bbc3951f5f01"
     },
     {
       "path": "dist/index.d.ts",
@@ -47,11 +47,11 @@
     },
     {
       "path": "dist/index.mjs",
-      "sha256": "d3ae0e2b4d07e1ced56bb2a9e2649403cfa9d23bd478b05a3598a19b86a99758"
+      "sha256": "04fea7835d5ef2850e4ce1a29c669126c49fdf7f468c8620cbaae7bb8a3b760b"
     },
     {
       "path": "dist/index.mjs.map",
-      "sha256": "b3631b8aedeb682d1fee6423467a5026e55394663717d404ed06409fe15f90b2"
+      "sha256": "2e5be5202cd61c4157f2ac61be48ff8e9fcdcd21998e43d14e3cce8582e3cfb8"
     },
     {
       "path": "dist/introspector-projection.v1.generated.d.ts",
@@ -59,11 +59,11 @@
     },
     {
       "path": "dist/introspector.cjs",
-      "sha256": "b403968f1e1a6c182e5196998179b5b708182ec1f9934e27c81cda7318364658"
+      "sha256": "44a674cd87478390f8a5eeefc6be7443c906a49b40814eb8c8185cc6d474baf5"
     },
     {
       "path": "dist/introspector.cjs.map",
-      "sha256": "5a7859622d86b7364b1a2946874aa778254a03a45da37f42a6be147012167342"
+      "sha256": "0d86d2ae69fa295c4319b548cf73837de2ffa40d72ebabd947b09ee0cf38d28e"
     },
     {
       "path": "dist/introspector.d.ts",
@@ -71,11 +71,11 @@
     },
     {
       "path": "dist/introspector.mjs",
-      "sha256": "e61174ee0f3f23c690ce4ca1c15008f4342f9eff69ebc8c099fb75c108f6ea73"
+      "sha256": "9bb5cce73d37de97785edd91ec9676dc4cb55f3429aa4829bf416b39d2cde181"
     },
     {
       "path": "dist/introspector.mjs.map",
-      "sha256": "926eda4708478d8b521cf3680f644aa4b1427a4210ae8e0035c2ededbf24ced1"
+      "sha256": "51e26ae8349edf18f854159abac89565b7ec0aba2f60eeba8a7589081047d6d4"
     },
     {
       "path": "dist/marker-collisions.d.ts",
@@ -255,7 +255,7 @@
     },
     {
       "path": "src/introspector.ts",
-      "sha256": "c0105b4e4a7a2e46cbb9e6d32baccda3e6d0e15fdff593d3a87281d60f38ac17"
+      "sha256": "72d24f94bc644815da783ad443613dc32f5bf76da475a2991f47715b11c1964b"
     },
     {
       "path": "src/marker-collisions.ts",
@@ -311,7 +311,7 @@
     },
     {
       "path": "vendor/scriptdom-introspector-wasm/AppBundle/_framework/dotnet.boot.js",
-      "sha256": "5f5817aca96161a73f537f5629cd8c819e9d822ff8618bf1022b0315635dd2b9"
+      "sha256": "1a0424e816780a1e38658e68fc15723ecf912d712e9368b707d9fb7bd6a2510a"
     },
     {
       "path": "vendor/scriptdom-introspector-wasm/AppBundle/_framework/dotnet.js",
@@ -375,7 +375,7 @@
     },
     {
       "path": "vendor/scriptdom-introspector-wasm/AppBundle/_framework/ScriptDomIntrospectorWasmBridge.wasm",
-      "sha256": "2481a7b21fac4a12789d36829ce994a74f7e0208a242c638479e9709fc07499a"
+      "sha256": "eec37185ed164ab45b3a74537dbee3d2237a37261456441b3d73f475342d7f8e"
     },
     {
       "path": "vendor/scriptdom-introspector-wasm/AppBundle/_framework/System.Collections.Concurrent.wasm",
@@ -451,7 +451,7 @@
     },
     {
       "path": "vendor/scriptdom-tokenizer-wasm/AppBundle/_framework/dotnet.boot.js",
-      "sha256": "c79368f548d5d39ba9cf09fe7bff0edcc21416ee3ae23097b37f8c95cbe8f732"
+      "sha256": "37ead9ecf5d1598350388e4b8ba9c55af26f6e214d4d46cd4ca4a8a5bc7b003d"
     },
     {
       "path": "vendor/scriptdom-tokenizer-wasm/AppBundle/_framework/dotnet.js",
@@ -515,7 +515,7 @@
     },
     {
       "path": "vendor/scriptdom-tokenizer-wasm/AppBundle/_framework/ScriptDomTokenizerWasmBridge.wasm",
-      "sha256": "483bc7023d143e26f927d1a4c442f4b028df3b7f8927d139c9b0a40169dd477f"
+      "sha256": "1dd57c7c21f2a62b74dbda0c073f86ab59fa70fa5b3f6cbadeef9446d7d49c77"
     },
     {
       "path": "vendor/scriptdom-tokenizer-wasm/AppBundle/_framework/System.Memory.wasm",

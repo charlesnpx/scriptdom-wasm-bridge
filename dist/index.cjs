@@ -32436,14 +32436,22 @@ async function loadTsqlIntrospectorRuntime(options = {}) {
         "TsqlIntrospector.InspectJson"
       );
       validateIntrospectorAbi(parseJsonExport(callStringExport(getAbiJson, [], poison)));
+      let poisoned = false;
+      const poisonRuntime = () => {
+        poisoned = true;
+        poison();
+      };
       return {
         inspect(sql, options2) {
+          if (poisoned) {
+            throw new Error("ScriptDOM introspector runtime failed");
+          }
           validateSqlInput(sql);
           const normalizedInspectOptions = normalizeInspectOptions(options2);
           const rawJson = callStringExport(
             inspectJson,
             [sql, normalizedInspectOptions.privateOptionsJson],
-            poison
+            poisonRuntime
           );
           try {
             return validateInspectResult(
@@ -32452,7 +32460,7 @@ async function loadTsqlIntrospectorRuntime(options = {}) {
               normalizedInspectOptions
             );
           } catch (error) {
-            poison();
+            poisonRuntime();
             throw error;
           }
         }
@@ -32900,7 +32908,7 @@ function isWellFormedUtf16(value) {
     const code = value.charCodeAt(index);
     if (code >= 55296 && code <= 56319) {
       const next = value.charCodeAt(index + 1);
-      if (next < 56320 || next > 57343) {
+      if (index + 1 >= value.length || next < 56320 || next > 57343) {
         return false;
       }
       index += 1;
