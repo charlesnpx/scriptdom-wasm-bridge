@@ -1,4 +1,19 @@
 export {
+  createTsqlParser,
+  type CreateTsqlParserOptions,
+  type TsqlParseOptions,
+  type TsqlParseSpan,
+  type TsqlParseAttribute,
+  type TsqlParseNode,
+  type TsqlParseError,
+  type TsqlParseFailure,
+  type TsqlParseResult,
+  type TsqlParser,
+  type TsqlParserNodeKind,
+  type TsqlParserEdgeName,
+  type TsqlParserAttributeName,
+} from './parser.js';
+export {
   createTsqlIntrospector,
   type CreateTsqlIntrospectorOptions,
   type TsqlIdentifierState,

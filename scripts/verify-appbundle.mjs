@@ -3,6 +3,11 @@ import path from 'node:path';
 
 const appBundles = [
   {
+    name: 'parser',
+    path: path.resolve(import.meta.dirname, '../vendor/scriptdom-parser-wasm/AppBundle'),
+    assembly: 'ScriptDomParserWasmBridge',
+  },
+  {
     name: 'tokenizer',
     path: path.resolve(import.meta.dirname, '../vendor/scriptdom-tokenizer-wasm/AppBundle'),
     assembly: 'ScriptDomTokenizerWasmBridge',

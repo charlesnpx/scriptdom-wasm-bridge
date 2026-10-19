@@ -6,6 +6,11 @@ import { postProcessAppBundle } from './postprocess-appbundle.mjs';
 const root = path.resolve(import.meta.dirname, '..');
 const bundles = [
   {
+    name: 'parser',
+    source: path.join(root, 'c-sharp', 'parser', 'bin', 'Release', 'net10.0', 'browser-wasm', 'AppBundle'),
+    destination: path.join(root, 'vendor', 'scriptdom-parser-wasm', 'AppBundle'),
+  },
+  {
     name: 'tokenizer',
     source: path.join(
       root,
@@ -38,6 +43,7 @@ const bundles = [
 await removeNonHiddenPath(path.join(root, 'vendor', 'AppBundle'));
 
 for (const bundle of bundles) {
+  if (process.argv[2] && process.argv[2] !== bundle.name) continue;
   await fs.access(path.join(bundle.source, '_framework', 'dotnet.js'));
   await assertSafeTree(bundle.source);
   await assertSafeTree(bundle.destination, { missingOk: true });

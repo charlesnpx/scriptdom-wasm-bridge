@@ -4,7 +4,7 @@ Node.js bridge for Microsoft SQL Server ScriptDOM compiled to .NET WebAssembly.
 
 This is an unofficial package. It is not affiliated with, endorsed by, or supported by Microsoft.
 
-This package is intentionally narrow: C# invokes Microsoft ScriptDOM and returns token/location metadata or a small structural projection. JavaScript owns validation, sanitization policy, and package ergonomics.
+This package is intentionally narrow: C# invokes Microsoft ScriptDOM and returns token/location metadata or a versioned syntax projection. JavaScript owns validation, sanitization policy, and package ergonomics.
 
 ## Design Philosophy
 
@@ -15,13 +15,15 @@ That split is deliberate. The WebAssembly wrapper is the least familiar runtime 
 In practice:
 
 - C# owns parser invocation only.
-- C# returns numeric token metadata, parse locations, and limited identifier metadata only.
+- C# returns only the metadata specified by each entry point's contract.
 - Node.js validates exact result shapes and ranges.
 - Node.js owns token classification.
 - Node.js owns sanitization and redaction.
 - Node.js owns JSON/output records for the consuming application.
 
 Identifiers returned by the introspector are SQL-derived metadata. Treat them as potentially sensitive, even though raw SQL text, literals, comments, parser messages, and generated SQL are not returned.
+
+The separate parser entry point intentionally preserves identifier and literal values for source analysis, including strings containing SQL. Its output is sensitive source data, not sanitized telemetry. C#/WASM is the least-trusted component: TypeScript validates its versioned response before exposing it. Catalog construction, name resolution, type inference, and dependency analysis belong in consuming TypeScript code.
 
 ## Install
 
@@ -37,6 +39,7 @@ The package requires Node.js 22 or newer.
 import { createTsqlTokenizer } from 'scriptdom-wasm-bridge/tokenizer';
 import { createTsqlSanitizer } from 'scriptdom-wasm-bridge/sanitizer';
 import { createTsqlIntrospector } from 'scriptdom-wasm-bridge/introspector';
+import { createTsqlParser } from 'scriptdom-wasm-bridge/parser';
 ```
 
 The package root re-exports those APIs and also exposes the root-only
@@ -45,13 +48,14 @@ The package root re-exports those APIs and also exposes the root-only
 ```js
 import {
   createTsqlIntrospector,
+  createTsqlParser,
   createTsqlSanitizer,
   createTsqlTokenizer,
   normalizeTsqlPlaceholders,
 } from 'scriptdom-wasm-bridge';
 ```
 
-Importing the root or a subpath does not initialize WebAssembly. Runtime initialization is lazy and cached by the real `dotnet.js` path. The tokenizer and sanitizer use the tokenizer AppBundle; the introspector uses a separate introspector AppBundle. `normalizeTsqlPlaceholders` is a JavaScript-only helper and is not available from the tokenizer, sanitizer, or introspector subpaths.
+Importing the root or a subpath does not initialize WebAssembly. Runtime initialization is lazy and cached by the real `dotnet.js` path. The tokenizer and sanitizer use the tokenizer AppBundle; the introspector and parser each use their own AppBundle. `normalizeTsqlPlaceholders` is a JavaScript-only helper and is not available from the other subpaths.
 
 ## Placeholder Normalization
 
@@ -310,6 +314,43 @@ The wrapper enforces these public resource limits:
 
 These limits do not fully bound ScriptDOM parser-internal CPU or heap use. Services that accept untrusted SQL should run the bridge behind caller-owned isolation and timeout controls.
 
+## Parser for Source Analysis
+
+```js
+import { createTsqlParser } from 'scriptdom-wasm-bridge/parser';
+
+const parser = await createTsqlParser();
+const result = parser.parse(`
+  CREATE TABLE dbo.workorders (id bigint NOT NULL, status varchar(20) NULL);
+  GO
+  CREATE VIEW dbo.outstanding AS
+  SELECT id FROM dbo.workorders WHERE status <> 'CLOSED';
+`, { initialQuotedIdentifiers: true });
+
+if (result.failure === null) {
+  console.log(result.nodes);
+}
+```
+
+`createTsqlParser({ appBundlePath? })` initializes the parser runtime. `parse(sql, { initialQuotedIdentifiers? })` is synchronous. The quoted-identifier option defaults to `false`, matching the other entry points; choose the setting appropriate to your SQL source. The parser uses `TSql160Parser` and understands in-script `SET QUOTED_IDENTIFIER` statements. Question-mark placeholders must be normalized explicitly before parsing.
+
+Results contain:
+
+- `parser: 'TSql160Parser'` and `projectionVersion: 1`.
+- `failure`: `null` on success, otherwise `parse-error`, `resource-limit`, `unsupported-node`, or `internal-error`.
+- `nodes`: a flat preorder AST projection. Each node contains `id`, `kind`, `parentId`, `pathFromParent`, `span`, and `attributes`.
+- `errors`: location-only parse errors with numeric `number` and nullable `span`. No parser messages or exception details are exposed.
+
+Node IDs are local to one result. The root is `TSqlScript`, with `parentId: null` and an empty path. Child paths contain a ScriptDom property name and, for collection edges, a decimal index string. Nodes preserve fragment relationships; consumers must interpret their SQL meaning and resolve scopes.
+
+Spans are always requested and are `null` when ScriptDom has no valid coordinates. Available spans contain UTF-16 `offset` and `length`, plus one-based `line` and `column`. Parse-error spans have zero length. Spans refer to the exact supplied string, including any placeholder normalization the caller performed.
+
+Attributes contain `{ name, kind, value }`. The projection includes public scalar string, boolean, integer, and enum properties, excluding fragment/token coordinate properties already represented by spans. Nullable properties are emitted explicitly as `null`. Enum values are names; flags may be comma-separated names. SQL literal values stay strings, preserving large numeric values without JavaScript number conversion. No identifier redaction is applied. Fragment collections are represented as edges; token streams and non-fragment collections are not included. This is a syntax projection, not a bound semantic model or a lossless SQL formatter.
+
+The manifest at `src/parser-projection.v1.json` and generated policies define the contract. Build-time discovery generates direct C# accessors, TypeScript policies/types, and a JSON envelope schema. TypeScript additionally enforces node-specific attributes, enum domains, parent/child compatibility, unique edges, preorder structure, and source-coordinate consistency. ABI hashes reject mismatched bundles. Unknown fields, invalid values, or malformed JSON throw a fixed error and invalidate the runtime handle. No partial AST is returned on failure. Normal SQL parse errors do not invalidate the runtime.
+
+Limits are 2,097,152 input UTF-16 code units, 100,000 nodes, depth 1,000, 1,000 parse errors, 2,097,152 code units per string attribute, and a response envelope of 16,777,216 UTF-16 code units / 33,554,432 UTF-8 bytes. C# bounds traversal and serialization; TypeScript independently checks the returned envelope and graph. These checks do not prove SQL semantics or bound parser-internal CPU/heap use. Callers needing cancellation or timeouts should use process/worker isolation.
+
 ## CommonJS
 
 ```js
@@ -344,6 +385,7 @@ Build JavaScript and TypeScript declaration outputs:
 
 ```sh
 npm run generate:introspector-projection
+npm run generate:parser-projection
 npm run build
 ```
 
@@ -354,12 +396,14 @@ scriptdom-wasm-bridge
 scriptdom-wasm-bridge/tokenizer
 scriptdom-wasm-bridge/sanitizer
 scriptdom-wasm-bridge/introspector
+scriptdom-wasm-bridge/parser
 ```
 
 Run checks:
 
 ```sh
 npm run check:introspector-projection
+npm run check:parser-projection
 npm run check
 npm test
 ```
@@ -369,6 +413,7 @@ The generated AppBundles are copied to:
 ```text
 vendor/scriptdom-tokenizer-wasm/AppBundle
 vendor/scriptdom-introspector-wasm/AppBundle
+vendor/scriptdom-parser-wasm/AppBundle
 ```
 
 The AppBundle copy step removes optional .NET symbol metadata that is not needed at runtime. This keeps Node.js from trying to load development symbol files when the package starts.

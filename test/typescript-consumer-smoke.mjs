@@ -33,6 +33,8 @@ try {
     path.join(smokeDir, 'index.ts'),
     `
 import {
+  createTsqlParser,
+  type TsqlParseResult,
   createTsqlIntrospector,
   createTsqlSanitizer,
   createTsqlTokenizer,
@@ -47,8 +49,20 @@ import {
 import { createTsqlTokenizer as createTokenizerFromSubpath } from 'scriptdom-wasm-bridge/tokenizer';
 import { createTsqlSanitizer as createSanitizerFromSubpath } from 'scriptdom-wasm-bridge/sanitizer';
 import { createTsqlIntrospector as createIntrospectorFromSubpath } from 'scriptdom-wasm-bridge/introspector';
+import { createTsqlParser as createParserFromSubpath } from 'scriptdom-wasm-bridge/parser';
 
 async function smoke() {
+  const parser = await createTsqlParser();
+  const parsed: TsqlParseResult = parser.parse('SELECT 1', { initialQuotedIdentifiers: true });
+  const parserFromSubpath = await createParserFromSubpath();
+  parserFromSubpath.parse('SELECT 1');
+  for (const node of parsed.nodes) {
+    for (const attribute of node.attributes) {
+      if (attribute.kind === 'integer') {
+        const value: number | null = attribute.value;
+      }
+    }
+  }
   const tokenizer = await createTsqlTokenizer();
   const sanitizer = await createTsqlSanitizer({
     literalPlaceholder: '@lit{index}',

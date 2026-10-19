@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
 
 const execFileAsync = promisify(execFile);
 
@@ -24,21 +25,27 @@ const generatedCSharpAccessorsPath = path.join(
   'IntrospectorProjectionAccessors.g.cs',
 );
 
-const check = process.argv.includes('--check');
-const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
-const discovery = await discoverScriptDom(manifest.scriptDomPackageVersion);
-const generated = generateArtifacts(manifest, discovery);
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  await main();
+}
 
-if (check) {
-  await assertFresh(generatedTsPath, generated.ts);
-  await assertFresh(schemaPath, `${canonicalJson(generated.schema)}\n`);
-  await assertFresh(generatedCSharpManifestPath, generated.csharpManifest);
-  await assertFresh(generatedCSharpAccessorsPath, generated.csharpAccessors);
-} else {
-  await fs.writeFile(generatedTsPath, generated.ts);
-  await fs.writeFile(schemaPath, `${canonicalJson(generated.schema)}\n`);
-  await fs.writeFile(generatedCSharpManifestPath, generated.csharpManifest);
-  await fs.writeFile(generatedCSharpAccessorsPath, generated.csharpAccessors);
+async function main() {
+  const check = process.argv.includes('--check');
+  const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+  const discovery = await discoverScriptDom(manifest.scriptDomPackageVersion);
+  const generated = generateArtifacts(manifest, discovery);
+
+  if (check) {
+    await assertFresh(generatedTsPath, generated.ts);
+    await assertFresh(schemaPath, `${canonicalJson(generated.schema)}\n`);
+    await assertFresh(generatedCSharpManifestPath, generated.csharpManifest);
+    await assertFresh(generatedCSharpAccessorsPath, generated.csharpAccessors);
+  } else {
+    await fs.writeFile(generatedTsPath, generated.ts);
+    await fs.writeFile(schemaPath, `${canonicalJson(generated.schema)}\n`);
+    await fs.writeFile(generatedCSharpManifestPath, generated.csharpManifest);
+    await fs.writeFile(generatedCSharpAccessorsPath, generated.csharpAccessors);
+  }
 }
 
 async function assertFresh(filePath, expected) {
@@ -59,7 +66,7 @@ async function assertFresh(filePath, expected) {
   }
 }
 
-async function discoverScriptDom(packageVersion) {
+export async function discoverScriptDom(packageVersion) {
   const tmpRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'scriptdom-projection-'));
 
   try {
@@ -180,7 +187,10 @@ static IEnumerable<PropertyInfoData> GetProperties(Type type)
                 ? Enum.GetNames(propertyType).OrderBy(value => value, StringComparer.Ordinal).ToArray()
                 : Array.Empty<string>(),
             propertyType == typeof(string),
-            propertyType == typeof(bool));
+            propertyType == typeof(bool),
+            propertyType.IsEnum && propertyType.IsDefined(typeof(FlagsAttribute), false),
+            Nullable.GetUnderlyingType(property.PropertyType) is not null || !property.PropertyType.IsValueType,
+            propertyType.IsEnum ? Enum.ToObject(propertyType, 0).ToString() : null);
     }
 }
 
@@ -249,7 +259,10 @@ public sealed record PropertyInfoData(
     bool IsEnum,
     string[] EnumValues,
     bool IsString,
-    bool IsBoolean);
+    bool IsBoolean,
+    bool IsFlags,
+    bool IsNullable,
+    string? EnumZeroName);
 `;
 }
 
@@ -665,7 +678,7 @@ function generateCSharpAccessors(nodes, sourceManifest) {
   );
 }
 
-function generateChildCase(node) {
+export function generateChildCase(node) {
   if (node.Edges.length === 0) {
     return '';
   }

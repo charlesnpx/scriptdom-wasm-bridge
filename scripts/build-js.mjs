@@ -9,6 +9,7 @@ const entryPoints = [
   ['tokenizer', path.join(root, 'src', 'tokenizer.ts')],
   ['sanitizer', path.join(root, 'src', 'sanitizer.ts')],
   ['introspector', path.join(root, 'src', 'introspector.ts')],
+  ['parser', path.join(root, 'src', 'parser.ts')],
 ];
 
 await fs.mkdir(dist, { recursive: true });

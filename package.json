@@ -1,12 +1,17 @@
 {
   "name": "scriptdom-wasm-bridge",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Node.js bridge for Microsoft ScriptDOM compiled to .NET WebAssembly.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
+    "./parser": {
+      "types": "./dist/parser.d.ts",
+      "import": "./dist/parser.mjs",
+      "require": "./dist/parser.cjs"
+    },
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
@@ -35,6 +40,7 @@
     "scripts",
     "vendor/scriptdom-tokenizer-wasm/AppBundle",
     "vendor/scriptdom-introspector-wasm/AppBundle",
+    "vendor/scriptdom-parser-wasm/AppBundle",
     "!vendor/**/.stamp",
     "!vendor/**/_framework/*.symbols",
     "c-sharp/**/*.cs",
@@ -49,12 +55,14 @@
     "tsconfig.types.json"
   ],
   "scripts": {
+    "generate:parser-projection": "node scripts/generate-parser-projection.mjs",
+    "check:parser-projection": "node scripts/generate-parser-projection.mjs --check",
     "generate:introspector-projection": "node scripts/generate-introspector-projection.mjs",
     "check:introspector-projection": "node scripts/generate-introspector-projection.mjs --check",
     "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.types.json && node scripts/build-js.mjs",
-    "build:wasm": "dotnet publish c-sharp/tokenizer -c Release && dotnet publish c-sharp/introspector -c Release && node scripts/copy-appbundle.mjs",
-    "check": "npm run check:introspector-projection && npm run build && node --check dist/index.mjs && node --check dist/index.cjs && node --check dist/tokenizer.mjs && node --check dist/tokenizer.cjs && node --check dist/sanitizer.mjs && node --check dist/sanitizer.cjs && node --check dist/introspector.mjs && node --check dist/introspector.cjs && node --check test/scriptdom-wasm.test.mjs && node --check test/commonjs-smoke.cjs && node --check test/typescript-consumer-smoke.mjs && node --check scripts/copy-appbundle.mjs && node --check scripts/postprocess-appbundle.mjs && node --check scripts/verify-appbundle.mjs && node --check scripts/build-js.mjs && node --check scripts/clean-dist.mjs && node --check scripts/generate-introspector-projection.mjs && node --check scripts/verify-package-tarball.mjs",
-    "test": "npm run build && node test/scriptdom-wasm.test.mjs && node test/commonjs-smoke.cjs && node test/typescript-consumer-smoke.mjs",
+    "build:wasm": "dotnet publish c-sharp/tokenizer -c Release && dotnet publish c-sharp/introspector -c Release && dotnet publish c-sharp/parser -c Release && node scripts/copy-appbundle.mjs",
+    "check": "npm run check:introspector-projection && npm run check:parser-projection && npm run build && node --check dist/index.mjs && node --check dist/index.cjs && node --check dist/tokenizer.mjs && node --check dist/tokenizer.cjs && node --check dist/sanitizer.mjs && node --check dist/sanitizer.cjs && node --check dist/introspector.mjs && node --check dist/introspector.cjs && node --check test/scriptdom-wasm.test.mjs && node --check test/commonjs-smoke.cjs && node --check test/typescript-consumer-smoke.mjs && node --check scripts/copy-appbundle.mjs && node --check scripts/postprocess-appbundle.mjs && node --check scripts/verify-appbundle.mjs && node --check scripts/build-js.mjs && node --check scripts/clean-dist.mjs && node --check scripts/generate-introspector-projection.mjs && node --check scripts/verify-package-tarball.mjs && node --check test/parser.test.mjs && node --check scripts/generate-parser-projection.mjs && node --check dist/parser.mjs && node --check dist/parser.cjs",
+    "test": "npm run build && node test/scriptdom-wasm.test.mjs && node test/parser.test.mjs && node test/commonjs-smoke.cjs && node test/typescript-consumer-smoke.mjs",
     "verify:package": "npm pack --dry-run --ignore-scripts --json | node scripts/verify-package-tarball.mjs --pack-json -",
     "prepack": "npm run build && node scripts/verify-appbundle.mjs && npm run verify:package"
   },
