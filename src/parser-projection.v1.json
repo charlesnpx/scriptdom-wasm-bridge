@@ -1,0 +1,16 @@
+{
+  "projectionVersion": 1,
+  "parser": "TSql160Parser",
+  "scriptDomPackageVersion": "180.37.3",
+  "scalarKinds": ["string", "boolean", "integer", "enum"],
+  "excludedProperties": ["StartOffset", "FragmentLength", "StartLine", "StartColumn", "FirstTokenIndex", "LastTokenIndex"],
+  "limits": {
+    "sqlUtf16CodeUnits": 2097152,
+    "nodes": 100000,
+    "traversalDepth": 1000,
+    "parseErrors": 1000,
+    "stringUtf16CodeUnits": 2097152,
+    "envelopeUtf16CodeUnits": 16777216,
+    "envelopeUtf8Bytes": 33554432
+  }
+}

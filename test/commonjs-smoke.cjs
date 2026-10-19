@@ -2,8 +2,11 @@ const { normalizeTsqlPlaceholders } = require('scriptdom-wasm-bridge');
 const { createTsqlTokenizer } = require('scriptdom-wasm-bridge/tokenizer');
 const { createTsqlSanitizer } = require('scriptdom-wasm-bridge/sanitizer');
 const { createTsqlIntrospector } = require('scriptdom-wasm-bridge/introspector');
+const { createTsqlParser } = require('scriptdom-wasm-bridge/parser');
 
 async function main() {
+  const parser = await createTsqlParser();
+  if (parser.parse('SELECT 1').failure !== null) throw new Error('CommonJS parser failed');
   const tokenizer = await createTsqlTokenizer();
   const sanitizer = await createTsqlSanitizer({ literalPlaceholder: '@lit{index}' });
   const introspector = await createTsqlIntrospector();
